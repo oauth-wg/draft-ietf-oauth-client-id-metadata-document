@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-07-24T00:43:29.380274+00:00",
+  "timestamp": "2025-08-21T00:37:35.134040+00:00",
   "repo": "aaronpk/draft-parecki-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -1187,6 +1187,22 @@
           "updatedAt": "2025-07-23T18:09:26Z"
         }
       ]
+    },
+    {
+      "number": 39,
+      "id": "I_kwDOL_Xevs7G_kr7",
+      "title": "Support clients that have authentication credentials (e.g. SPIFFE creds)",
+      "url": "https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/issues/39",
+      "state": "OPEN",
+      "author": "PieterKas",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "Use Case\nIn large scale enterprise deployments, applications/workloads acting as OAuth clients may be provisioned with credentials (e.g. SPIFFE X.509 SVIDs orJWT SVIDs), which they can use to authenticate to an authorisation server. This removes the need to manage client secrets and improve the security posture and reduce the need for secrets management. These workloads are ephemeral and each instance of the application or workload typically has a unique identifier. The identifiers in the credentials (\"sub\" claim in JWT, subject alt name in X.509) may not be URLs (e.g a SPIFFE ID is a URI of the form spiffe://example.com/unique/ID). In cases where no user is involved and no redirect URLs are needed, the authorization grant flow can be used as described in RFC 7523\n\nGoal\nAllow a workload with a SPIFFE ID to register using the client ID Metadata mechanism and authenticate using a per instance credential with an subject identifier that is not a URL.\n\nStrawman\nBased on conversation with @aaronpk the shape of a solution may look like this:\n\n1. Include the location of the JWKs key set of the issuer in the client ID Metadata. The authorization server use this to verify the credential presented by the client.\n2. Add a claim (e.g. CIMD_URL or client_id_url) in the JWT used by the client for authentication - this should be the set to the URL that the client passed as the client_id parameter.\n3. Add processing rules that overrides the RFC 7523 processing rules for authentication, requiring the client_id claim in the JWT used for authentication to be the same as that passed as the client_id in the authorisation request (instead of comparing the \"sub\" claim).\n\nOpen questions:\nDo we need to compare the client_id provided in the request with the claim in the token? What additional protection does this check provide? \nCould the authorisation server choose to use the \"sub\" claim in the JWT as a a client_id instead - effectively using the client metadata to find the trusted issuer, and then using the identity asserted by the trusted issuer?",
+      "createdAt": "2025-08-20T15:17:55Z",
+      "updatedAt": "2025-08-20T15:17:55Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": [
