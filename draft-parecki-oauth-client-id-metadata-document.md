@@ -263,7 +263,7 @@ the authorization server MUST include client authentication of the registered ty
 
 The particular method of how the public/private key pair is managed is out of scope of this specification, but may include manual provisioning or methods such as such as Attestation Based Client Authentication [I-D.draft-ietf-oauth-attestation-based-client-auth] or SPIFFE [SPIFFE]. For example, if the client developer operates a Attestation Based Client Authentication, SPIFFE, or equivalent infrastructure, the private key corresponding to the `jwks_uri` key is managed by the backend service responsible for issueing the client credentials. This allows applications to request JWTs from the backend service that they could then use as client authentication to the authorization server.
 
-The sub claim in credentials from backend services MAY differ from the client ID URL (e.g., due to instance specific attestation-based identifiers or legacy non-URL subjects). In such cases, the issuer MAY include a client_id claim, which MUST equal the client ID URL. If the authorization server trusts the issuer, it MAY accept the credential for client authentication and MUST verify that the client_id claim matches the client ID URL.
+The "sub" claim in credentials from backend services MAY differ from the client ID URL (e.g., due to instance specific attestation-based identifiers or legacy non-URL subjects). In such cases, the issuer SHOULD include a "cimd_url" claim, which MUST match the client ID URL. If the authorization server trusts the issuer, it MAY accept the credential for client authentication and MUST verify that the "cimd_url" claim matches the client ID URL.
 
 # Security Considerations
 
