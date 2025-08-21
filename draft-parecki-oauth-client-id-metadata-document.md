@@ -90,6 +90,9 @@ informative:
   I-D.draft-ietf-oauth-attestation-based-client-auth:
   RFC7523:
   RFC9111:
+  SPIFFE:
+   title: SPIFFE
+   target: https://github.com/spiffe/spiffe/blob/main/standards/SPIFFE.md
 
 entity:
   SELF: "[draft-parecki-oauth-client-id-metadata-document-latest]"
@@ -236,25 +239,14 @@ Authorization servers that publish Authorization Server Metadata {{RFC8414}} MUS
 
 This enables clients to avoid sending the user to a dead end, by only redirecting the user to an authorization server that supports this specification. Otherwise, the client would redirect the user and the user would be met with an error about an invalid client as described by Section 4.1.2.1 of {{RFC6749}}.
 
-
-# Security Considerations
-
-In addition to the security considerations in OAuth 2.0 Core {{RFC6749}}, and OAuth 2.0 Threat Model and Security Considerations {{RFC6819}}, and {{RFC9700}} the additional considerations apply.
-
-## Relationship between `redirect_uris` and `client_id` or `client_uri` {#redirect_uri_relationship}
-
-An authorization server MAY impose restrictions or relationships between the `redirect_uris` and the `client_id` or `client_uri` properties, for example to restrict the `redirect_uri` to the same-origin as the Client ID Metadata Document. Without restrictions like these, there are potential trust and safety issues where the client attempts to impersonate a more well-known client or otherwise act in a way which is malicious or puts the end-user at risk.
-
-Having no restrictions on the relationship between `redirect_uris` and `client_id` or `client_uri` was a common practice with {{Solid-OIDC}}'s Client ID Documents, so this ability is preserved for backwards compatibility between {{Solid-OIDC}} and this specification.
-
-Some restrictions on `redirect_uris` can make developer usage of Client ID Metadata Documents difficult. The section {{documents_for_development}} contains recommendations for enabling development usage of Client ID Metadata Documents for authorization servers that impose restrictions on the `redirect_uri`.
-
-## Client Authentication {#client_authentication}
+# Client Authentication {#client_authentication}
 
 Since the client establishes its own registration data at the authorization server,
 prior coordination of client credentials is not possible. However, clients MAY establish
 credentials at the authorization server by using authentication methods that use
-public/private key pairs, by publishing the public key in their metadata document.
+public/private key pairs
+
+Clients MAY publish the public key used to sign the credentials with which they authenticate in their metadata document.
 
 For example, the client MAY include the following properties in its metadata document
 to establish a public key and advertise the `private_key_jwt` authentication method defined in {{OpenID}}:
@@ -269,8 +261,21 @@ to establish a public key and advertise the `private_key_jwt` authentication met
 This establishes this client as a confidential client, and any communication with
 the authorization server MUST include client authentication of the registered type.
 
-The particular method of how the client manages the private key is out of scope of this specification, but may include manual provisioning or methods such as Attestation Based Client Authentication [I-D.draft-ietf-oauth-attestation-based-client-auth]. For example, the client developer could run a Client Attester Backend, using a native application's platform-specific APIs to authenticate to the backend service, where the private key corresponding to the `jwks_uri` key is managed by the backend service. This would allow a mobile app to request JWTs from the backend service that the mobile app could then use as client authentication to the authorization server.
+The particular method of how the public/private key pair is managed is out of scope of this specification, but may include manual provisioning or methods such as such as Attestation Based Client Authentication [I-D.draft-ietf-oauth-attestation-based-client-auth] or SPIFFE [SPIFFE]. For example, if the client developer operates a Attestation Based Client Authentication, SPIFFE, or equivalent infrastructure, the private key corresponding to the `jwks_uri` key is managed by the backend service responsible for issueing the client credentials. This allows applications to request JWTs from the backend service that they could then use as client authentication to the authorization server.
 
+The sub claim in credentials from backend services MAY differ from the client ID URL (e.g., due to instance specific attestation-based identifiers or legacy non-URL subjects). In such cases, the issuer MAY include a client_id claim, which MUST equal the client ID URL. If the authorization server trusts the issuer, it MAY accept the credential for client authentication and MUST verify that the client_id claim matches the client ID URL.
+
+# Security Considerations
+
+In addition to the security considerations in OAuth 2.0 Core {{RFC6749}}, and OAuth 2.0 Threat Model and Security Considerations {{RFC6819}}, and {{RFC9700}} the additional considerations apply.
+
+## Relationship between `redirect_uris` and `client_id` or `client_uri` {#redirect_uri_relationship}
+
+An authorization server MAY impose restrictions or relationships between the `redirect_uris` and the `client_id` or `client_uri` properties, for example to restrict the `redirect_uri` to the same-origin as the Client ID Metadata Document. Without restrictions like these, there are potential trust and safety issues where the client attempts to impersonate a more well-known client or otherwise act in a way which is malicious or puts the end-user at risk.
+
+Having no restrictions on the relationship between `redirect_uris` and `client_id` or `client_uri` was a common practice with {{Solid-OIDC}}'s Client ID Documents, so this ability is preserved for backwards compatibility between {{Solid-OIDC}} and this specification.
+
+Some restrictions on `redirect_uris` can make developer usage of Client ID Metadata Documents difficult. The section {{documents_for_development}} contains recommendations for enabling development usage of Client ID Metadata Documents for authorization servers that impose restrictions on the `redirect_uri`.
 
 ## Changes in Client Keys
 
