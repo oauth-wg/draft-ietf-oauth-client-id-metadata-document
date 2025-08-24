@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-08-21T00:37:35.134040+00:00",
+  "timestamp": "2025-08-24T00:43:41.858253+00:00",
   "repo": "aaronpk/draft-parecki-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2089,6 +2089,40 @@
         "oid": "8c19ab34b8eca42fbd798d477f3349fd6a44f596"
       },
       "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 40,
+      "id": "PR_kwDOL_Xevs6ksq5M",
+      "title": "Proposed text to allow authentication with platform credentials",
+      "url": "https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/pull/40",
+      "state": "OPEN",
+      "author": "PieterKas",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "See issue #39 - Support clients that have authentication credentials (e.g. SPIFFE creds).",
+      "createdAt": "2025-08-21T14:18:27Z",
+      "updatedAt": "2025-08-21T16:39:05Z",
+      "baseRepository": "aaronpk/draft-parecki-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "3aafad42b6ac4b3c60af674080ddf920a9975097",
+      "headRepository": "PieterKas/draft-parecki-oauth-client-id-metadata-document",
+      "headRefName": "patch-1",
+      "headRefOid": "702eb2d727c15c820e3502103a885d50f4ba43a3",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "I'm not familiar with the details here, so I'll defer to @aaronpk to review this one.",
+          "createdAt": "2025-08-21T16:39:05Z",
+          "updatedAt": "2025-08-21T16:39:05Z"
+        }
+      ],
       "reviews": []
     }
   ]
