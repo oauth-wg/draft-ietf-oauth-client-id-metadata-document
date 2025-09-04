@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-08-24T00:43:41.858253+00:00",
+  "timestamp": "2025-09-04T00:36:17.304084+00:00",
   "repo": "aaronpk/draft-parecki-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -1203,6 +1203,37 @@
       "updatedAt": "2025-08-20T15:17:55Z",
       "closedAt": null,
       "comments": []
+    },
+    {
+      "number": 41,
+      "id": "I_kwDOL_Xevs7JUrCL",
+      "title": "Feedback: Developer Experience Improvement",
+      "url": "https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/issues/41",
+      "state": "OPEN",
+      "author": "ciamshrek",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "While building a proof of concept, we explored the feasibility of this for public developer / development clients. \n\nOne interesting scenario CIMD allows is for reserved developer / testing / experimental only applications to be hosted at an https url `https://developer.example.com/client_id.json` that the AS Controls which can then be left for any developers, alternative to a hard-coded `http://localhost` client. \n\nThere are a few places where this comes in handy: \n\n* **Native Applications Development for Public Clients**: Instead creating a per-developer `*.plist` file with the `client_id`  for each instance of the application is simply `https://developer.example.com`, with all the required properties. This means a developer can just git clone and run the app. \n\n* **Open to External Developers**: If desirable for public clients. A CIMD document can be used to explicitly identify open-to-all developer usage eg `https://external.example.com`. With allowed callback to `localhost` etc.\n\nFor instance an AS for an MCP Server, would not need to support an open-ended approve list, but would facilitate clients which do not have an https url yet (cli-s, etc) to be able to obtain credentials. \n\nThese clients can then have a different / stronger consent flow, instead of just the consent prompt the AS can require explicit intent and approval of developer client.\n\nInstead of using `localhost` this also allows these clients to be updated, managed by leveraging the existing best practices. ",
+      "createdAt": "2025-09-02T22:13:58Z",
+      "updatedAt": "2025-09-03T01:36:18Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "aaronpk",
+          "authorAssociation": "OWNER",
+          "body": "This sounds like a simpler version of the \"Service\" mentioned in this section: https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#section-4.2 Essentially this is a single hard-coded development client. I like the idea, I wonder if we can describe the tradeoffs between the two options, and just say that either one is fine.",
+          "createdAt": "2025-09-02T22:27:39Z",
+          "updatedAt": "2025-09-02T22:27:39Z"
+        },
+        {
+          "author": "ciamshrek",
+          "authorAssociation": "NONE",
+          "body": "Pretty much, although instead of hard-coding, just relying on commodity Hostable JSON Documents seems a lot more desirable, since it allows have separate _services_ each for specific purpose. ",
+          "createdAt": "2025-09-02T22:45:15Z",
+          "updatedAt": "2025-09-03T01:36:18Z"
+        }
+      ]
     }
   ],
   "pulls": [
