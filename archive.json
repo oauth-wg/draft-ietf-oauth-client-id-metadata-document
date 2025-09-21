@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-09-04T00:36:17.304084+00:00",
+  "timestamp": "2025-09-21T00:41:16.021556+00:00",
   "repo": "aaronpk/draft-parecki-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2134,7 +2134,7 @@
       "labels": [],
       "body": "See issue #39 - Support clients that have authentication credentials (e.g. SPIFFE creds).",
       "createdAt": "2025-08-21T14:18:27Z",
-      "updatedAt": "2025-08-21T16:39:05Z",
+      "updatedAt": "2025-09-19T19:55:57Z",
       "baseRepository": "aaronpk/draft-parecki-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "3aafad42b6ac4b3c60af674080ddf920a9975097",
@@ -2152,6 +2152,13 @@
           "body": "I'm not familiar with the details here, so I'll defer to @aaronpk to review this one.",
           "createdAt": "2025-08-21T16:39:05Z",
           "updatedAt": "2025-08-21T16:39:05Z"
+        },
+        {
+          "author": "bc-pi",
+          "authorAssociation": "NONE",
+          "body": "IMHO this draft isn't the place to sort of introduce client auth methods or kinda change how the existing ones work. Which, as best I can tell, is what this is endeavoring to do. ",
+          "createdAt": "2025-09-19T19:55:56Z",
+          "updatedAt": "2025-09-19T19:55:56Z"
         }
       ],
       "reviews": []
