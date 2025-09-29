@@ -176,6 +176,8 @@ client metadata document:
 `client_secret_basic`, `client_secret_jwt`, or any other method based around
 a shared symmetric secret.
 * the `client_secret` and `client_secret_expires_at` properties MUST NOT be used
+* the properties that refer to URIs, such as `client_uri` and `logo_uri`, MUST be absolute URIs
+using the `https:` scheme, with the exception of the `redirect_uris` which MAY use custom schemes.
 
 See {{client_authentication}} for more details.
 
