@@ -33,6 +33,7 @@ normative:
   RFC3986:
   RFC6749:
   RFC6819:
+  RFC6890:
   RFC7591:
   RFC8414:
   RFC9700:
