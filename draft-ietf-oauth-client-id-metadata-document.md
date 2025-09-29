@@ -278,6 +278,13 @@ The particular method of how the client manages the private key is out of scope 
 If the authorization server notices that the `jwks_uri` or the contents at the `jwks_uri` have changed compared to the last time it fetched the metadata, the authorization server MAY take actions such as revoking any tokens issued to this client, or revoking the user's consent for this client. The particular actions to take are left up to the discretion of the authorization server based on its own risk assessment.
 
 
+## Changes in Client Metadata
+
+Authorization servers should be aware that client metadata documents can change over time since they are served from URLs under client control. Beyond the key changes addressed above in Section 6.3, authorization servers should consider the security implications when other metadata properties change, such as `redirect_uris`, `token_endpoint_auth_method`, `scope`, `grant_types`, or display properties like `client_name` and `logo_uri`.
+
+Significant changes to client metadata may affect the trust relationship between the authorization server and the client, and could impact the validity of previously granted user consent. Authorization servers may choose to invalidate existing grants, require fresh user consent, or implement other policies when certain types of metadata changes are detected. The appropriate response will depend on the authorization server's risk tolerance and operational requirements.
+
+
 ## OAuth Phishing Attacks
 
 Authorization servers SHOULD fetch the `client_id` metadata document provided in the authorization request in order to provide users with additional information about the request, such as the application name and logo. If the server does not fetch the client metadata document, then it SHOULD take additional measures to ensure the user is provided with as much information as possible about the request.
