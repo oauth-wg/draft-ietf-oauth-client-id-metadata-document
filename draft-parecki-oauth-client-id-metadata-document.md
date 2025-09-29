@@ -35,6 +35,7 @@ normative:
   RFC6819:
   RFC7591:
   RFC8414:
+  RFC8725:
   RFC9700:
 
 informative:
@@ -270,6 +271,8 @@ This establishes this client as a confidential client, and any communication wit
 the authorization server MUST include client authentication of the registered type.
 
 The particular method of how the client manages the private key is out of scope of this specification, but may include manual provisioning or methods such as Attestation Based Client Authentication [I-D.draft-ietf-oauth-attestation-based-client-auth]. For example, the client developer could run a Client Attester Backend, using a native application's platform-specific APIs to authenticate to the backend service, where the private key corresponding to the `jwks_uri` key is managed by the backend service. This would allow a mobile app to request JWTs from the backend service that the mobile app could then use as client authentication to the authorization server.
+
+When using JWT-based client authentication methods such as `private_key_jwt`, authorization servers and clients MUST follow [RFC8725] (JSON Web Token Best Current Practices). In particular, client authentication JWTs MUST include an explicit `typ` header parameter (recommended value: `oauth-client-auth+jwt`) to prevent cross-JWT confusion attacks, and authorization servers MUST validate JWT types and implement algorithm allowlists.
 
 
 ## Changes in Client Keys
