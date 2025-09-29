@@ -151,7 +151,8 @@ the client to the user in an authorization consent screen, for example the
 client name and logo.
 
 The authorization server SHOULD fetch the document indicated by the `client_id`
-to retrieve the client registration information.
+to retrieve the client registration information. The Authorization Server MUST
+send an `Accept` header of `application/json` when fetching the client metadata.
 
 ## Client Metadata
 
