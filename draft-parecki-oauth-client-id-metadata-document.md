@@ -153,6 +153,8 @@ client name and logo.
 The authorization server SHOULD fetch the document indicated by the `client_id`
 to retrieve the client registration information.
 
+Special care should be taken to avoid Server Side Request Forgery (SSRF) Attacks when fetching Client ID Metadata Documents, as noted in {{ssrf_attacks}}.
+
 ## Client Metadata
 
 The client metadata document URL is a JSON document containing the metadata
@@ -286,9 +288,11 @@ The authorization server SHOULD display the hostname of the `client_id` on the a
 If fetching the client metadata document fails for any reason, the `client_id` URL is the only piece of information the user has as an indication of which application they are authorizing.
 
 
-## Server Side Request Forgery (SSRF) Attacks
+## Server Side Request Forgery (SSRF) Attacks {#ssrf_attacks}
 
-Authorization servers fetching the client metadata document and resolving URLs located in the metadata document should be aware of possible SSRF attacks. Authorization servers SHOULD avoid fetching any URLs using private or loopback addresses and consider network policies or other measures to prevent making requests to these addresses. Authorization servers SHOULD also be aware of the possibility that URLs might be non-http-based URI schemes which can lead to other possible SSRF attack vectors.
+Authorization servers fetching the client metadata document and resolving URLs located in the metadata document should be aware of possible SSRF attacks. Authorization servers MUST validate that the Client ID Metadata Document URL does not resolve to special-use IP addresses as defined in [RFC6890], except when the authorization server itself is also running on a loopback address and the resolved address matches the same loopback interface.
+
+Authorization servers SHOULD avoid fetching any URLs contained within Client ID Metadata Documents that resolve to special-use IP addresses as defined in [RFC6890] and consider network policies or other measures to prevent making requests to these addresses. Authorization servers SHOULD also be aware of the possibility that URLs might be non-http-based URI schemes which can lead to other possible SSRF attack vectors.
 
 
 ## Maximum Response Size for Client Metadata Documents
