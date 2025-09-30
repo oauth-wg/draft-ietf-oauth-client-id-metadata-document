@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-09-23T00:36:51.735316+00:00",
+  "timestamp": "2025-09-30T00:37:30.946031+00:00",
   "repo": "aaronpk/draft-parecki-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -344,15 +344,15 @@
       "id": "I_kwDOL_Xevs6OXKPl",
       "title": "Support for localhost & non-HTTPS URIs for development purposes?",
       "url": "https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/issues/12",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "ThisIsMissEm",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "We've currently a restriction for `client_id` URIs that they MUST be https scheme. \r\n\r\nIn development environments where all software is running on localhost, we should probably provide an exception to that rule, given the issues that can be faced (self-signed certificates, custom root certificates, etc) with settings up HTTPS in development.",
       "createdAt": "2024-07-03T11:53:42Z",
-      "updatedAt": "2025-03-30T14:54:19Z",
-      "closedAt": null,
+      "updatedAt": "2025-09-29T19:02:33Z",
+      "closedAt": "2025-09-29T19:02:33Z",
       "comments": [
         {
           "author": "matthieusieben",
@@ -458,6 +458,13 @@
           "body": "I think we can close this as won't fix, as we're now recommending using a development service to provide a Client ID Metadata Document at a stable public URL. There is absolutely no way an Authorization Server can request a document from localhost (unless it's also on localhost), and we've made changes in #24 to prohibit query parameters in Client ID Metadata Document URLs.\n\nThese two aspects mean what Bluesky is doing with their development Client IDs is completely outside of the bounds of this specification, and I'd encourage them to set up a client ID development server which can publicly host Client ID Metadata Documents for developers at stable URLs (you could use the sha256 hash of the client ID document as the `client_id` URL)",
           "createdAt": "2025-03-30T14:54:17Z",
           "updatedAt": "2025-03-30T14:54:17Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "> So we could add language that localhost URIs for Client ID Metadata Documents are supported only if the Authorization Server is also on localhost.\n\nWe've added this language in #49 as well as recommending the usage of Client ID Metadata Document Services, as such I'm going to close this issue as completed.",
+          "createdAt": "2025-09-29T19:02:33Z",
+          "updatedAt": "2025-09-29T19:02:33Z"
         }
       ]
     },
@@ -909,7 +916,7 @@
     {
       "number": 28,
       "id": "I_kwDOL_Xevs6lvLUb",
-      "title": "Add guidance on CORS for Client Metadata Documents",
+      "title": "Guidance on CORS for Client Metadata Documents",
       "url": "https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/issues/28",
       "state": "OPEN",
       "author": "ThisIsMissEm",
@@ -918,7 +925,7 @@
       "labels": [],
       "body": "I recently saw a developer thinking that their Client Metadata Document needed to be served with the following CORS headers:\r\n\r\n```\r\n// Add CORS headers to allow Bluesky to fetch our metadata\r\n\"Access-Control-Allow-Origin\": \"*\",\r\n\"Access-Control-Allow-Methods\": \"GET, OPTIONS\",\r\n```\r\n\r\nThis shouldn't be necessary unless Bluesky is making requests directly to the client metadata document client-side, though, we'd probably always encourage proxied access (i.e., retrieving the documents' values from the authorization server, not requesting to 3rd-party URLs)",
       "createdAt": "2025-01-10T16:35:56Z",
-      "updatedAt": "2025-03-30T14:56:14Z",
+      "updatedAt": "2025-09-29T19:00:44Z",
       "closedAt": null,
       "comments": [
         {
@@ -956,7 +963,7 @@
       "labels": [],
       "body": "This issue was initially reported by @DavidBuchanan314 in https://github.com/bluesky-social/atproto/issues/3396.\n\nIn a federated network, in which hosts are known (as are PDS in the atproto network), the fact that OAuth Server will try to `GET` the client metadata can be used to faking traffic from a bunch of fake IPs, simply by forging authorization requests using the `client_id` as parameter.\n\nFor example, by forging the following requests:\n\n- `https://<pds_1>/oauth/authorize?client_id=https://example.com/page_1&...`\n- `https://<pds_2>/oauth/authorize?client_id=https://example.com/page_1&...`\n- `https://<pds_3>/oauth/authorize?client_id=https://example.com/page_1&...`\n\nThe website at `https://example.com/page_1` will see `GET` traffic from the IPs of all those hosts.\n\nPossible mitigations:\n- Retrieve the metadata document *after* the user authorized the request (though that could lead to weird UX & DX)\n- Add strong constraint on the URI format (eg. `.well-known`, \"must end with `.json`\", other...)\n- ~Recommend OAuth servers to remember the origins of previously failed metadata document retrieval, and prevent more call to be made on these origins~ (redacted: could be abused to cause DoS on legitimate services)\n- Other",
       "createdAt": "2025-01-20T09:23:25Z",
-      "updatedAt": "2025-07-16T23:09:45Z",
+      "updatedAt": "2025-09-29T19:08:34Z",
       "closedAt": null,
       "comments": [
         {
@@ -1056,6 +1063,13 @@
           "body": "I'd like to land on some concrete recommendations here. So far, I'm seeing these as the most promising:\n\n### Accept Header\nThe AS MUST add an `Accept` header when fetching the client metadata, since that is likely to allow unrelated servers to more quickly reject the request.\n\nAn `Accept` header of `application/json` should allow the server to respond with `application/foo+json` as well if I remember my HTTP correctly.\n\n### Authenticate the user first\n\nThe recommendation to hold off on fetching the client metadata until the user is authenticated seems to prevent the main concern of an unauthenticated request with an arbitrary `client_id` URL causing the server to make a request. It at least significantly reduces the scenarios where the threat is possible.\n\n\n",
           "createdAt": "2025-07-16T23:09:45Z",
           "updatedAt": "2025-07-16T23:09:45Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Have opened https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/pull/51 to add the requirement to send the `Accept` header.",
+          "createdAt": "2025-09-29T19:08:34Z",
+          "updatedAt": "2025-09-29T19:08:34Z"
         }
       ]
     },
@@ -1102,9 +1116,17 @@
       "labels": [],
       "body": "From time to time I come across people using unstable URLs for semi-production ready apps, for instance, this one from SafeSkies (a bluesky moderation app) \u2014 whilst they have the domain `https://safeskies.app/` which is where you're redirected to, it seems the `client_id` that they use has become an internal heroku URL that backs that domain.\n\n```\nprod-safe-skies-api-231a3f5f5b17.herokuapp.com/oauth/client-metadata.json\n```\n\nWe should probably figure out some way for that client_id to signal \"hey, I'm actually `https://safeskies.app/oauth/client-metadata.json` \u2014 perhaps through redirect handling or signing or something?",
       "createdAt": "2025-03-30T13:43:13Z",
-      "updatedAt": "2025-03-30T13:43:13Z",
+      "updatedAt": "2025-09-29T19:00:00Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "@aaronpk I don't have a good solution here, since #46 prohibits redirects. The only way I could think of supporting this would be to have something like a `previous_client_ids` array in the resulting document, but even that would be unsafe, I think?",
+          "createdAt": "2025-09-29T19:00:00Z",
+          "updatedAt": "2025-09-29T19:00:00Z"
+        }
+      ]
     },
     {
       "number": 36,
@@ -1118,9 +1140,17 @@
       "labels": [],
       "body": "> This establishes this client as a confidential client, \n\nMight be worth nothing this is only possible for clients that support credentials in the first place?",
       "createdAt": "2025-05-29T20:11:27Z",
-      "updatedAt": "2025-05-29T20:11:27Z",
+      "updatedAt": "2025-09-29T18:57:53Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "So in the case of native apps, you could use the [OAuth 2.0 Attestation-Based Client Authentication](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-07) draft, which would allow a native app to have a client-specific JWT key published into the `jwks_uri` keyset.\n\nThis sentence is also directly following an example:\n\n<img width=\"677\" height=\"293\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/3175d898-d194-429b-95d8-e9fac93946a4\" />",
+          "createdAt": "2025-09-29T18:57:53Z",
+          "updatedAt": "2025-09-29T18:57:53Z"
+        }
+      ]
     },
     {
       "number": 38,
@@ -1223,7 +1253,7 @@
       "labels": [],
       "body": "While building a proof of concept, we explored the feasibility of this for public developer / development clients. \n\nOne interesting scenario CIMD allows is for reserved developer / testing / experimental only applications to be hosted at an https url `https://developer.example.com/client_id.json` that the AS Controls which can then be left for any developers, alternative to a hard-coded `http://localhost` client. \n\nThere are a few places where this comes in handy: \n\n* **Native Applications Development for Public Clients**: Instead creating a per-developer `*.plist` file with the `client_id`  for each instance of the application is simply `https://developer.example.com`, with all the required properties. This means a developer can just git clone and run the app. \n\n* **Open to External Developers**: If desirable for public clients. A CIMD document can be used to explicitly identify open-to-all developer usage eg `https://external.example.com`. With allowed callback to `localhost` etc.\n\nFor instance an AS for an MCP Server, would not need to support an open-ended approve list, but would facilitate clients which do not have an https url yet (cli-s, etc) to be able to obtain credentials. \n\nThese clients can then have a different / stronger consent flow, instead of just the consent prompt the AS can require explicit intent and approval of developer client.\n\nInstead of using `localhost` this also allows these clients to be updated, managed by leveraging the existing best practices. ",
       "createdAt": "2025-09-02T22:13:58Z",
-      "updatedAt": "2025-09-03T01:36:18Z",
+      "updatedAt": "2025-09-29T18:04:20Z",
       "closedAt": null,
       "comments": [
         {
@@ -1239,6 +1269,13 @@
           "body": "Pretty much, although instead of hard-coding, just relying on commodity Hostable JSON Documents seems a lot more desirable, since it allows have separate _services_ each for specific purpose. ",
           "createdAt": "2025-09-02T22:45:15Z",
           "updatedAt": "2025-09-03T01:36:18Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "A document on `http://localhost` would not be valid, since the Authorization Server cannot fetch it (unless the authorization server is also on localhost \u2014 that's a separate issue), however a remote Client ID Metadata Document could indeed redirect to a localhost URI.\n\nI'm not sure what the following comment refers to:\n> Essentially this is a single hard-coded development client.\n\nThe Client ID Metadata Document Service essentially says \"I'll host Client ID Metadata Documents for developers with a few considerations (e.g., \" (Development)\" added to `client_name` and acknowledging that an AS may warn users when authorizing this particular client.",
+          "createdAt": "2025-09-29T18:04:20Z",
+          "updatedAt": "2025-09-29T18:04:20Z"
         }
       ]
     },
@@ -1316,7 +1353,7 @@
       "labels": [],
       "body": "# Clarify `client_id` Matching When HTTP Redirects Occur\n\n**Summary**: [Section 4.1 Client Metadata](https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-client-metadata) requires the `client_id` property to match \"the URL of the document\" but doesn't specify which URL to use when HTTP redirects occur during metadata fetch.\n\n## Current Specification Language\n\nFrom [Section 4.1 Client Metadata](https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-client-metadata):\n\n> The client metadata document MUST contain a `client_id` property whose value MUST match the URL of the document using simple string comparison as defined in [RFC3986] Section 6.2.1.\n\nThe specification doesn't clarify what \"the URL of the document\" means when the authorization server follows HTTP redirects during the metadata fetch process.\n\n## Rationale\n\nThis ambiguity creates a potential security vulnerability. When an authorization server fetches a client metadata document and encounters HTTP redirects, it's unclear whether the `client_id` property should match:\n\n1. The original `client_id` URL from the authorization request, or\n2. The final URL after following redirects\n\nWithout clear guidance, different implementations might handle this differently, leading to inconsistent security properties. An attacker could potentially exploit this by setting up redirects from a URL they control to a legitimate metadata document, then claiming the legitimate client's identity.\n\nFor example, an attacker could register `malicious.com` that redirects to `https://legitimate-client.com/metadata.json`, then put `\"client_id\": \"https://legitimate-client.com/metadata.json\"` in the document. If the authorization server matches against the final URL, this would incorrectly validate.\n\n## Recommendation\n\nAdding clarification to [Section 4.1 Client Metadata](https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-client-metadata):\n\n> The client metadata document MUST contain a `client_id` property whose value MUST match the original `client_id` URL from the authorization request using simple string comparison as defined in [RFC3986] Section 6.2.1. If HTTP redirects occur during metadata document retrieval, the comparison MUST be performed against the original URL, not the final redirected URL.\n\nThis approach ensures that clients cannot use redirects to impersonate other clients or bypass URL-based security policies.\n\n## Related Work\n\n- Complements the SSRF redirect limits discussed in [Issue #30](https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/issues/30) by clarifying validation behavior when redirects are followed\n- Builds on Aaron's emphasis on exact string matching for security purposes\n- Aligns with the principle in [Section 6.5](https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-server-side-request-forgery) of preventing redirect-based bypass attacks\n\n## Implementation Impact\n\nThis clarification would help ensure consistent behavior across authorization server implementations and prevent a class of redirect-based impersonation attacks. The requirement is straightforward to implement and doesn't change the core protocol flow.",
       "createdAt": "2025-09-22T18:10:14Z",
-      "updatedAt": "2025-09-22T19:11:57Z",
+      "updatedAt": "2025-09-29T17:44:01Z",
       "closedAt": null,
       "comments": [
         {
@@ -1332,6 +1369,13 @@
           "body": "Happy to be corrected, but I didn't see it \ud83e\udd14 ",
           "createdAt": "2025-09-22T19:11:57Z",
           "updatedAt": "2025-09-22T19:11:57Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Have opened #46 that just prohibits redirects entirely, which I think is probably the safer option here.",
+          "createdAt": "2025-09-29T17:44:01Z",
+          "updatedAt": "2025-09-29T17:44:01Z"
         }
       ]
     },
@@ -1347,7 +1391,7 @@
       "labels": [],
       "body": "# Add Security Consideration for Client Metadata Changes\n\n**Summary**: The specification could benefit from a brief security consideration noting that client metadata documents can change over time, which authorization servers should consider when implementing caching and grant management policies.\n\n## Current Specification Language\n\nFrom [Section 6.3 Changes in Client Keys](https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-changes-in-client-keys):\n\n> If the authorization server notices that the `jwks_uri` or the contents at the `jwks_uri` have changed compared to the last time it fetched the metadata, the authorization server MAY take actions such as revoking any tokens issued to this client, or revoking the user's consent for this client. The particular actions to take are left up to the discretion of the authorization server based on its own risk assessment.\n\nThis addresses key changes but doesn't mention the broader implications when other metadata fields change.\n\n## Rationale\n\nClient metadata documents are served from URLs under client control and can be updated at any time. While [Section 4.3 Metadata Caching](https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-metadata-caching) provides HTTP caching guidance, authorization servers should consider the security implications when other fields change as well.\n\nFor example, changes to `redirect_uris` could potentially enable redirect hijacking if not properly validated, modifications to `token_endpoint_auth_method` change the authentication security model, and updates to `scope` or `grant_types` could affect the authorization scope of existing grants. Even changes to display fields like `client_name` or `logo_uri` could be part of client impersonation attacks.\n\nThis isn't about defining specific policies, but raising awareness that metadata mutability beyond just keys is something authorization servers should consider in their risk assessments.\n\n## Recommendation\n\nAdding a brief paragraph to [Section 6 Security Considerations](https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-security-considerations):\n\n> **Changes in Client Metadata**\n>\n> Authorization servers should be aware that client metadata documents can change over time since they are served from URLs under client control. Beyond the key changes addressed in Section 6.3, authorization servers should consider the security implications when other metadata fields change, such as `redirect_uris`, `token_endpoint_auth_method`, `scope`, `grant_types`, or display fields like `client_name` and `logo_uri`. \n>\n> Significant changes to client metadata may affect the trust relationship between the authorization server and the client, and could impact the validity of previously granted user consent. Authorization servers may choose to invalidate existing grants, require fresh user consent, or implement other policies when certain types of metadata changes are detected. The appropriate response will depend on the authorization server's risk tolerance and operational requirements.\n\n## Related Work\n\n- Builds on the existing guidance in [Section 6.3 Changes in Client Keys](https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-changes-in-client-keys)\n- Complements the HTTP caching guidance in [Section 4.3 Metadata Caching](https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-metadata-caching)\n\n## Implementation Impact\n\nThis adds minimal text while raising awareness of an important security consideration. It doesn't prescribe specific behaviors but helps implementers think about metadata mutability in their designs.",
       "createdAt": "2025-09-22T18:48:46Z",
-      "updatedAt": "2025-09-22T19:03:48Z",
+      "updatedAt": "2025-09-29T17:53:37Z",
       "closedAt": null,
       "comments": [
         {
@@ -1356,6 +1400,13 @@
           "body": "This seems reasonable as a recommendation to me.",
           "createdAt": "2025-09-22T19:03:48Z",
           "updatedAt": "2025-09-22T19:03:48Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Will be applied by https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/pull/47",
+          "createdAt": "2025-09-29T17:53:37Z",
+          "updatedAt": "2025-09-29T17:53:37Z"
         }
       ]
     }
@@ -1918,7 +1969,7 @@
       "labels": [],
       "body": "See: https://drafts.aaronpk.com/oauth-client-id-prefix/draft-parecki-oauth-client-id-prefix.html\r\n\r\nThis also addresses the concerns in:\r\n- #18 and #19\r\n- Some changes related to #3 ",
       "createdAt": "2025-03-30T14:34:21Z",
-      "updatedAt": "2025-05-20T12:24:45Z",
+      "updatedAt": "2025-09-29T18:46:14Z",
       "baseRepository": "aaronpk/draft-parecki-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "46f251c5496c1ae4871c2d925d47cd765d8e46a5",
@@ -1936,6 +1987,13 @@
           "body": "@aaronpk you'll probably want to look at the rendered version of this when comparing.",
           "createdAt": "2025-03-30T14:39:36Z",
           "updatedAt": "2025-03-30T14:39:36Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Have marked this as a draft given the status of Client ID Prefixes",
+          "createdAt": "2025-09-29T18:46:14Z",
+          "updatedAt": "2025-09-29T18:46:14Z"
         }
       ],
       "reviews": [
@@ -2258,7 +2316,7 @@
       "labels": [],
       "body": "See issue #39 - Support clients that have authentication credentials (e.g. SPIFFE creds).",
       "createdAt": "2025-08-21T14:18:27Z",
-      "updatedAt": "2025-09-22T15:13:38Z",
+      "updatedAt": "2025-09-29T20:59:40Z",
       "baseRepository": "aaronpk/draft-parecki-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "3aafad42b6ac4b3c60af674080ddf920a9975097",
@@ -2297,8 +2355,243 @@
           "body": "I gotta be honest that I'm not unconfused enough to say anything productive. ",
           "createdAt": "2025-09-22T15:13:38Z",
           "updatedAt": "2025-09-22T15:13:38Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Reading the text changes here further, I'm not inclined to accept these changes, since overall the client authentication is out of scope of this document. We explicitly prohibit client authentication that use shared symmetric secrets, and then the Security Consideration note on Client Authentication is mostly to say \"client authentication is still possible, here is one such method with `private_key_jwt`\", the assumption being that other client authentication methods may exist and may be usable.",
+          "createdAt": "2025-09-29T18:51:48Z",
+          "updatedAt": "2025-09-29T18:51:48Z"
+        },
+        {
+          "author": "PieterKas",
+          "authorAssociation": "NONE",
+          "body": "@ThisIsMissEm - the PR only builds on the private_key_jwt example and tries to bridge the gap. The idea was to allow existing credentials (certs, jwts etc) that contain identifiers that are not URLs to be used with this scheme (K8S PSAT, SPIFFE IDs, proprietary provisioned creds).... so the idea is to find a way to allow those to be used with this registration scheme....\r\n\r\nHaving said that, I don't love the special casing either ;).\r\n\r\nI think there may also be other solutions to this problem, outside of the spec (e.g. workloads can engage with some kind of token exchange service to obtain a credential with a sub (JWT) or SAN (X.509) that contains a URL as opposed to the original credenitial it obtained. The downside is ofcourse that now client have to manage multiple credentials - they do badly with one, now they have two - but it may be a practical alternative (and better than having a special case on processing).",
+          "createdAt": "2025-09-29T20:06:38Z",
+          "updatedAt": "2025-09-29T20:06:38Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "@PieterKas I think for these use-cases, you'd probably use https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-06 and have it receive the SPIFFE or SAN credential in order to register a keypair?",
+          "createdAt": "2025-09-29T20:59:40Z",
+          "updatedAt": "2025-09-29T20:59:40Z"
         }
       ],
+      "reviews": []
+    },
+    {
+      "number": 46,
+      "id": "PR_kwDOL_Xevs6rJ208",
+      "title": "Prohibit following redirects whilst fetching Client Metadata",
+      "url": "https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/pull/46",
+      "state": "OPEN",
+      "author": "ThisIsMissEm",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This addresses the concerns raised in #44 and by Dick Hardt on the mailing list. Following redirects would likely give you a final document URI that is not equal to the supplied `client_id`, and as such should not be trusted.\r\n\r\nWe could potentially limit this further to only accepting 200 OK responses.",
+      "createdAt": "2025-09-29T17:43:11Z",
+      "updatedAt": "2025-09-29T17:43:12Z",
+      "baseRepository": "aaronpk/draft-parecki-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "3aafad42b6ac4b3c60af674080ddf920a9975097",
+      "headRepository": "ThisIsMissEm/draft-parecki-oauth-client-id-metadata-document",
+      "headRefName": "feat/fix-redirect-security-concerns",
+      "headRefOid": "6d3ef906b99bdb84a1d9f06b352467b069971ced",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 47,
+      "id": "PR_kwDOL_Xevs6rJ-2R",
+      "title": "Add security consideration for changes in Client Metadata",
+      "url": "https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/pull/47",
+      "state": "OPEN",
+      "author": "ThisIsMissEm",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This applies the change recommended in #45 ",
+      "createdAt": "2025-09-29T17:53:19Z",
+      "updatedAt": "2025-09-29T18:31:36Z",
+      "baseRepository": "aaronpk/draft-parecki-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "3aafad42b6ac4b3c60af674080ddf920a9975097",
+      "headRepository": "ThisIsMissEm/draft-parecki-oauth-client-id-metadata-document",
+      "headRefName": "feat/client-metadata-changes",
+      "headRefOid": "510d778f67c587c9de391eb89ecf7b011a5e69e5",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOL_Xevs7DkcGp",
+          "commit": {
+            "abbreviatedOid": "b1f8ab1"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-09-29T18:12:39Z",
+          "updatedAt": "2025-09-29T18:12:39Z",
+          "comments": [
+            {
+              "originalPosition": 6,
+              "body": "The text `Section 6.3` above should be replaced with a reference",
+              "createdAt": "2025-09-29T18:12:39Z",
+              "updatedAt": "2025-09-29T18:12:39Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 48,
+      "id": "PR_kwDOL_Xevs6rKDuq",
+      "title": "Reference JSON Web Token Best Current Practices for JWT-based client authentication methods",
+      "url": "https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/pull/48",
+      "state": "OPEN",
+      "author": "ThisIsMissEm",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This applies the recommendation in https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/issues/42",
+      "createdAt": "2025-09-29T17:59:56Z",
+      "updatedAt": "2025-09-29T21:38:35Z",
+      "baseRepository": "aaronpk/draft-parecki-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "3aafad42b6ac4b3c60af674080ddf920a9975097",
+      "headRepository": "ThisIsMissEm/draft-parecki-oauth-client-id-metadata-document",
+      "headRefName": "feat/strengthen-jwt-security-references",
+      "headRefOid": "19a9a1d0f82599baf8649374a4e6207822ba117d",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "panva",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "I wouldn't stress about getting this one in just yet\r\n\r\n1) JWT BCP is due for an [update](https://datatracker.ietf.org/doc/draft-ietf-oauth-rfc8725bis/)\r\n2) RFC7523 is [too](https://datatracker.ietf.org/doc/draft-ietf-oauth-rfc7523bis/) and it does specify a typ value for client auth assertions but intentionally doesn't make their use a MUST (that change isn't reflected in the latest tracker version yet)\r\n",
+          "createdAt": "2025-09-29T21:38:35Z",
+          "updatedAt": "2025-09-29T21:38:35Z"
+        }
+      ],
+      "reviews": []
+    },
+    {
+      "number": 49,
+      "id": "PR_kwDOL_Xevs6rKQXP",
+      "title": "Improve SSRF security considerations",
+      "url": "https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/pull/49",
+      "state": "OPEN",
+      "author": "ThisIsMissEm",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This applies https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/issues/43\r\n\r\nEssentially there are two attack vectors:\r\n1. When fetching the Client ID Metadata Document itself, that must not resolve to a special-use IP address, except if the Authorization Server is running on the same IP address (this is to enable development of the AS & Client on the same machine)\r\n2. When fetching any of the URLs contained within the Client ID Metadata Document, such as `tos_uri`, `policy_uri`, `jwks_uri` or `logo_uri`\r\n\r\nWe may need an exception for `jwks_uri` like we have for the Client ID Metadata Document URI itself.",
+      "createdAt": "2025-09-29T18:18:45Z",
+      "updatedAt": "2025-09-29T18:53:54Z",
+      "baseRepository": "aaronpk/draft-parecki-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "3aafad42b6ac4b3c60af674080ddf920a9975097",
+      "headRepository": "ThisIsMissEm/draft-parecki-oauth-client-id-metadata-document",
+      "headRefName": "feat/ssrf-attack-considerations",
+      "headRefOid": "bfc09b5e420c13d2c339a204c46cfe96acc53088",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOL_Xevs7DlOMM",
+          "commit": {
+            "abbreviatedOid": "bfc09b5"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-09-29T18:53:54Z",
+          "updatedAt": "2025-09-29T18:53:54Z",
+          "comments": [
+            {
+              "originalPosition": 24,
+              "body": "We may want to go further here, like Bluesky's AT Proto, by verifying that the hostname has at least [two components](https://github.com/bluesky-social/atproto/blob/main/packages/internal/fetch-node/src/unicast.ts#L234), and [prevents usage](https://github.com/bluesky-social/atproto/blob/main/packages/internal/fetch-node/src/unicast.ts#L238-L242) of the following TLDs:\r\n\r\n- `.test`\r\n- `.local`\r\n- `.localhost`\r\n- `.invalid`\r\n- `.example`\r\n\r\nHowever, these TLDs may be useful when developing locally the AS and Client.",
+              "createdAt": "2025-09-29T18:53:54Z",
+              "updatedAt": "2025-09-29T18:53:54Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 50,
+      "id": "PR_kwDOL_Xevs6rKkZD",
+      "title": "Restrict URI properties to absolute URIs using the https: scheme",
+      "url": "https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/pull/50",
+      "state": "OPEN",
+      "author": "ThisIsMissEm",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This was originally noted in #18 and #19 and changed in #33, however prohibiting just `data:` and `javascript:` would not be a sufficient security measure, as there are other URI schemes that are unsafe, such as `vbscript:` and `shortcuts:` (apple shortcuts).\r\n\r\nInterestingly, I know `vbscript:` exists, however, it is not registered with IANA: https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml",
+      "createdAt": "2025-09-29T18:44:46Z",
+      "updatedAt": "2025-09-29T18:45:50Z",
+      "baseRepository": "aaronpk/draft-parecki-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "3aafad42b6ac4b3c60af674080ddf920a9975097",
+      "headRepository": "ThisIsMissEm/draft-parecki-oauth-client-id-metadata-document",
+      "headRefName": "feat/prohibit-unsafe-uris",
+      "headRefOid": "76daaa1f34ea5eb80f88bdc9d65b8f26069b4b22",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "cc @matthieusieben ",
+          "createdAt": "2025-09-29T18:45:13Z",
+          "updatedAt": "2025-09-29T18:45:13Z"
+        }
+      ],
+      "reviews": []
+    },
+    {
+      "number": 51,
+      "id": "PR_kwDOL_Xevs6rK0KU",
+      "title": "Add Accept header requirement when fetching Client Metadata",
+      "url": "https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/pull/51",
+      "state": "OPEN",
+      "author": "ThisIsMissEm",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This was noted in https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/issues/30#issuecomment-3081686148\r\n\r\nThis pull request will conflict with #46\r\n\r\nIs there any RFC we should specifically reference here with regards to the Accept header?",
+      "createdAt": "2025-09-29T19:08:02Z",
+      "updatedAt": "2025-09-29T19:08:03Z",
+      "baseRepository": "aaronpk/draft-parecki-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "3aafad42b6ac4b3c60af674080ddf920a9975097",
+      "headRepository": "ThisIsMissEm/draft-parecki-oauth-client-id-metadata-document",
+      "headRefName": "feat/add-accept-header-when-fetching",
+      "headRefOid": "6cea6cb3896c70647ee933ab501e6f0ef6e099c2",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
       "reviews": []
     }
   ]
