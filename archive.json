@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-09-30T00:37:30.946031+00:00",
+  "timestamp": "2025-10-02T00:36:04.767898+00:00",
   "repo": "aaronpk/draft-parecki-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -1391,7 +1391,7 @@
       "labels": [],
       "body": "# Add Security Consideration for Client Metadata Changes\n\n**Summary**: The specification could benefit from a brief security consideration noting that client metadata documents can change over time, which authorization servers should consider when implementing caching and grant management policies.\n\n## Current Specification Language\n\nFrom [Section 6.3 Changes in Client Keys](https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-changes-in-client-keys):\n\n> If the authorization server notices that the `jwks_uri` or the contents at the `jwks_uri` have changed compared to the last time it fetched the metadata, the authorization server MAY take actions such as revoking any tokens issued to this client, or revoking the user's consent for this client. The particular actions to take are left up to the discretion of the authorization server based on its own risk assessment.\n\nThis addresses key changes but doesn't mention the broader implications when other metadata fields change.\n\n## Rationale\n\nClient metadata documents are served from URLs under client control and can be updated at any time. While [Section 4.3 Metadata Caching](https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-metadata-caching) provides HTTP caching guidance, authorization servers should consider the security implications when other fields change as well.\n\nFor example, changes to `redirect_uris` could potentially enable redirect hijacking if not properly validated, modifications to `token_endpoint_auth_method` change the authentication security model, and updates to `scope` or `grant_types` could affect the authorization scope of existing grants. Even changes to display fields like `client_name` or `logo_uri` could be part of client impersonation attacks.\n\nThis isn't about defining specific policies, but raising awareness that metadata mutability beyond just keys is something authorization servers should consider in their risk assessments.\n\n## Recommendation\n\nAdding a brief paragraph to [Section 6 Security Considerations](https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-security-considerations):\n\n> **Changes in Client Metadata**\n>\n> Authorization servers should be aware that client metadata documents can change over time since they are served from URLs under client control. Beyond the key changes addressed in Section 6.3, authorization servers should consider the security implications when other metadata fields change, such as `redirect_uris`, `token_endpoint_auth_method`, `scope`, `grant_types`, or display fields like `client_name` and `logo_uri`. \n>\n> Significant changes to client metadata may affect the trust relationship between the authorization server and the client, and could impact the validity of previously granted user consent. Authorization servers may choose to invalidate existing grants, require fresh user consent, or implement other policies when certain types of metadata changes are detected. The appropriate response will depend on the authorization server's risk tolerance and operational requirements.\n\n## Related Work\n\n- Builds on the existing guidance in [Section 6.3 Changes in Client Keys](https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-changes-in-client-keys)\n- Complements the HTTP caching guidance in [Section 4.3 Metadata Caching](https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-metadata-caching)\n\n## Implementation Impact\n\nThis adds minimal text while raising awareness of an important security consideration. It doesn't prescribe specific behaviors but helps implementers think about metadata mutability in their designs.",
       "createdAt": "2025-09-22T18:48:46Z",
-      "updatedAt": "2025-09-29T17:53:37Z",
+      "updatedAt": "2025-09-30T15:52:47Z",
       "closedAt": null,
       "comments": [
         {
@@ -1407,6 +1407,65 @@
           "body": "Will be applied by https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/pull/47",
           "createdAt": "2025-09-29T17:53:37Z",
           "updatedAt": "2025-09-29T17:53:37Z"
+        },
+        {
+          "author": "jeffsec-aws",
+          "authorAssociation": "NONE",
+          "body": "+1 one on the proposal especially with the conversation on the mailing list around @dick hardt comment:\n\n>\u00a0When the AS receives a client_id either through an authorization request, a pushed authorization request, or similar flow, the AS fetches the document indicated by the client_id if it is not available in cache.\n\nWe need to be sure the cache is not preventing the AS to apply the latest and greatest of the client id metadata",
+          "createdAt": "2025-09-30T15:46:57Z",
+          "updatedAt": "2025-09-30T15:46:57Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "So importantly here, caching is optional: https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-metadata-caching\n\n> The authorization server MAY cache the client metadata it discovers at the client metadata document URL.\n\nSo having a line that says \"if it is not available in cache\" would be wrong, since the AS does not _need_ to cache Client ID Metadata Documents, but it may.\n\nMost likely for the comments from @DickHardt, a change to the wording in section 4 is required, unrelated to these changes: https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-client-information-discover",
+          "createdAt": "2025-09-30T15:52:47Z",
+          "updatedAt": "2025-09-30T15:52:47Z"
+        }
+      ]
+    },
+    {
+      "number": 52,
+      "id": "I_kwDOL_Xevs7O1-kc",
+      "title": "Add Security sub-section of DOS risks",
+      "url": "https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/issues/52",
+      "state": "OPEN",
+      "author": "identitymonk",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "I think there are two DOS risks on the authorization endpoint (and other endpoints that could accept CIMD as parameter) that might worth spelling it out in the security section of this specification:\n\n- I could force through multiple authorization requests to an AS with CIMD hosted at a slow responding endpoint mobilizing resources at the AS up to a DOS situation\n\n** Proposed text **\n```\nClient ID Metadata Document Fetch DOS\n\nAuthorization servers fetching client metadata documents SHOULD implement appropriate rate limiting and timeout mechanisms\nwhen retrieving Client ID Metadata Documents. A malicious actor could attempt to cause a denial of service by initiating multiple\nauthorization requests using a client_id that points to an intentionally slow-responding endpoint, potentially exhausting authorization server resources.\n\nAuthorization servers SHOULD implement measures from this non exhaustive list:\n- implement standard anonymous and bad reputation IP filtering, as well as DNS name filtering\n- Implement strict timeouts when fetching metadata documents\n- Rate limit requests per client_id URL and/or requesting IP\n- Consider caching valid responses as specified in Section 4.4\n- Terminate requests that exceed reasonable response times\n```\n\n- I could force through multiple authorization requests to an AS to fetch what could be CIMD at 3rd party, mobilizing resources at this 3rd party up to a DOS situation\n\n** Proposed text **\n```\nThird-Party Endpoint DOS Protection\n\nAuthorization servers MUST take precautions to prevent their metadata document fetching mechanism from being used as an\namplification vector in DOS attacks against third-party endpoints. A malicious actor could attempt to use the authorization\nserver's metadata fetching capabilities to direct high volumes of requests to an arbitrary third-party target.\n\nAuthorization servers SHOULD implement measures from this non exhaustive list:\n- implement standard anonymous and bad reputation IP filtering\n- Implement per-endpoint rate limiting for metadata document fetches\n- Monitor for patterns of repeated requests to the same endpoints\n- Consider maintaining allow-lists and deny-lists of trusted domains for metadata documents\n- Implement circuit breakers to prevent cascading failures\n```\n\n",
+      "createdAt": "2025-09-30T16:42:43Z",
+      "updatedAt": "2025-09-30T17:58:00Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "I think many of these mitigations are just general OAuth security recommendations?\n\nYes, we could do with a security consideration section on timeouts, but those are very deployment specific as to what makes sense for your deployment. The most we could probably say is that as you're making an outbound HTTP request, to ensure that you set appropriate timeouts around making that request.\n\nAs for the DOS aspect, a lot of these can be mitigated by deferring the fetching of the Client ID Metadata Document until after the user is logged in, i.e., not fetching the document the moment you receive the authorization request or PAR.",
+          "createdAt": "2025-09-30T17:24:53Z",
+          "updatedAt": "2025-09-30T17:24:53Z"
+        },
+        {
+          "author": "identitymonk",
+          "authorAssociation": "NONE",
+          "body": "Yes and no. Yes, those are standard web endpoint mitigations but fetching \"per authorization request\" is really a stance that was not approach until now in OAuth. \n\nI like\"deferring the fetching of the Client ID Metadata Document until after the user is logged in\" as a MUST, while the rest might remain an Informative Guidance.\n\n",
+          "createdAt": "2025-09-30T17:48:19Z",
+          "updatedAt": "2025-09-30T17:48:19Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "> I like\"deferring the fetching of the Client ID Metadata Document until after the user is logged in\" as a MUST, while the rest might remain an Informative Guidance.\n\nThis does change the error handling situation here, for instance, a poorly formed Client ID Metadata Document then likely gives the user a dead-end in the authorization flow, especially with PARs.\n\nI know Aaron has a separate issue with a recommendation to only fetch documents after login.",
+          "createdAt": "2025-09-30T17:53:25Z",
+          "updatedAt": "2025-09-30T17:53:25Z"
+        },
+        {
+          "author": "identitymonk",
+          "authorAssociation": "NONE",
+          "body": "> This does change the error handling situation here, for instance, a poorly formed Client ID Metadata Document then likely gives the user a dead-end in the authorization flow, especially with PARs.\n\nAgreed but it gates abuse attempts through a valid user authentication. Having a user succeeding in authentication but with invalid CIMD is another type of signal that the user might be compromised.",
+          "createdAt": "2025-09-30T17:58:00Z",
+          "updatedAt": "2025-09-30T17:58:00Z"
         }
       ]
     }
@@ -2309,21 +2368,21 @@
       "id": "PR_kwDOL_Xevs6ksq5M",
       "title": "Proposed text to allow authentication with platform credentials",
       "url": "https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/pull/40",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "PieterKas",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
       "body": "See issue #39 - Support clients that have authentication credentials (e.g. SPIFFE creds).",
       "createdAt": "2025-08-21T14:18:27Z",
-      "updatedAt": "2025-09-29T20:59:40Z",
+      "updatedAt": "2025-10-01T15:36:32Z",
       "baseRepository": "aaronpk/draft-parecki-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "3aafad42b6ac4b3c60af674080ddf920a9975097",
       "headRepository": "PieterKas/draft-parecki-oauth-client-id-metadata-document",
       "headRefName": "patch-1",
       "headRefOid": "702eb2d727c15c820e3502103a885d50f4ba43a3",
-      "closedAt": null,
+      "closedAt": "2025-10-01T15:36:32Z",
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
@@ -2376,6 +2435,13 @@
           "body": "@PieterKas I think for these use-cases, you'd probably use https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-06 and have it receive the SPIFFE or SAN credential in order to register a keypair?",
           "createdAt": "2025-09-29T20:59:40Z",
           "updatedAt": "2025-09-29T20:59:40Z"
+        },
+        {
+          "author": "PieterKas",
+          "authorAssociation": "NONE",
+          "body": "https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-06 is a bit narrow and isn't widely deployed, but I think I convinced myself that there are plenty of good alternatives to get a credential with the prerequisite identifier, so happy to close this.",
+          "createdAt": "2025-10-01T15:36:32Z",
+          "updatedAt": "2025-10-01T15:36:32Z"
         }
       ],
       "reviews": []
