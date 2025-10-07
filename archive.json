@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-10-02T00:36:04.767898+00:00",
+  "timestamp": "2025-10-07T00:37:00.885110+00:00",
   "repo": "aaronpk/draft-parecki-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2375,7 +2375,7 @@
       "labels": [],
       "body": "See issue #39 - Support clients that have authentication credentials (e.g. SPIFFE creds).",
       "createdAt": "2025-08-21T14:18:27Z",
-      "updatedAt": "2025-10-01T15:36:32Z",
+      "updatedAt": "2025-10-06T11:13:49Z",
       "baseRepository": "aaronpk/draft-parecki-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "3aafad42b6ac4b3c60af674080ddf920a9975097",
