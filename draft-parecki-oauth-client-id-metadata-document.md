@@ -109,7 +109,7 @@ metadata about the client as needed.
 
 In order for an OAuth 2.0 {{RFC6749}} client to utilize an OAuth 2.0
 authorization server, the client needs to establish a unique identifier, and
-needs to to provide the server with metadata about the application, such as the
+needs to provide the server with metadata about the application, such as the
 application name, icon and redirect URIs. In cases where a client is interacting
 with authorization servers that it has no relationship with, manual registration
 is impossible.
