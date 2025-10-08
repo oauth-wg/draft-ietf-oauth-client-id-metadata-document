@@ -15,25 +15,25 @@ as a  client_id  in an OAuth flow, where the URL refers to a document containing
 the necessary client metadata, enabling the authorization server to fetch the
 metadata about the client as needed. 
     " name="description">
-<meta content="xml2rfc 3.30.0" name="generator">
+<meta content="xml2rfc 3.30.2" name="generator">
 <meta content="oauth" name="keyword">
-<meta content="draft-parecki-oauth-client-id-metadata-document-latest" name="ietf.draft">
+<meta content="draft-ietf-oauth-client-id-metadata-document-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.30.0
+  xml2rfc 3.30.2
     Python 3.12.11
     ConfigArgParse 1.7
     google-i18n-address 3.1.1
     intervaltree 3.1.0
     Jinja2 3.1.6
     lxml 5.3.1
-    platformdirs 4.3.8
+    platformdirs 4.4.0
     pycountry 24.6.1
     PyYAML 6.0.2
-    requests 2.32.4
+    requests 2.32.5
     setuptools 80.9.0
-    wcwidth 0.2.13
+    wcwidth 0.2.14
 -->
-<link href="draft-parecki-oauth-client-id-metadata-document.xml" rel="alternate" type="application/rfc+xml">
+<link href="draft-ietf-oauth-client-id-metadata-document.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
 <style type="text/css">@font-face {
   font-family: 'Lora';
@@ -1050,11 +1050,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">Client ID Document</td>
-<td class="right">July 2025</td>
+<td class="right">October 2025</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Parecki &amp; Smith</td>
-<td class="center">Expires 24 January 2026</td>
+<td class="center">Expires 11 April 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1064,15 +1064,15 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dt class="label-workgroup">Workgroup:</dt>
 <dd class="workgroup">Web Authorization Protocol</dd>
 <dt class="label-internet-draft">Internet-Draft:</dt>
-<dd class="internet-draft">draft-parecki-oauth-client-id-metadata-document-latest</dd>
+<dd class="internet-draft">draft-ietf-oauth-client-id-metadata-document-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-07-23" class="published">23 July 2025</time>
+<time datetime="2025-10-08" class="published">8 October 2025</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-01-24">24 January 2026</time></dd>
+<dd class="expires"><time datetime="2026-04-11">11 April 2026</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1101,15 +1101,15 @@ metadata about the client as needed.<a href="#section-abstract-1" class="pilcrow
       </h2>
 <p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
 <p id="section-note.1-2">
-        The latest revision of this draft can be found at <span><a href="https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html">https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html</a></span>.
-        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-parecki-oauth-client-id-metadata-document/">https://datatracker.ietf.org/doc/draft-parecki-oauth-client-id-metadata-document/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+        The latest revision of this draft can be found at <span><a href="https://drafts.oauth.net/draft-ietf-oauth-client-id-metadata-document/draft-ietf-oauth-client-id-metadata-document.html">https://drafts.oauth.net/draft-ietf-oauth-client-id-metadata-document/draft-ietf-oauth-client-id-metadata-document.html</a></span>.
+        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-ietf-oauth-client-id-metadata-document/">https://datatracker.ietf.org/doc/draft-ietf-oauth-client-id-metadata-document/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
 <p id="section-note.1-3">
         Discussion of this document takes place on the
         Web Authorization Protocol Working Group mailing list (<span><a href="mailto:oauth@ietf.org">mailto:oauth@ietf.org</a></span>),
         which is archived at <span><a href="https://mailarchive.ietf.org/arch/browse/oauth/">https://mailarchive.ietf.org/arch/browse/oauth/</a></span>.
         Subscribe at <span><a href="https://www.ietf.org/mailman/listinfo/oauth/">https://www.ietf.org/mailman/listinfo/oauth/</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
 <p id="section-note.1-4">Source for this draft and an issue tracker can be found at
-        <span><a href="https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document">https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
+        <span><a href="https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document">https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
 </section>
 <div id="status-of-memo">
 <section id="section-boilerplate.1">
@@ -1130,7 +1130,7 @@ metadata about the client as needed.<a href="#section-abstract-1" class="pilcrow
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 24 January 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 11 April 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1533,7 +1533,7 @@ the authorization server <span class="bcp14">MUST</span> include client authenti
             <p id="section-7.1-2.3.1">Change Controller: IETF<a href="#section-7.1-2.3.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-7.1-2.4">
-            <p id="section-7.1-2.4.1">Specification Document: <a href="#as-metadata" class="auto internal xref">Section 5</a> of [draft-parecki-oauth-client-id-metadata-document-latest]<a href="#section-7.1-2.4.1" class="pilcrow">¶</a></p>
+            <p id="section-7.1-2.4.1">Specification Document: <a href="#as-metadata" class="auto internal xref">Section 5</a> of [draft-ietf-oauth-client-id-metadata-document-latest]<a href="#section-7.1-2.4.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
@@ -1594,7 +1594,7 @@ the authorization server <span class="bcp14">MUST</span> include client authenti
 <dl class="references">
 <dt id="I-D.draft-ietf-oauth-attestation-based-client-auth">[I-D.draft-ietf-oauth-attestation-based-client-auth]</dt>
         <dd>
-<span class="refAuthor">Looker, T.</span>, <span class="refAuthor">Bastian, P.</span>, and <span class="refAuthor">C. Bormann</span>, <span class="refTitle">"OAuth 2.0 Attestation-Based Client Authentication"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-attestation-based-client-auth-06</span>, <time datetime="2025-07-07" class="refDate">7 July 2025</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-06">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-06</a>&gt;</span>. </dd>
+<span class="refAuthor">Looker, T.</span>, <span class="refAuthor">Bastian, P.</span>, and <span class="refAuthor">C. Bormann</span>, <span class="refTitle">"OAuth 2.0 Attestation-Based Client Authentication"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-attestation-based-client-auth-07</span>, <time datetime="2025-09-15" class="refDate">15 September 2025</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-07">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-07</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="IndieAuth">[IndieAuth]</dt>
         <dd>
@@ -1631,7 +1631,7 @@ the authorization server <span class="bcp14">MUST</span> include client authenti
 <a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
       </h2>
 <p id="appendix-A-1">The idea of using URIs as the <code>client_id</code> in OAuth based authorization requests is not new, and has previously been specified in varying ways by <span>[<a href="#IndieAuth" class="cite xref">IndieAuth</a>]</span>, <span>[<a href="#Solid-OIDC" class="cite xref">Solid-OIDC</a>]</span>, and <span>[<a href="#OpenID.Federation" class="cite xref">OpenID.Federation</a>]</span>. This specification is largely inspired by the work of Aaron Coburn, elf Pavlik, and Dmitri Zagidulin in their <span>[<a href="#Solid-OIDC" class="cite xref">Solid-OIDC</a>]</span> specification which defined dereferenceable Client Identifier Documents.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
-<p id="appendix-A-2">The authors would like to thank the following people for their contributions and reviews of this specification: Dick Hardt, Matthieu Sieben, Filip Skokan.<a href="#appendix-A-2" class="pilcrow">¶</a></p>
+<p id="appendix-A-2">The authors would like to thank the following people for their contributions and reviews of this specification: Brian Campbell, Dick Hardt, Leif Johansson, Pieter Kasselman, Bryan Newbold, Matthieu Sieben, and Filip Skokan.<a href="#appendix-A-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="document-history">
@@ -1640,52 +1640,10 @@ the authorization server <span class="bcp14">MUST</span> include client authenti
 <a href="#name-document-history" class="section-name selfRef">Document History</a>
       </h2>
 <p id="appendix-B-1">(This appendix to be deleted by the RFC editor in the final specification.)<a href="#appendix-B-1" class="pilcrow">¶</a></p>
-<p id="appendix-B-2">-03<a href="#appendix-B-2" class="pilcrow">¶</a></p>
+<p id="appendix-B-2">-00<a href="#appendix-B-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="appendix-B-3.1">
-          <p id="appendix-B-3.1.1">Prohibit all forms of symmetric client authentication, not just client secret<a href="#appendix-B-3.1.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-3.2">
-          <p id="appendix-B-3.2.1">Added recommendations for development when clients are not on the web<a href="#appendix-B-3.2.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-3.3">
-          <p id="appendix-B-3.3.1">Added reference to HTTP Caching RFC9111<a href="#appendix-B-3.3.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-3.4">
-          <p id="appendix-B-3.4.1">Added security considerations around domain trust and changes in client keys<a href="#appendix-B-3.4.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-3.5">
-          <p id="appendix-B-3.5.1">Updated references<a href="#appendix-B-3.5.1" class="pilcrow">¶</a></p>
-</li>
-      </ul>
-<p id="appendix-B-4">-02<a href="#appendix-B-4" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="appendix-B-5.1">
-          <p id="appendix-B-5.1.1">Added security consideration around displaying logos to end users<a href="#appendix-B-5.1.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-5.2">
-          <p id="appendix-B-5.2.1">Changed query string parameters in Client ID Metadata Document URLs to "<span class="bcp14">SHOULD NOT</span>", since this encourages bad security practices (e.g., minting documents based on query string parameters)<a href="#appendix-B-5.2.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-5.3">
-          <p id="appendix-B-5.3.1">Added prohibition on the <code>client_secret_expires_at</code> property, as it is not relevant for Client ID Metadata Documents.<a href="#appendix-B-5.3.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-5.4">
-          <p id="appendix-B-5.4.1">Added security consideration for development use-cases.<a href="#appendix-B-5.4.1" class="pilcrow">¶</a></p>
-</li>
-      </ul>
-<p id="appendix-B-6">-01<a href="#appendix-B-6" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="appendix-B-7.1">
-          <p id="appendix-B-7.1.1">Added recommendation of max metadata document size<a href="#appendix-B-7.1.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-B-7.2">
-          <p id="appendix-B-7.2.1">Changed metadata property reference to IANA registry instead of Dynamic Client Registration<a href="#appendix-B-7.2.1" class="pilcrow">¶</a></p>
-</li>
-      </ul>
-<p id="appendix-B-8">-00<a href="#appendix-B-8" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="appendix-B-9.1">
-          <p id="appendix-B-9.1.1">Initial draft<a href="#appendix-B-9.1.1" class="pilcrow">¶</a></p>
+          <p id="appendix-B-3.1.1">Initial draft<a href="#appendix-B-3.1.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 </section>

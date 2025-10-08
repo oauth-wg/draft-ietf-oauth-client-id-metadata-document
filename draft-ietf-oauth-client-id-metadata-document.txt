@@ -5,11 +5,11 @@
 Web Authorization Protocol                                    A. Parecki
 Internet-Draft                                                      Okta
 Intended status: Standards Track                                E. Smith
-Expires: 24 January 2026                                    23 July 2025
+Expires: 11 April 2026                                    8 October 2025
 
 
                    OAuth Client ID Metadata Document
-         draft-parecki-oauth-client-id-metadata-document-latest
+          draft-ietf-oauth-client-id-metadata-document-latest
 
 Abstract
 
@@ -26,11 +26,11 @@ About This Document
    This note is to be removed before publishing as an RFC.
 
    The latest revision of this draft can be found at
-   https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-
-   document/draft-parecki-oauth-client-id-metadata-document.html.
-   Status information for this document may be found at
-   https://datatracker.ietf.org/doc/draft-parecki-oauth-client-id-
-   metadata-document/.
+   https://drafts.oauth.net/draft-ietf-oauth-client-id-metadata-
+   document/draft-ietf-oauth-client-id-metadata-document.html.  Status
+   information for this document may be found at
+   https://datatracker.ietf.org/doc/draft-ietf-oauth-client-id-metadata-
+   document/.
 
    Discussion of this document takes place on the Web Authorization
    Protocol Working Group mailing list (mailto:oauth@ietf.org), which is
@@ -38,7 +38,7 @@ About This Document
    Subscribe at https://www.ietf.org/mailman/listinfo/oauth/.
 
    Source for this draft and an issue tracker can be found at
-   https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-
+   https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-
    document.
 
 Status of This Memo
@@ -56,7 +56,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 24 January 2026.
+   This Internet-Draft will expire on 11 April 2026.
 
 Copyright Notice
 
@@ -431,8 +431,8 @@ Table of Contents
 
    *  Change Controller: IETF
 
-   *  Specification Document: Section 5 of [draft-parecki-oauth-client-
-      id-metadata-document-latest]
+   *  Specification Document: Section 5 of [draft-ietf-oauth-client-id-
+      metadata-document-latest]
 
 8.  References
 
@@ -482,9 +482,9 @@ Table of Contents
               Looker, T., Bastian, P., and C. Bormann, "OAuth 2.0
               Attestation-Based Client Authentication", Work in
               Progress, Internet-Draft, draft-ietf-oauth-attestation-
-              based-client-auth-06, 7 July 2025,
+              based-client-auth-07, 15 September 2025,
               <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
-              attestation-based-client-auth-06>.
+              attestation-based-client-auth-07>.
 
    [IndieAuth]
               Parecki, A., "IndieAuth", 12 February 2022,
@@ -526,48 +526,14 @@ Acknowledgments
    which defined dereferenceable Client Identifier Documents.
 
    The authors would like to thank the following people for their
-   contributions and reviews of this specification: Dick Hardt, Matthieu
-   Sieben, Filip Skokan.
+   contributions and reviews of this specification: Brian Campbell, Dick
+   Hardt, Leif Johansson, Pieter Kasselman, Bryan Newbold, Matthieu
+   Sieben, and Filip Skokan.
 
 Document History
 
    (This appendix to be deleted by the RFC editor in the final
    specification.)
-
-   -03
-
-   *  Prohibit all forms of symmetric client authentication, not just
-      client secret
-
-   *  Added recommendations for development when clients are not on the
-      web
-
-   *  Added reference to HTTP Caching RFC9111
-
-   *  Added security considerations around domain trust and changes in
-      client keys
-
-   *  Updated references
-
-   -02
-
-   *  Added security consideration around displaying logos to end users
-
-   *  Changed query string parameters in Client ID Metadata Document
-      URLs to "SHOULD NOT", since this encourages bad security practices
-      (e.g., minting documents based on query string parameters)
-
-   *  Added prohibition on the client_secret_expires_at property, as it
-      is not relevant for Client ID Metadata Documents.
-
-   *  Added security consideration for development use-cases.
-
-   -01
-
-   *  Added recommendation of max metadata document size
-
-   *  Changed metadata property reference to IANA registry instead of
-      Dynamic Client Registration
 
    -00
 
