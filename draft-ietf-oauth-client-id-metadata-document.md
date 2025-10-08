@@ -3,7 +3,7 @@ title: "OAuth Client ID Metadata Document"
 abbrev: "Client ID Document"
 category: std
 
-docname: draft-parecki-oauth-client-id-metadata-document-latest
+docname: draft-ietf-oauth-client-id-metadata-document-latest
 submissiontype: IETF
 number:
 date:
@@ -17,8 +17,8 @@ venue:
   group: "Web Authorization Protocol"
   type: "Working Group"
   mail: "oauth@ietf.org"
-  github: "aaronpk/draft-parecki-oauth-client-id-metadata-document"
-  latest: "https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html"
+  github: "oauth-wg/draft-ietf-oauth-client-id-metadata-document"
+  latest: "https://drafts.oauth.net/draft-ietf-oauth-client-id-metadata-document/draft-ietf-oauth-client-id-metadata-document.html"
 
 author:
   - fullname: Aaron Parecki
@@ -92,7 +92,7 @@ informative:
   RFC9111:
 
 entity:
-  SELF: "[draft-parecki-oauth-client-id-metadata-document-latest]"
+  SELF: "[draft-ietf-oauth-client-id-metadata-document-latest]"
 
 --- abstract
 
@@ -330,34 +330,13 @@ The following authorization server metadata value is defined by this specificati
 
 The idea of using URIs as the `client_id` in OAuth based authorization requests is not new, and has previously been specified in varying ways by [IndieAuth], [Solid-OIDC], and [OpenID.Federation]. This specification is largely inspired by the work of Aaron Coburn, elf Pavlik, and Dmitri Zagidulin in their [Solid-OIDC] specification which defined dereferenceable Client Identifier Documents.
 
-The authors would like to thank the following people for their contributions and reviews of this specification: Dick Hardt, Matthieu Sieben, Filip Skokan.
+The authors would like to thank the following people for their contributions and reviews of this specification: Brian Campbell, Dick Hardt, Leif Johansson, Pieter Kasselman, Bryan Newbold, Matthieu Sieben, and Filip Skokan.
 
 
 # Document History
 {:numbered="false"}
 
 (This appendix to be deleted by the RFC editor in the final specification.)
-
--03
-
-* Prohibit all forms of symmetric client authentication, not just client secret
-* Added recommendations for development when clients are not on the web
-* Added reference to HTTP Caching RFC9111
-* Added security considerations around domain trust and changes in client keys
-* Updated references
-
-
--02
-
-* Added security consideration around displaying logos to end users
-* Changed query string parameters in Client ID Metadata Document URLs to "SHOULD NOT", since this encourages bad security practices (e.g., minting documents based on query string parameters)
-* Added prohibition on the `client_secret_expires_at` property, as it is not relevant for Client ID Metadata Documents.
-* Added security consideration for development use-cases.
-
--01
-
-* Added recommendation of max metadata document size
-* Changed metadata property reference to IANA registry instead of Dynamic Client Registration
 
 -00
 
