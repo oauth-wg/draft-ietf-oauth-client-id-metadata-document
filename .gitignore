@@ -17,7 +17,7 @@
 /versioned/
 Gemfile.lock
 archive.json
-draft-parecki-oauth-client-id-metadata-document.xml
+draft-ietf-oauth-client-id-metadata-document.xml
 package-lock.json
 report.xml
 !requirements.txt
