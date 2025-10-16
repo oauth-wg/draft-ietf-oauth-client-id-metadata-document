@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-10-09T00:37:09.454019+00:00",
+  "timestamp": "2025-10-16T00:00:38.378762+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -1150,7 +1150,7 @@
       "labels": [],
       "body": "> This establishes this client as a confidential client, \n\nMight be worth nothing this is only possible for clients that support credentials in the first place?",
       "createdAt": "2025-05-29T20:11:27Z",
-      "updatedAt": "2025-09-29T18:57:53Z",
+      "updatedAt": "2025-10-14T20:20:52Z",
       "closedAt": null,
       "comments": [
         {
@@ -1159,6 +1159,41 @@
           "body": "So in the case of native apps, you could use the [OAuth 2.0 Attestation-Based Client Authentication](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-07) draft, which would allow a native app to have a client-specific JWT key published into the `jwks_uri` keyset.\n\nThis sentence is also directly following an example:\n\n<img width=\"677\" height=\"293\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/3175d898-d194-429b-95d8-e9fac93946a4\" />",
           "createdAt": "2025-09-29T18:57:53Z",
           "updatedAt": "2025-09-29T18:57:53Z"
+        },
+        {
+          "author": "JetA2",
+          "authorAssociation": "NONE",
+          "body": "Native apps can pass a generated public key as part of the Client ID such as ```https://example.com/[encoded key]/client_id.json``` which then enables authentication as a confidential client.\n\nThis is a very straightforward solution from a developer point of view but does it create security issues?",
+          "createdAt": "2025-10-14T16:16:09Z",
+          "updatedAt": "2025-10-14T16:16:09Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "> Native apps can pass a generated public key as part of the Client ID such as `https://example.com/[encoded key]/client_id.json` which then enables authentication as a confidential client.\n> \n> This is a very straightforward solution from a developer point of view but does it create security issues?\n\n@JetA2 that would be a security issue as it's broadcasting a symmetrical secret over the network.\n\n(It also wouldn't work since we prohibit all symmetrical or shared secret methods for client authentication)",
+          "createdAt": "2025-10-14T16:28:29Z",
+          "updatedAt": "2025-10-14T16:29:22Z"
+        },
+        {
+          "author": "matthieusieben",
+          "authorAssociation": "NONE",
+          "body": "@JetA2 There is no real issue in terms of security to use an encoded public key in the client id, but you'd basically be creating a new oauth profile that provides similar properties to DPoP (but is not standard). It could be \"dangerous\" as you might be tempted to give a higher level of thrust to that client, when really it's a public client in disguise \n\nIn atproto, we prefer to define \"confidential\" clients as \"services that can revoke credentials at scale, Typically by rotating jwks\". ",
+          "createdAt": "2025-10-14T17:01:02Z",
+          "updatedAt": "2025-10-14T17:01:02Z"
+        },
+        {
+          "author": "JetA2",
+          "authorAssociation": "NONE",
+          "body": "Would a reason for revoking credentials at scale be that multiple client sessions use the same credentials and those credentials got compromised?\nIn that case would this client feature still be needed if every client (as in native app install) had their own unique credentials?\n",
+          "createdAt": "2025-10-14T20:08:40Z",
+          "updatedAt": "2025-10-14T20:08:40Z"
+        },
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "> Native apps can pass a generated public key as part of the Client ID such as https://example.com/[encoded key]/client_id.json which then enables authentication as a confidential client.\n\nThis is basically getting you the same security properties as DPoP, so just use DPoP.\n",
+          "createdAt": "2025-10-14T20:20:52Z",
+          "updatedAt": "2025-10-14T20:20:52Z"
         }
       ]
     },
