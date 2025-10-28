@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-10-16T00:00:38.378762+00:00",
+  "timestamp": "2025-10-28T00:00:42.558089+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -1298,7 +1298,7 @@
       "labels": [],
       "body": "While building a proof of concept, we explored the feasibility of this for public developer / development clients. \n\nOne interesting scenario CIMD allows is for reserved developer / testing / experimental only applications to be hosted at an https url `https://developer.example.com/client_id.json` that the AS Controls which can then be left for any developers, alternative to a hard-coded `http://localhost` client. \n\nThere are a few places where this comes in handy: \n\n* **Native Applications Development for Public Clients**: Instead creating a per-developer `*.plist` file with the `client_id`  for each instance of the application is simply `https://developer.example.com`, with all the required properties. This means a developer can just git clone and run the app. \n\n* **Open to External Developers**: If desirable for public clients. A CIMD document can be used to explicitly identify open-to-all developer usage eg `https://external.example.com`. With allowed callback to `localhost` etc.\n\nFor instance an AS for an MCP Server, would not need to support an open-ended approve list, but would facilitate clients which do not have an https url yet (cli-s, etc) to be able to obtain credentials. \n\nThese clients can then have a different / stronger consent flow, instead of just the consent prompt the AS can require explicit intent and approval of developer client.\n\nInstead of using `localhost` this also allows these clients to be updated, managed by leveraging the existing best practices. ",
       "createdAt": "2025-09-02T22:13:58Z",
-      "updatedAt": "2025-09-29T18:04:20Z",
+      "updatedAt": "2025-10-26T09:41:44Z",
       "closedAt": null,
       "comments": [
         {
@@ -1321,6 +1321,13 @@
           "body": "A document on `http://localhost` would not be valid, since the Authorization Server cannot fetch it (unless the authorization server is also on localhost \u2014 that's a separate issue), however a remote Client ID Metadata Document could indeed redirect to a localhost URI.\n\nI'm not sure what the following comment refers to:\n> Essentially this is a single hard-coded development client.\n\nThe Client ID Metadata Document Service essentially says \"I'll host Client ID Metadata Documents for developers with a few considerations (e.g., \" (Development)\" added to `client_name` and acknowledging that an AS may warn users when authorizing this particular client.",
           "createdAt": "2025-09-29T18:04:20Z",
           "updatedAt": "2025-09-29T18:04:20Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "I've actually now built an example of said \"Service\" in Section 4.2: https://cimd-service.fly.dev/",
+          "createdAt": "2025-10-26T09:41:44Z",
+          "updatedAt": "2025-10-26T09:41:44Z"
         }
       ]
     },
