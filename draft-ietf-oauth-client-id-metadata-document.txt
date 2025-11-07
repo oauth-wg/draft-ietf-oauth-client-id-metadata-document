@@ -5,7 +5,7 @@
 Web Authorization Protocol                                    A. Parecki
 Internet-Draft                                                      Okta
 Intended status: Standards Track                                E. Smith
-Expires: 11 April 2026                                    8 October 2025
+Expires: 11 May 2026                                     7 November 2025
 
 
                    OAuth Client ID Metadata Document
@@ -56,7 +56,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 11 April 2026.
+   This Internet-Draft will expire on 11 May 2026.
 
 Copyright Notice
 
@@ -107,11 +107,10 @@ Table of Contents
 
    In order for an OAuth 2.0 [RFC6749] client to utilize an OAuth 2.0
    authorization server, the client needs to establish a unique
-   identifier, and needs to to provide the server with metadata about
-   the application, such as the application name, icon and redirect
-   URIs.  In cases where a client is interacting with authorization
-   servers that it has no relationship with, manual registration is
-   impossible.
+   identifier, and needs to provide the server with metadata about the
+   application, such as the application name, icon and redirect URIs.
+   In cases where a client is interacting with authorization servers
+   that it has no relationship with, manual registration is impossible.
 
    While Dynamic Client Registration [RFC7591] can provide a method for
    a previously unknown client to establish itself at an authorization
