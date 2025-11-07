@@ -179,7 +179,7 @@ defined in [RFC3986] Section 6.2.1.
 
 The client metadata document MAY define additional properties in the response.
 
-The client metadata document should be served with a 200 OK HTTP status code,
+The client metadata document MUST be served with a 200 OK HTTP status code,
 have the content type of `application/json` or a more specific content type that
 conforms to `application/<AS-defined>+json`, and be a valid JSON object
 {{RFC8259}}.
