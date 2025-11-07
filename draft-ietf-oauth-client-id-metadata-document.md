@@ -34,6 +34,7 @@ normative:
   RFC6749:
   RFC6819:
   RFC7591:
+  RFC8259:
   RFC8414:
   RFC9700:
 
@@ -151,13 +152,25 @@ the client to the user in an authorization consent screen, for example the
 client name and logo.
 
 The authorization server SHOULD fetch the document indicated by the `client_id`
-to retrieve the client registration information.
+to retrieve the client registration information. A successful response MUST use
+the 200 OK HTTP status code, have the content type of `application/json` or a more
+specific content type that conforms to `application/<AS-defined>+json`, and be a
+valid JSON object {{RFC8259}}. The authorization server MUST treat all other
+HTTP status codes and content types as an error response. The authorization
+server MUST NOT automatically follow HTTP redirects when retrieving the client
+registration information.
 
-## Client Metadata
+If authorization server encounters an error response when retrieving the client
+registration information, the authorization server SHOULD abort the
+authorization request. The authorization server MAY use error responses to
+inform their security policies.
 
-The client metadata document URL is a JSON document containing the metadata
-of the client. The client metadata values are the values defined in
-the OAuth Dynamic Client Registration Metadata OAuth Parameters registry
+## Client Metadata Document
+
+A Client Metadata Document is a JSON document {{RFC8259}} containing the client
+registration information for the client. The properties of the Client Metadata
+Document are the values defined in the OAuth Dynamic Client Registration
+Metadata OAuth Parameters registry
 <https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#client-metadata>.
 
 The client metadata document MUST contain a `client_id` property whose value
@@ -165,8 +178,11 @@ MUST match the URL of the document using simple string comparison as
 defined in [RFC3986] Section 6.2.1.
 
 The client metadata document MAY define additional properties in the response.
-The client metadata document MAY also be served with more specific content types
-as long as the response is JSON and conforms to `application/<AS-defined>+json`.
+
+The client metadata document should be served with a 200 OK HTTP status code,
+have the content type of `application/json` or a more specific content type that
+conforms to `application/<AS-defined>+json`, and be a valid JSON object
+{{RFC8259}}.
 
 As there is no way to establish a shared secret to be used with client metadata
 documents, the following restrictions apply on the contents of the
@@ -196,13 +212,7 @@ To enable developers to author applications on their machines, without exposing 
 
 A Client ID Metadata Document Service is a web service through which developers can acquire a stable URL to a Client ID Metadata Document. This service MAY expire clients from time to time, and MAY require developers to provide additional information about the client being developed.
 
-
 By providing at least one Client ID Metadata Document Service, an authorization server can enable developers to create applications, and still indicate to non-technical people that the client that they are about to authorize is currently under-development and may not be trustworthy or secure.
-
-## Metadata Discovery Errors
-
-If fetching the metadata document fails, the authorization server SHOULD abort the
-authorization request.
 
 ## Metadata Caching
 
