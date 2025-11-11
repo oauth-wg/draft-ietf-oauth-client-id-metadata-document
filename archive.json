@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-11-09T00:00:41.762344+00:00",
+  "timestamp": "2025-11-11T00:00:52.251642+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -3007,7 +3007,7 @@
       "labels": [],
       "body": "The way in which a Client ID Metadata Document Service works is up to the implementer of that service, the only requirement is that they return valid Client ID Metadata Documents for the `client_id` URIs that they provision, or return an appropriate status code for an error response.\r\n\r\nI do have a reference implementation of a Client ID Metadata Document Service which is open to the general public, but enforces the additional restrictions that Bluesky's AT Protocol has for Client ID Metadata Documents, which can be found at https://cimd-service.fly.dev \u2014 however, I want to be clear that that API isn't a standard API.",
       "createdAt": "2025-11-07T06:10:23Z",
-      "updatedAt": "2025-11-08T23:05:08Z",
+      "updatedAt": "2025-11-09T00:44:31Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "f681637fb3917027a27efd91e0a57ba1bb401167",
@@ -3032,6 +3032,13 @@
           "body": "@OllieJC because one of the biggest questions we received when introducing this to developers was \"how the heck do I use this in development?\"\r\n\r\nSo the answer we're presenting is \"you use a service to provision a Client ID Metadata Document on a publicly accessible URL\"",
           "createdAt": "2025-11-08T23:05:08Z",
           "updatedAt": "2025-11-08T23:05:08Z"
+        },
+        {
+          "author": "OllieJC",
+          "authorAssociation": "NONE",
+          "body": "Thanks @ThisIsMissEm! I do wonder if it is unnecessary though - I'd hope that folks could figure that out relatively trivially using GitHub pages etc. That said, I've just spun this up: https://path2json.olliejc.workers.dev/",
+          "createdAt": "2025-11-09T00:44:31Z",
+          "updatedAt": "2025-11-09T00:44:31Z"
         }
       ],
       "reviews": []
