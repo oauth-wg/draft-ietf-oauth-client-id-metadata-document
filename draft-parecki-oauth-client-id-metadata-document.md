@@ -205,7 +205,7 @@ A service that generates client metadata documents for development purposes SHOU
 use short stable URLs, i.e., MUST NOT derive the contents of the document from query
 parameters, and MUST return a HTTP `Expires` header with the response.
 
-Alternatively, a developer may to upload the client metadata document to any publicly
+Alternatively, a developer might upload the client metadata document to any publicly
 accessible URL with HTTPS, with the contents describing the client for local development
 (e.g., using the localhost hostname in its `redirect_uris`), if you do this, you may
 want to consider setting the HTTP Expires header to indicate expiration of your client
