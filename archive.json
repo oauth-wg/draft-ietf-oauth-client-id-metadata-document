@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-11-11T00:00:52.251642+00:00",
+  "timestamp": "2025-11-18T00:00:46.376144+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -1633,6 +1633,30 @@
       "updatedAt": "2025-11-07T20:11:35Z",
       "closedAt": null,
       "comments": []
+    },
+    {
+      "number": 58,
+      "id": "I_kwDOL_Xevs7YoZCz",
+      "title": "Align `abbrev` with CIMD as is commonly used",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/58",
+      "state": "OPEN",
+      "author": "ThisIsMissEm",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Currently the `abbrev` in the draft's metadata is `\"Client ID Document\"`, we should probably align this to be `CIMD`, as that's what we've started using everywhere (e.g., https://cimd.dev ). The existing abbrev also missing the \"Metadata\" which is kind of important.\n\nI'm not sure we can change this now, but if we can, it'd be good to.",
+      "createdAt": "2025-11-17T18:15:11Z",
+      "updatedAt": "2025-11-17T18:56:28Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "I don't think it's a problem to change it",
+          "createdAt": "2025-11-17T18:56:28Z",
+          "updatedAt": "2025-11-17T18:56:28Z"
+        }
+      ]
     }
   ],
   "pulls": [
