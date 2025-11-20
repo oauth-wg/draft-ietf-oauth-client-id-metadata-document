@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-11-18T00:00:46.376144+00:00",
+  "timestamp": "2025-11-20T00:00:44.781849+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -1657,6 +1657,72 @@
           "updatedAt": "2025-11-17T18:56:28Z"
         }
       ]
+    },
+    {
+      "number": 59,
+      "id": "I_kwDOL_Xevs7ZHRPc",
+      "title": "Add a mechanism for client-triggered early metadata retrieval",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/59",
+      "state": "OPEN",
+      "author": "TakahikoKawasaki",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "While authorization servers can calculate the lifetime of client metadata using the methods described in [RFC 9111 HTTP Caching](https://www.rfc-editor.org/rfc/rfc9111.html) and continue to reuse the retrieved metadata until the calculated expiration time is reached, client applications may sometimes want authorization servers to re-fetch the metadata before that expiration time.\n\nCould we introduce a mechanism that allows client applications to trigger such early metadata retrieval? For example, what about introducing a new request parameter like `cimd_max_age`, similar in concept to the `max_age` parameter defined in [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html)?\n\nThis issue is related to PR #29 \"Improve documentation for development usage and expiration of clients\", I think.",
+      "createdAt": "2025-11-19T12:42:37Z",
+      "updatedAt": "2025-11-19T14:53:07Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "panva",
+          "authorAssociation": "MEMBER",
+          "body": "Just prescribing to use a \"max-age\" HTTP Response Header would probably be cleaner than introducing a new server metadata.",
+          "createdAt": "2025-11-19T13:18:17Z",
+          "updatedAt": "2025-11-19T13:18:17Z"
+        },
+        {
+          "author": "TakahikoKawasaki",
+          "authorAssociation": "NONE",
+          "body": "@panva Thank you for your comment.\n\nThis is not a proposal to introduce new server metadata, but rather a new runtime request parameter.\n\nI implemented CIMD with a caching mechanism that leverages existing HTTP semantics, including `max-age`. However, I still believe that having a mechanism to trigger earlier metadata retrieval would be beneficial.\n\n[OpenID Federation](https://openid.net/specs/openid-federation-1_0.html) defines the `trust_chain` request parameter. When included in an authorization request, it instructs the authorization server to update the client metadata using the provided trust chain, even if the cached trust chain has not yet expired. I hope that CIMD can also offer a similar mechanism to trigger early metadata retrieval, analogous to the `trust_chain` request parameter.",
+          "createdAt": "2025-11-19T13:34:00Z",
+          "updatedAt": "2025-11-19T13:34:00Z"
+        },
+        {
+          "author": "panva",
+          "authorAssociation": "MEMBER",
+          "body": "Ah, sorry, then let me rephrase.\n\nJust prescribing to use a \"max-age\" HTTP Response Header from a CIMD response would be cleaner than introducing a new request parameter that could actually be at odds with an existing max-age on the response and then we'd have to prescribe which of the max ages to use.\n\nA parameter like so could also be abused to force AS cache invalidation which could cause to a whole sorts of otherwise avoidable issues. If the only thing the server trusts to control its cache ttl is a max-age response header than that's one less moving piece.",
+          "createdAt": "2025-11-19T13:39:22Z",
+          "updatedAt": "2025-11-19T13:49:04Z"
+        },
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "On reading the title, I thought you were going to suggest a totally new endpoint the client could use to request updated metadata fetching, not during authorization. \n\nI agree with Filip's concerns about adding a parameter in the authorize request. Ultimately an AS would decide its own rate limit of the max age parameter anyway to avoid too many requests from clients that always set it to 0.\n",
+          "createdAt": "2025-11-19T13:59:10Z",
+          "updatedAt": "2025-11-19T13:59:10Z"
+        },
+        {
+          "author": "TakahikoKawasaki",
+          "authorAssociation": "NONE",
+          "body": "I'm not suggesting a new endpoint, which would be heavyweight. \ud83d\ude05\n\nPerhaps the name `cimd_max_age` wasn't ideal. What I really wanted is a mechanism that forces the authorization server to re-fetch client metadata. (Like \"super reload\" of web browsers)\n\nDuring client application development, developers may not be able to properly configure the web server that publishes the client metadata\u2014either due to lack of knowledge or insufficient permissions. In such cases (including simple mistakes like forgetting to set `max-age` or accidentally setting it too long), even if the client metadata is updated frequently during development, the authorization server will continue using the cached metadata, which slows down the development process. I wanted a way to address this situation.",
+          "createdAt": "2025-11-19T14:13:13Z",
+          "updatedAt": "2025-11-19T14:13:13Z"
+        },
+        {
+          "author": "panva",
+          "authorAssociation": "MEMBER",
+          "body": "That's a very coincidental problem to have to deal with. As a developer i might as well just randomize the URLs I use during development then can't I?",
+          "createdAt": "2025-11-19T14:17:31Z",
+          "updatedAt": "2025-11-19T14:17:31Z"
+        },
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "My point is even if you want to force the AS to reload the metadata, the AS might always have a policy that prevents reloading at some interval. At most this new parameter would be a suggestion, and we already have a mechanism to suggest lifetime of the metadata in the HTTP header.",
+          "createdAt": "2025-11-19T14:53:07Z",
+          "updatedAt": "2025-11-19T14:53:07Z"
+        }
+      ]
     }
   ],
   "pulls": [
@@ -2155,13 +2221,13 @@
       "labels": [],
       "body": "This is as was discussed in https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/issues/23#issuecomment-2583274006\r\n\r\nI did also add the restriction that the client metadata document response must be with a HTTP 200 OK status code, i.e., 3xx or 201 or other status codes should not be considered valid.\r\n\r\nAlso moved the development purposes section up from Security Considerations to the main part of the document.",
       "createdAt": "2025-01-10T20:15:10Z",
-      "updatedAt": "2025-05-11T20:40:28Z",
+      "updatedAt": "2025-11-18T20:41:56Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "d69da84351a89d8db86ee5c72703a10bd11d5965",
       "headRepository": "ThisIsMissEm/draft-parecki-oauth-client-id-metadata-document",
       "headRefName": "feat/client-revocation",
-      "headRefOid": "7de39c44c0cdab97f572c27b521d3848a5fd6653",
+      "headRefOid": "8fb23bfb4deb99ca1f62105f8c3998a41fe91585",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -2202,6 +2268,39 @@
               "updatedAt": "2025-01-10T20:16:03Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs7PUZiy",
+          "commit": {
+            "abbreviatedOid": "7de39c4"
+          },
+          "author": "OR13",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-18T14:53:32Z",
+          "updatedAt": "2025-11-18T14:53:32Z",
+          "comments": [
+            {
+              "originalPosition": 49,
+              "body": "```suggestion\r\nAlternatively, a developer might upload the client metadata document to any publicly\r\n```",
+              "createdAt": "2025-11-18T14:53:32Z",
+              "updatedAt": "2025-11-18T14:53:33Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs7PUaF1",
+          "commit": {
+            "abbreviatedOid": "7de39c4"
+          },
+          "author": "OR13",
+          "authorAssociation": "NONE",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2025-11-18T14:54:04Z",
+          "updatedAt": "2025-11-18T14:54:04Z",
+          "comments": []
         }
       ]
     },
@@ -2647,7 +2746,7 @@
       "labels": [],
       "body": "This addresses the concerns raised in #44 and by Dick Hardt on the mailing list. Following redirects would likely give you a final document URI that is not equal to the supplied `client_id`, and as such should not be trusted.\r\n\r\nWe could potentially limit this further to only accepting 200 OK responses.",
       "createdAt": "2025-09-29T17:43:11Z",
-      "updatedAt": "2025-11-08T21:45:51Z",
+      "updatedAt": "2025-11-18T20:41:03Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "f681637fb3917027a27efd91e0a57ba1bb401167",
@@ -2795,6 +2894,119 @@
               "updatedAt": "2025-11-08T21:45:51Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs7PUPwU",
+          "commit": {
+            "abbreviatedOid": "18b1a2c"
+          },
+          "author": "OR13",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-18T14:45:43Z",
+          "updatedAt": "2025-11-18T14:45:44Z",
+          "comments": [
+            {
+              "originalPosition": 30,
+              "body": "```suggestion\r\n```",
+              "createdAt": "2025-11-18T14:45:43Z",
+              "updatedAt": "2025-11-18T14:45:44Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs7PUP-8",
+          "commit": {
+            "abbreviatedOid": "18b1a2c"
+          },
+          "author": "OR13",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-18T14:45:56Z",
+          "updatedAt": "2025-11-18T14:45:57Z",
+          "comments": [
+            {
+              "originalPosition": 30,
+              "body": "Do not think this is needed.",
+              "createdAt": "2025-11-18T14:45:56Z",
+              "updatedAt": "2025-11-18T14:45:57Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs7PUTcW",
+          "commit": {
+            "abbreviatedOid": "18b1a2c"
+          },
+          "author": "OR13",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-18T14:48:20Z",
+          "updatedAt": "2025-11-18T14:48:21Z",
+          "comments": [
+            {
+              "originalPosition": 34,
+              "body": "The term you are looking for is \"JSON text\" https://datatracker.ietf.org/doc/html/rfc8259#section-1.2 ... containing an \"object\".... or directly https://datatracker.ietf.org/doc/html/rfc8259#section-4\r\n\r\n\"A Client Metadata Document is a JSON object as described in {{Section 4 of RFC8259}}.\"",
+              "createdAt": "2025-11-18T14:48:21Z",
+              "updatedAt": "2025-11-18T14:48:21Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs7PUUcC",
+          "commit": {
+            "abbreviatedOid": "18b1a2c"
+          },
+          "author": "OR13",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-18T14:49:15Z",
+          "updatedAt": "2025-11-18T14:49:16Z",
+          "comments": [
+            {
+              "originalPosition": 50,
+              "body": "`<AS-defined>` ...is really \"AS supported\"... ",
+              "createdAt": "2025-11-18T14:49:16Z",
+              "updatedAt": "2025-11-18T14:49:16Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs7PUUll",
+          "commit": {
+            "abbreviatedOid": "18b1a2c"
+          },
+          "author": "OR13",
+          "authorAssociation": "NONE",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2025-11-18T14:49:24Z",
+          "updatedAt": "2025-11-18T14:49:24Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOL_Xevs7PaDce",
+          "commit": {
+            "abbreviatedOid": "18b1a2c"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-18T20:41:03Z",
+          "updatedAt": "2025-11-18T20:41:03Z",
+          "comments": [
+            {
+              "originalPosition": 50,
+              "body": "I think this language comes from something to do with content types, basically trying to say that `application/anything+json` is valid as a content type. cc @aaronpk since this language came from you.",
+              "createdAt": "2025-11-18T20:41:03Z",
+              "updatedAt": "2025-11-18T20:41:03Z"
+            }
+          ]
         }
       ]
     },
@@ -2810,7 +3022,7 @@
       "labels": [],
       "body": "This applies the change recommended in #45 ",
       "createdAt": "2025-09-29T17:53:19Z",
-      "updatedAt": "2025-09-29T18:31:36Z",
+      "updatedAt": "2025-11-18T14:43:46Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "3aafad42b6ac4b3c60af674080ddf920a9975097",
@@ -2821,7 +3033,15 @@
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
-      "comments": [],
+      "comments": [
+        {
+          "author": "OR13",
+          "authorAssociation": "NONE",
+          "body": "branch has conflicts.",
+          "createdAt": "2025-11-18T14:43:46Z",
+          "updatedAt": "2025-11-18T14:43:46Z"
+        }
+      ],
       "reviews": [
         {
           "id": "PRR_kwDOL_Xevs7DkcGp",
@@ -2891,7 +3111,7 @@
       "labels": [],
       "body": "This applies https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/issues/43\r\n\r\nEssentially there are two attack vectors:\r\n1. When fetching the Client ID Metadata Document itself, that must not resolve to a special-use IP address, except if the Authorization Server is running on the same IP address (this is to enable development of the AS & Client on the same machine)\r\n2. When fetching any of the URLs contained within the Client ID Metadata Document, such as `tos_uri`, `policy_uri`, `jwks_uri` or `logo_uri`\r\n\r\nWe may need an exception for `jwks_uri` like we have for the Client ID Metadata Document URI itself.",
       "createdAt": "2025-09-29T18:18:45Z",
-      "updatedAt": "2025-09-29T18:53:54Z",
+      "updatedAt": "2025-11-18T20:38:37Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "3aafad42b6ac4b3c60af674080ddf920a9975097",
@@ -2923,6 +3143,46 @@
               "updatedAt": "2025-09-29T18:53:54Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs7PULm7",
+          "commit": {
+            "abbreviatedOid": "bfc09b5"
+          },
+          "author": "OR13",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-18T14:42:25Z",
+          "updatedAt": "2025-11-18T14:42:25Z",
+          "comments": [
+            {
+              "originalPosition": 27,
+              "body": "```suggestion\r\nAuthorization servers SHOULD NOT fetch any URLs contained within Client ID Metadata Documents that resolve to special-use IP addresses as defined in [RFC6890] and consider network policies or other measures to prevent making requests to these addresses. Authorization servers which support non-http-based URI schemes are at additional risk to SSRF attacks.\r\n```",
+              "createdAt": "2025-11-18T14:42:25Z",
+              "updatedAt": "2025-11-18T14:42:25Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs7PaCck",
+          "commit": {
+            "abbreviatedOid": "bfc09b5"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-18T20:38:37Z",
+          "updatedAt": "2025-11-18T20:38:37Z",
+          "comments": [
+            {
+              "originalPosition": 27,
+              "body": "@aaronpk how's this sound to you?",
+              "createdAt": "2025-11-18T20:38:37Z",
+              "updatedAt": "2025-11-18T20:38:37Z"
+            }
+          ]
         }
       ]
     },
@@ -2938,7 +3198,7 @@
       "labels": [],
       "body": "This was originally noted in #18 and #19 and changed in #33, however prohibiting just `data:` and `javascript:` would not be a sufficient security measure, as there are other URI schemes that are unsafe, such as `vbscript:` and `shortcuts:` (apple shortcuts).\r\n\r\nInterestingly, I know `vbscript:` exists, however, it is not registered with IANA: https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml",
       "createdAt": "2025-09-29T18:44:46Z",
-      "updatedAt": "2025-11-08T21:44:45Z",
+      "updatedAt": "2025-11-18T14:39:08Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "3aafad42b6ac4b3c60af674080ddf920a9975097",
@@ -2965,7 +3225,21 @@
           "updatedAt": "2025-11-08T21:44:45Z"
         }
       ],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOL_Xevs7PUHYg",
+          "commit": {
+            "abbreviatedOid": "76daaa1"
+          },
+          "author": "OR13",
+          "authorAssociation": "NONE",
+          "state": "CHANGES_REQUESTED",
+          "body": "Better to frame this as security considerations for dereferencing URLs from untrusted sources.",
+          "createdAt": "2025-11-18T14:39:08Z",
+          "updatedAt": "2025-11-18T14:39:08Z",
+          "comments": []
+        }
+      ]
     },
     {
       "number": 51,
@@ -2979,7 +3253,7 @@
       "labels": [],
       "body": "This was noted in https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/issues/30#issuecomment-3081686148\r\n\r\nThis pull request will conflict with #46\r\n\r\nIs there any RFC we should specifically reference here with regards to the Accept header?",
       "createdAt": "2025-09-29T19:08:02Z",
-      "updatedAt": "2025-11-07T02:40:28Z",
+      "updatedAt": "2025-11-18T20:37:19Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "3aafad42b6ac4b3c60af674080ddf920a9975097",
@@ -2991,7 +3265,68 @@
       "mergedBy": null,
       "mergeCommit": null,
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOL_Xevs7PUC8J",
+          "commit": {
+            "abbreviatedOid": "6cea6cb"
+          },
+          "author": "OR13",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-18T14:35:10Z",
+          "updatedAt": "2025-11-18T14:35:10Z",
+          "comments": [
+            {
+              "originalPosition": 5,
+              "body": "why MUST?  Typically a server can ignore the accept header and return whatever it wants... perhaps it is better to specify this as: \r\n\r\nWhen the `client_id` is an HTTP Resource identifier, the Client ID Metadata Document Service MUST respond with a `Content-Type` header of `application/json`.\r\n\r\nAlso not sure if this fetching is supposed to work over protocols that do not support headers.\r\n\r\n",
+              "createdAt": "2025-11-18T14:35:10Z",
+              "updatedAt": "2025-11-18T14:35:10Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs7PaBw1",
+          "commit": {
+            "abbreviatedOid": "6cea6cb"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-18T20:37:01Z",
+          "updatedAt": "2025-11-18T20:37:01Z",
+          "comments": [
+            {
+              "originalPosition": 5,
+              "body": "It's a MUST for the reasons noted in #30 \u2014 the CIMD Service is also entirely optional. Having the AS send the Accept header, even if the server hosting the CIMD ignores it, allows at least for servers to go \"nah, we really don't accept that request\" and allow for early termination.",
+              "createdAt": "2025-11-18T20:37:01Z",
+              "updatedAt": "2025-11-18T20:37:01Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs7PaB5g",
+          "commit": {
+            "abbreviatedOid": "6cea6cb"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-11-18T20:37:19Z",
+          "updatedAt": "2025-11-18T20:37:19Z",
+          "comments": [
+            {
+              "originalPosition": 5,
+              "body": "We also already have language around the response content-type in the document.",
+              "createdAt": "2025-11-18T20:37:19Z",
+              "updatedAt": "2025-11-18T20:37:19Z"
+            }
+          ]
+        }
+      ]
     },
     {
       "number": 54,
@@ -3031,7 +3366,7 @@
       "labels": [],
       "body": "The way in which a Client ID Metadata Document Service works is up to the implementer of that service, the only requirement is that they return valid Client ID Metadata Documents for the `client_id` URIs that they provision, or return an appropriate status code for an error response.\r\n\r\nI do have a reference implementation of a Client ID Metadata Document Service which is open to the general public, but enforces the additional restrictions that Bluesky's AT Protocol has for Client ID Metadata Documents, which can be found at https://cimd-service.fly.dev \u2014 however, I want to be clear that that API isn't a standard API.",
       "createdAt": "2025-11-07T06:10:23Z",
-      "updatedAt": "2025-11-09T00:44:31Z",
+      "updatedAt": "2025-11-18T14:30:44Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "f681637fb3917027a27efd91e0a57ba1bb401167",
@@ -3065,7 +3400,21 @@
           "updatedAt": "2025-11-09T00:44:31Z"
         }
       ],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOL_Xevs7PT-Sw",
+          "commit": {
+            "abbreviatedOid": "3a96221"
+          },
+          "author": "OR13",
+          "authorAssociation": "NONE",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2025-11-18T14:30:44Z",
+          "updatedAt": "2025-11-18T14:30:44Z",
+          "comments": []
+        }
+      ]
     }
   ]
 }
