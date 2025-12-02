@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-11-20T00:00:44.781849+00:00",
+  "timestamp": "2025-12-02T00:00:48.245219+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -1663,15 +1663,15 @@
       "id": "I_kwDOL_Xevs7ZHRPc",
       "title": "Add a mechanism for client-triggered early metadata retrieval",
       "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/59",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "TakahikoKawasaki",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
       "body": "While authorization servers can calculate the lifetime of client metadata using the methods described in [RFC 9111 HTTP Caching](https://www.rfc-editor.org/rfc/rfc9111.html) and continue to reuse the retrieved metadata until the calculated expiration time is reached, client applications may sometimes want authorization servers to re-fetch the metadata before that expiration time.\n\nCould we introduce a mechanism that allows client applications to trigger such early metadata retrieval? For example, what about introducing a new request parameter like `cimd_max_age`, similar in concept to the `max_age` parameter defined in [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html)?\n\nThis issue is related to PR #29 \"Improve documentation for development usage and expiration of clients\", I think.",
       "createdAt": "2025-11-19T12:42:37Z",
-      "updatedAt": "2025-11-19T14:53:07Z",
-      "closedAt": null,
+      "updatedAt": "2025-11-30T18:50:35Z",
+      "closedAt": "2025-11-30T18:50:35Z",
       "comments": [
         {
           "author": "panva",
