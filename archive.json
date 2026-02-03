@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-01-25T00:00:45.512823+00:00",
+  "timestamp": "2026-02-03T00:02:34.682020+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -845,15 +845,15 @@
       "id": "I_kwDOL_Xevs6lpP-s",
       "title": "Using `client_url` instead of `client_id` in authorize request",
       "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/26",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "aaronpk",
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [],
       "body": "After presenting this draft at IETF 121, one concern that came up was how an AS can support both registered and unregistered clients, as well as how an AS can support clients that have different ways to retrieve metadata but might also be represented by a URL. In particular [OpenID Federation](https://openid.net/specs/openid-federation-1_0.html) also uses URLs as client IDs, so there is a potential ambiguity if an AS supports both OpenID Federation and Client ID Metadata Documents, how does it know which method to use to retrieve the client metadata given just a plain URL.\r\n\r\nThis led to the proposal of pulling out the idea of a \"client ID scheme\" from OpenID4VP into its own draft: https://datatracker.ietf.org/doc/draft-parecki-oauth-client-id-scheme/\r\n\r\nI presented this at the interim meeting this week for feedback.\r\n\r\nOne concern that was raised was that an AS might want to avoid any kind of need to parse the client ID. As an alternative, the client metadata URL could be provided in an authorization request using a new parameter `client_url` instead of `client_id`, leaving `client_id` to represent registered clients. (Note that in the example given, the AS would only support preregistered clients and client metadata document clients, but not OpenID Federation or clients using DID URLs like was mentioned in the client ID scheme doc.)\r\n\r\nSo an OAuth authorization request would look like:\r\n\r\n```\r\nhttps://authorization-server.com/authorize?response_type=code&client_url=https://client.example.com/id&scope=etc&...\r\n```\r\n\r\nI wanted to capture this issue here to get feedback on the issue. \r\n\r\n* While this would be a completely breaking change for anyone who has adopted client metadata documents today, are the benefits worth it? \r\n* Do you see yourself wanting to also support preregistered clients at some point?\r\n* Is parsing a client ID a concern for you?",
       "createdAt": "2025-01-10T01:05:32Z",
-      "updatedAt": "2025-01-10T03:41:43Z",
-      "closedAt": null,
+      "updatedAt": "2026-02-02T21:03:55Z",
+      "closedAt": "2026-02-02T21:03:55Z",
       "comments": [
         {
           "author": "carrvo",
@@ -875,6 +875,13 @@
           "body": "Then I would unfortunately be against the change. I have just figured out how to make [mod_oauth2](https://github.com/OpenIDC/mod_oauth2) compatible with IndieAuth and this would break that (they likely would not accept any changes for this).",
           "createdAt": "2025-01-10T03:41:42Z",
           "updatedAt": "2025-01-10T03:41:42Z"
+        },
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "This was discussed prior to adoption of this document and we decided against using a new parameter to avoid breaking compatibility with client libraries.",
+          "createdAt": "2026-02-02T21:03:55Z",
+          "updatedAt": "2026-02-02T21:03:55Z"
         }
       ]
     },
