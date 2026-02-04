@@ -272,9 +272,16 @@ the authorization server MUST include client authentication of the registered ty
 The particular method of how the client manages the private key is out of scope of this specification, but may include manual provisioning or methods such as Attestation Based Client Authentication [I-D.draft-ietf-oauth-attestation-based-client-auth]. For example, the client developer could run a Client Attester Backend, using a native application's platform-specific APIs to authenticate to the backend service, where the private key corresponding to the `jwks_uri` key is managed by the backend service. This would allow a mobile app to request JWTs from the backend service that the mobile app could then use as client authentication to the authorization server.
 
 
-## Changes in Client Keys
+## Changes in Client Keys {#client_key_changes}
 
 If the authorization server notices that the `jwks_uri` or the contents at the `jwks_uri` have changed compared to the last time it fetched the metadata, the authorization server MAY take actions such as revoking any tokens issued to this client, or revoking the user's consent for this client. The particular actions to take are left up to the discretion of the authorization server based on its own risk assessment.
+
+
+## Changes in Client Metadata
+
+Authorization servers should be aware that client metadata documents can change over time since they are served from URLs under client control. Beyond the key changes addressed above in {{client_key_changes}}, authorization servers should consider the security implications when other metadata properties change, such as `redirect_uris`, `token_endpoint_auth_method`, `scope`, `grant_types`, or display properties like `client_name` and `logo_uri`.
+
+Significant changes to client metadata may affect the trust relationship between the authorization server and the client, and could impact the validity of previously granted user consent. Authorization servers may choose to invalidate existing grants, require fresh user consent, or implement other policies when certain types of metadata changes are detected. The appropriate response will depend on the authorization server's risk tolerance and operational requirements.
 
 
 ## OAuth Phishing Attacks
