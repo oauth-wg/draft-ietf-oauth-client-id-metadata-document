@@ -545,14 +545,18 @@ Acknowledgments
    which defined dereferenceable Client Identifier Documents.
 
    The authors would like to thank the following people for their
-   contributions and reviews of this specification: Brian Campbell, Dick
-   Hardt, Leif Johansson, Pieter Kasselman, Bryan Newbold, Matthieu
-   Sieben, and Filip Skokan.
+   contributions and reviews of this specification: Bobby Tiernay, Brian
+   Campbell, Dick Hardt, Leif Johansson, Pieter Kasselman, Bryan
+   Newbold, Matthieu Sieben, and Filip Skokan.
 
 Document History
 
    (This appendix to be deleted by the RFC editor in the final
    specification.)
+
+   -01
+
+   *  Added security consideration for changes in Client Metadata
 
    -00
 
