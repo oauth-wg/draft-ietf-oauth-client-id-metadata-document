@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-02-03T00:02:34.682020+00:00",
+  "timestamp": "2026-02-05T00:02:15.273355+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -3043,21 +3043,21 @@
       "id": "PR_kwDOL_Xevs6rJ-2R",
       "title": "Add security consideration for changes in Client Metadata",
       "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/47",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "ThisIsMissEm",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "This applies the change recommended in #45 ",
       "createdAt": "2025-09-29T17:53:19Z",
-      "updatedAt": "2025-11-18T14:43:46Z",
+      "updatedAt": "2026-02-04T02:24:03Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "3aafad42b6ac4b3c60af674080ddf920a9975097",
       "headRepository": "ThisIsMissEm/draft-parecki-oauth-client-id-metadata-document",
       "headRefName": "feat/client-metadata-changes",
       "headRefOid": "510d778f67c587c9de391eb89ecf7b011a5e69e5",
-      "closedAt": null,
+      "closedAt": "2026-02-04T02:24:03Z",
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
@@ -3068,6 +3068,13 @@
           "body": "branch has conflicts.",
           "createdAt": "2025-11-18T14:43:46Z",
           "updatedAt": "2025-11-18T14:43:46Z"
+        },
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "Re-created the PR in #60 ",
+          "createdAt": "2026-02-04T02:24:03Z",
+          "updatedAt": "2026-02-04T02:24:03Z"
         }
       ],
       "reviews": [
@@ -3443,6 +3450,42 @@
           "comments": []
         }
       ]
+    },
+    {
+      "number": 60,
+      "id": "PR_kwDOL_Xevs7BWFfG",
+      "title": "Add security consideration for changes in Client Metadata",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/60",
+      "state": "MERGED",
+      "author": "aaronpk",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "Re-created the PR from #47 to deal with merge conflicts",
+      "createdAt": "2026-02-04T02:23:42Z",
+      "updatedAt": "2026-02-04T04:38:41Z",
+      "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "f681637fb3917027a27efd91e0a57ba1bb401167",
+      "headRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "headRefName": "ThisIsMissEm-feat/client-metadata-changes",
+      "headRefOid": "17d5c25a7e2c20fcd3c245cb1401c785f337679f",
+      "closedAt": "2026-02-04T02:24:12Z",
+      "mergedAt": "2026-02-04T02:24:12Z",
+      "mergedBy": "aaronpk",
+      "mergeCommit": {
+        "oid": "36c80815d168b1d68272cfb3889f7226f410df51"
+      },
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Thanks for that!",
+          "createdAt": "2026-02-04T04:38:41Z",
+          "updatedAt": "2026-02-04T04:38:41Z"
+        }
+      ],
+      "reviews": []
     }
   ]
 }
