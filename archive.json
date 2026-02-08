@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-02-05T00:02:15.273355+00:00",
+  "timestamp": "2026-02-08T00:03:40.394799+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -1749,6 +1749,72 @@
           "body": "My point is even if you want to force the AS to reload the metadata, the AS might always have a policy that prevents reloading at some interval. At most this new parameter would be a suggestion, and we already have a mechanism to suggest lifetime of the metadata in the HTTP header.",
           "createdAt": "2025-11-19T14:53:07Z",
           "updatedAt": "2025-11-19T14:53:07Z"
+        }
+      ]
+    },
+    {
+      "number": 61,
+      "id": "I_kwDOL_Xevs7ooJ27",
+      "title": "Clarify jwks vs jwks_uri support",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/61",
+      "state": "OPEN",
+      "author": "yissellokta",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "The Problem\nSection 4.1 pulls in jwks via the DCR registry, but Section 6.3 only discusses rotation/updates for jwks_uri. This leaves the expected behavior for embedded jwks unclear.\n\nThe Proposal\nI suggest we only support jwks_uri for CIMD and disallow embedded jwks.\n\nReasons:\n- Reduced Complexity: For Dynamic CIMD, the Authorization Server (AS) shouldn't have to re-parse the entire metadata document just to find a key change.\n- Clean Invalidation: Invalidation is much cleaner when the cryptographic identity is hosted at a separate jwks_uri rather than inside the metadata.\n- Existing Patterns: Current implementations already focus on jwks_uri for dynamic rotation.\n\n**Question**\nDoes the group see a hard requirement for keeping jwks embedded, or can we move to a jwks_uri only model to simplify implementation?",
+      "createdAt": "2026-02-05T17:58:51Z",
+      "updatedAt": "2026-02-06T20:59:46Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "I would be in favor of this suggestion to remove `jwks` as an option from the metadata for the reasons described here.",
+          "createdAt": "2026-02-05T18:02:10Z",
+          "updatedAt": "2026-02-05T18:02:10Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "I am aware of in the wild usage of jwks in CIMDs, however, it's not something I'd encourage; using a separate document for JWKS is probably best practice here anyway.\n\nI'd be in favour of deprecation of jwks in CIMDs, and a technical note for why that is the way it is. ",
+          "createdAt": "2026-02-05T19:17:47Z",
+          "updatedAt": "2026-02-05T19:17:47Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "@aaronpk I think we'd have to make `jwks` embedded in a CIMD a SHOULD NOT instead of a MUST NOT, due to the in-the-wild usage currently present. Happy to do up a small pull request for this, that says it's a SHOULD NOT and then explains why that's the case, and why you should use `jwks_uri` instead.",
+          "createdAt": "2026-02-05T19:54:48Z",
+          "updatedAt": "2026-02-05T19:54:48Z"
+        },
+        {
+          "author": "btiernay",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "> I am aware of in the wild usage of jwks in CIMD\n\n@ThisIsMissEm curious, do you have any public examples you can share? ",
+          "createdAt": "2026-02-06T15:36:54Z",
+          "updatedAt": "2026-02-06T15:36:54Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "@btiernay smokesignal.events uses it: https://smokesignal.events/oauth-client-metadata.json\n\nI'm sure I've seen other such examples too.",
+          "createdAt": "2026-02-06T16:17:08Z",
+          "updatedAt": "2026-02-06T16:17:08Z"
+        },
+        {
+          "author": "panva",
+          "authorAssociation": "MEMBER",
+          "body": "I tried approaching this question from many different angles and came to the conclusion that there's little if any reason for a SHOULD NOT/MUST NOT here.\n\nA regular client key rotation during which the client first publishes its new keys but doesn't use them can happen in both jwks and jwks_uri. In both cases the client controls the max-age of the particular http response and in doing so the time it knows to wait before starting to use a new key.\n\nThe only reason to push for jwks_uri is the 5kb recommendation on CIMD document size and public key sizes, but who's to say that limit doesn't exist on client's jwks_uri...\n\nI think each client should be able to choose whichever scheme works for its deployment and looking at an AS implementation myself, I have no reason to prefer one over the other. Rotation via jwks_uri is an established pattern. Rotation via natural expiry and regular re-fetching of CIMD document comes out of the box with CIMD",
+          "createdAt": "2026-02-06T20:46:49Z",
+          "updatedAt": "2026-02-06T20:51:33Z"
+        },
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "My main interest in this is reducing optionality to make things simpler for implementers.",
+          "createdAt": "2026-02-06T20:59:46Z",
+          "updatedAt": "2026-02-06T20:59:46Z"
         }
       ]
     }
