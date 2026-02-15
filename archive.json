@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-02-08T00:03:40.394799+00:00",
+  "timestamp": "2026-02-15T00:00:54.582744+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -1815,6 +1815,30 @@
           "body": "My main interest in this is reducing optionality to make things simpler for implementers.",
           "createdAt": "2026-02-06T20:59:46Z",
           "updatedAt": "2026-02-06T20:59:46Z"
+        }
+      ]
+    },
+    {
+      "number": 62,
+      "id": "I_kwDOL_Xevs7quCrU",
+      "title": "Recommed well-known authorization metadata indicating CIMD support",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/62",
+      "state": "CLOSED",
+      "author": "meghnadubey",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "This spec should recommend `.well-known/oauth-authorization-server` metadata that will indicate that the server supports CIMD for clients. Something like a `client_methods_supported` or `client_identification_supported`, can indicate to a client whether the server will support CIMD or if the client has to register at the server first.",
+      "createdAt": "2026-02-13T16:19:52Z",
+      "updatedAt": "2026-02-13T18:35:54Z",
+      "closedAt": "2026-02-13T18:35:54Z",
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "We have this: https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-00.html#name-authorization-server-metada",
+          "createdAt": "2026-02-13T18:35:54Z",
+          "updatedAt": "2026-02-13T18:35:54Z"
         }
       ]
     }
