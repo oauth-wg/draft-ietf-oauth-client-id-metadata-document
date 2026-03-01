@@ -167,7 +167,7 @@ inform their security policies.
 
 ## Client Metadata Document
 
-A Client Metadata Document is a JSON document {{RFC8259}} containing the client
+A Client Metadata Document is a JSON document as described in {{Section 4 of RFC8259}} containing the client
 registration information for the client. The properties of the Client Metadata
 Document are the values defined in the OAuth Dynamic Client Registration
 Metadata OAuth Parameters registry
