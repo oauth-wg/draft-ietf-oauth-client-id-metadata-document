@@ -152,7 +152,7 @@ client name and logo.
 
 The authorization server SHOULD fetch the document indicated by the `client_id`
 to retrieve the client registration information. The Authorization Server MUST
-send an `Accept` header of `application/json` when fetching the client metadata.
+send an `Accept` header of `application/json` as described in {{Section 12.5.1 of RFC9110}} when fetching the client metadata.
 
 ## Client Metadata
 
