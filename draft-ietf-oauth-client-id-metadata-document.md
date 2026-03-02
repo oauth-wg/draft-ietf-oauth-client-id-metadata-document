@@ -207,6 +207,13 @@ To enable developers to author applications on their machines, without exposing 
 A Client ID Metadata Document Service is a web service through which developers can acquire a stable URL to a Client ID Metadata Document. This service MAY expire clients from time to time, and MAY require developers to provide additional information about the client being developed.
 
 
+The only requirement on Client ID Metadata Document Services is that they MUST
+return valid Client ID Metadata Documents for the `client_id`s that they
+provision, or return a status code indicating an error response (e.g., 404 Not
+Found). How a Client ID Metadata Document Service creates or stores metadata
+documents is outside of the scope of this document.
+
+
 By providing at least one Client ID Metadata Document Service, an authorization server can enable developers to create applications, and still indicate to non-technical people that the client that they are about to authorize is currently under-development and may not be trustworthy or secure.
 
 ## Metadata Discovery Errors
