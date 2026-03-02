@@ -348,7 +348,7 @@ The following authorization server metadata value is defined by this specificati
 
 The idea of using URIs as the `client_id` in OAuth based authorization requests is not new, and has previously been specified in varying ways by [IndieAuth], [Solid-OIDC], and [OpenID.Federation]. This specification is largely inspired by the work of Aaron Coburn, elf Pavlik, and Dmitri Zagidulin in their [Solid-OIDC] specification which defined dereferenceable Client Identifier Documents.
 
-The authors would like to thank the following people for their contributions and reviews of this specification: Bobby Tiernay, Brian Campbell, Dick Hardt, Leif Johansson, Pieter Kasselman, Bryan Newbold, Matthieu Sieben, and Filip Skokan.
+The authors would like to thank the following people for their contributions and reviews of this specification: Bobby Tiernay, Brian Campbell, Bryan Newbold, Dick Hardt, Filip Skokan, Jeff Lombardo, Leif Johansson, Matthieu Sieben, Meghna Dubey, Orie Steele, Pieter Kasselman, and Takahiko Kawasaki.
 
 
 # Document History
@@ -359,6 +359,9 @@ The authors would like to thank the following people for their contributions and
 -01
 
 * Added security consideration for changes in Client Metadata
+* Added guidance for an AS that supports both registered and unregistered clients
+* Require HTTP 200 response for fetching metadata
+* Added additional SSRF considerations
 
 -00
 
