@@ -157,6 +157,10 @@ Table of Contents
    The authorization server SHOULD fetch the document indicated by the
    client_id to retrieve the client registration information.
 
+   Special care should be taken to avoid Server Side Request Forgery
+   (SSRF) Attacks when fetching Client ID Metadata Documents, as
+   described in Section 6.6.
+
 4.1.  Client Metadata
 
    The client metadata document URL is a JSON document containing the
@@ -392,12 +396,18 @@ Table of Contents
 
    Authorization servers fetching the client metadata document and
    resolving URLs located in the metadata document should be aware of
-   possible SSRF attacks.  Authorization servers SHOULD avoid fetching
-   any URLs using private or loopback addresses and consider network
-   policies or other measures to prevent making requests to these
-   addresses.  Authorization servers SHOULD also be aware of the
-   possibility that URLs might be non-http-based URI schemes which can
-   lead to other possible SSRF attack vectors.
+   possible SSRF attacks.  Authorization servers MUST validate that the
+   Client ID Metadata Document URL does not resolve to special-use IP
+   addresses as defined in [RFC6890], except when the authorization
+   server itself is also running on a loopback address and the resolved
+   address matches the same loopback interface.
+
+   Authorization servers SHOULD NOT fetch any URLs contained within
+   Client ID Metadata Documents that resolve to special-use IP addresses
+   as defined in [RFC6890] and consider network policies or other
+   measures to prevent making requests to these addresses.
+   Authorization servers which support non-http-based URI schemes are at
+   additional risk of SSRF attacks.
 
 6.7.  Maximum Response Size for Client Metadata Documents
 
@@ -475,6 +485,11 @@ Table of Contents
               Threat Model and Security Considerations", RFC 6819,
               DOI 10.17487/RFC6819, January 2013,
               <https://www.rfc-editor.org/rfc/rfc6819>.
+
+   [RFC6890]  Cotton, M., Vegoda, L., Bonica, R., Ed., and B. Haberman,
+              "Special-Purpose IP Address Registries", BCP 153,
+              RFC 6890, DOI 10.17487/RFC6890, April 2013,
+              <https://www.rfc-editor.org/rfc/rfc6890>.
 
    [RFC7591]  Richer, J., Ed., Jones, M., Bradley, J., Machulak, M., and
               P. Hunt, "OAuth 2.0 Dynamic Client Registration Protocol",

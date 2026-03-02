@@ -1316,6 +1316,8 @@ the client to the user in an authorization consent screen, for example the
 client name and logo.<a href="#section-4-1" class="pilcrow">¶</a></p>
 <p id="section-4-2">The authorization server <span class="bcp14">SHOULD</span> fetch the document indicated by the <code>client_id</code>
 to retrieve the client registration information.<a href="#section-4-2" class="pilcrow">¶</a></p>
+<p id="section-4-3">Special care should be taken to avoid Server Side Request Forgery (SSRF) Attacks
+when fetching Client ID Metadata Documents, as described in <a href="#ssrf_attacks" class="auto internal xref">Section 6.6</a>.<a href="#section-4-3" class="pilcrow">¶</a></p>
 <div id="client-metadata">
 <section id="section-4.1">
         <h3 id="name-client-metadata">
@@ -1488,12 +1490,13 @@ the authorization server <span class="bcp14">MUST</span> include client authenti
 <p id="section-6.5-3">If fetching the client metadata document fails for any reason, the <code>client_id</code> URL is the only piece of information the user has as an indication of which application they are authorizing.<a href="#section-6.5-3" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="server-side-request-forgery-ssrf-attacks">
+<div id="ssrf_attacks">
 <section id="section-6.6">
         <h3 id="name-server-side-request-forgery">
 <a href="#section-6.6" class="section-number selfRef">6.6. </a><a href="#name-server-side-request-forgery" class="section-name selfRef">Server Side Request Forgery (SSRF) Attacks</a>
         </h3>
-<p id="section-6.6-1">Authorization servers fetching the client metadata document and resolving URLs located in the metadata document should be aware of possible SSRF attacks. Authorization servers <span class="bcp14">SHOULD</span> avoid fetching any URLs using private or loopback addresses and consider network policies or other measures to prevent making requests to these addresses. Authorization servers <span class="bcp14">SHOULD</span> also be aware of the possibility that URLs might be non-http-based URI schemes which can lead to other possible SSRF attack vectors.<a href="#section-6.6-1" class="pilcrow">¶</a></p>
+<p id="section-6.6-1">Authorization servers fetching the client metadata document and resolving URLs located in the metadata document should be aware of possible SSRF attacks. Authorization servers <span class="bcp14">MUST</span> validate that the Client ID Metadata Document URL does not resolve to special-use IP addresses as defined in <span>[<a href="#RFC6890" class="cite xref">RFC6890</a>]</span>, except when the authorization server itself is also running on a loopback address and the resolved address matches the same loopback interface.<a href="#section-6.6-1" class="pilcrow">¶</a></p>
+<p id="section-6.6-2">Authorization servers <span class="bcp14">SHOULD NOT</span> fetch any URLs contained within Client ID Metadata Documents that resolve to special-use IP addresses as defined in <span>[<a href="#RFC6890" class="cite xref">RFC6890</a>]</span> and consider network policies or other measures to prevent making requests to these addresses. Authorization servers which support non-http-based URI schemes are at additional risk of SSRF attacks.<a href="#section-6.6-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="maximum-response-size-for-client-metadata-documents">
@@ -1579,6 +1582,10 @@ the authorization server <span class="bcp14">MUST</span> include client authenti
 <dt id="RFC6819">[RFC6819]</dt>
         <dd>
 <span class="refAuthor">Lodderstedt, T., Ed.</span>, <span class="refAuthor">McGloin, M.</span>, and <span class="refAuthor">P. Hunt</span>, <span class="refTitle">"OAuth 2.0 Threat Model and Security Considerations"</span>, <span class="seriesInfo">RFC 6819</span>, <span class="seriesInfo">DOI 10.17487/RFC6819</span>, <time datetime="2013-01" class="refDate">January 2013</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6819">https://www.rfc-editor.org/rfc/rfc6819</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6890">[RFC6890]</dt>
+        <dd>
+<span class="refAuthor">Cotton, M.</span>, <span class="refAuthor">Vegoda, L.</span>, <span class="refAuthor">Bonica, R., Ed.</span>, and <span class="refAuthor">B. Haberman</span>, <span class="refTitle">"Special-Purpose IP Address Registries"</span>, <span class="seriesInfo">BCP 153</span>, <span class="seriesInfo">RFC 6890</span>, <span class="seriesInfo">DOI 10.17487/RFC6890</span>, <time datetime="2013-04" class="refDate">April 2013</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6890">https://www.rfc-editor.org/rfc/rfc6890</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC7591">[RFC7591]</dt>
         <dd>
