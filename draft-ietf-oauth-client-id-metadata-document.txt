@@ -78,7 +78,7 @@ Table of Contents
    2.  Conventions and Definitions
    3.  Client Identifier
    4.  Client Information Discovery
-     4.1.  Client Metadata
+     4.1.  Client Metadata Document
      4.2.  Client Metadata Documents for Development Purposes
      4.3.  Metadata Discovery Errors
      4.4.  Metadata Caching
@@ -155,21 +155,29 @@ Table of Contents
    screen, for example the client name and logo.
 
    The authorization server SHOULD fetch the document indicated by the
-   client_id to retrieve the client registration information.
+   client_id to retrieve the client registration information.  A
+   successful response MUST use the 200 OK HTTP status code.  The
+   authorization server MUST treat all other HTTP status codes as an
+   error response.  The authorization server MUST NOT automatically
+   follow HTTP redirects when retrieving the client registration
+   information.
 
    Special care should be taken to avoid Server Side Request Forgery
    (SSRF) Attacks when fetching Client ID Metadata Documents, as
    described in Section 6.6.
 
-4.1.  Client Metadata
+4.1.  Client Metadata Document
 
-   The client metadata document URL is a JSON document containing the
-   metadata of the client.  The client metadata values are the values
-   defined in the OAuth Dynamic Client Registration Metadata OAuth
-   Parameters registry https://www.iana.org/assignments/oauth-
-   parameters/oauth-parameters.xhtml#client-metadata
+   The client metadata document is a JSON ([RFC8259]) document
+   containing the metadata of the client.  The client metadata values
+   are the values defined in the OAuth Dynamic Client Registration
+   Metadata OAuth Parameters registry https://www.iana.org/assignments/
+   oauth-parameters/oauth-parameters.xhtml#client-metadata
    (https://www.iana.org/assignments/oauth-parameters/oauth-
    parameters.xhtml#client-metadata).
+
+   The client metadata document MUST be served with a 200 OK HTTP status
+   code.
 
    The client metadata document MUST contain a client_id property whose
    value MUST match the URL of the document using simple string
@@ -499,6 +507,11 @@ Table of Contents
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
+
+   [RFC8259]  Bray, T., Ed., "The JavaScript Object Notation (JSON) Data
+              Interchange Format", STD 90, RFC 8259,
+              DOI 10.17487/RFC8259, December 2017,
+              <https://www.rfc-editor.org/rfc/rfc8259>.
 
    [RFC8414]  Jones, M., Sakimura, N., and J. Bradley, "OAuth 2.0
               Authorization Server Metadata", RFC 8414,
