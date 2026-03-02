@@ -35,6 +35,7 @@ normative:
   RFC6819:
   RFC6890:
   RFC7591:
+  RFC8259:
   RFC8414:
   RFC9700:
 
@@ -152,17 +153,22 @@ the client to the user in an authorization consent screen, for example the
 client name and logo.
 
 The authorization server SHOULD fetch the document indicated by the `client_id`
-to retrieve the client registration information.
+to retrieve the client registration information. A successful response MUST use
+the 200 OK HTTP status code. The authorization server MUST treat all other
+HTTP status codes as an error response. The authorization server MUST NOT
+automatically follow HTTP redirects when retrieving the client registration information.
 
 Special care should be taken to avoid Server Side Request Forgery (SSRF) Attacks
 when fetching Client ID Metadata Documents, as described in {{ssrf_attacks}}.
 
-## Client Metadata
+## Client Metadata Document
 
-The client metadata document URL is a JSON document containing the metadata
+The client metadata document is a JSON ({{RFC8259}}) document containing the metadata
 of the client. The client metadata values are the values defined in
 the OAuth Dynamic Client Registration Metadata OAuth Parameters registry
 <https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#client-metadata>.
+
+The client metadata document MUST be served with a 200 OK HTTP status code.
 
 The client metadata document MUST contain a `client_id` property whose value
 MUST match the URL of the document using simple string comparison as
