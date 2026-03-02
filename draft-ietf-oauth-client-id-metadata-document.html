@@ -1222,6 +1222,12 @@ metadata about the client as needed.<a href="#section-abstract-1" class="pilcrow
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.9">
                 <p id="section-toc.1-1.6.2.9.1"><a href="#section-6.9" class="auto internal xref">6.9</a>.  <a href="#name-client-id-domain-trust" class="internal xref">Client ID Domain Trust</a></p>
 </li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.10">
+                <p id="section-toc.1-1.6.2.10.1"><a href="#section-6.10" class="auto internal xref">6.10</a>. <a href="#name-supporting-both-pre-registe" class="internal xref">Supporting Both Pre-Registered and Unregistered Clients</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.11">
+                <p id="section-toc.1-1.6.2.11.1"><a href="#section-6.11" class="auto internal xref">6.11</a>. <a href="#name-pre-registering-client-id-m" class="internal xref">Pre-Registering Client ID Metadata Document URLs</a></p>
+</li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
@@ -1527,6 +1533,23 @@ the authorization server <span class="bcp14">MUST</span> include client authenti
         </h3>
 <p id="section-6.9-1">The authorization server <span class="bcp14">MAY</span> choose to have its own heuristics and policies around the trust of domain names used as client IDs.<a href="#section-6.9-1" class="pilcrow">¶</a></p>
 <p id="section-6.9-2">For example, the authorization server could require that the first 100 users to authorize a <code>client_id</code> see an additional warning screen before the OAuth consent screen. The authorization server could check attributes of the domain reputation, such as how recently the domain was registered, and put up extra warnings for new domains.<a href="#section-6.9-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="supporting-both-pre-registered-and-unregistered-clients">
+<section id="section-6.10">
+        <h3 id="name-supporting-both-pre-registe">
+<a href="#section-6.10" class="section-number selfRef">6.10. </a><a href="#name-supporting-both-pre-registe" class="section-name selfRef">Supporting Both Pre-Registered and Unregistered Clients</a>
+        </h3>
+<p id="section-6.10-1">If an Authorization Server wishes to support clients using Client ID Metadata Documents as well as clients where the Authorization Server generates the <code>client_id</code>, it <span class="bcp14">SHOULD</span> ensure that the <code>client_id</code> strings it generates do not start with <code>https://</code>. Given that most implementations of Authorization Servers generate random values for the <code>client_id</code>, this is not expected to be a problem in practice.<a href="#section-6.10-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="pre-registering-client-id-metadata-document-urls">
+<section id="section-6.11">
+        <h3 id="name-pre-registering-client-id-m">
+<a href="#section-6.11" class="section-number selfRef">6.11. </a><a href="#name-pre-registering-client-id-m" class="section-name selfRef">Pre-Registering Client ID Metadata Document URLs</a>
+        </h3>
+<p id="section-6.11-1">An Authorization Server <span class="bcp14">MAY</span> pre-register Client ID Metadata Document URLs. While this effectively defeats the purpose of enabling the dynamic relationship between clients and authorization servers, it can be a good way to support clients that define their own client IDs as Client ID Metadata Document URLs while not wanting to enable unknown clients to access the authorization server.<a href="#section-6.11-1" class="pilcrow">¶</a></p>
+<p id="section-6.11-2">This deployment pattern is expected to be common in enterprise environments where the enterprise customers wish to explicitly onboard particular clients into their environment. The Client ID Metadata Document URL can be registered with the identity provider, including establishing client authentication as described in <a href="#client_authentication" class="auto internal xref">Section 6.2</a>, where it can behave the same way as a pre-registered client. There is no obligation to support dynamic client onboarding by using the mechanisms described in this document.<a href="#section-6.11-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>

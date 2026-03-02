@@ -86,7 +86,7 @@ Table of Contents
    5.  Authorization Server Metadata
    6.  Security Considerations
      6.1.  Relationship between redirect_uris and client_id or
-           client_uri
+            client_uri
      6.2.  Client Authentication
      6.3.  Changes in Client Keys
      6.4.  Changes in Client Metadata
@@ -95,6 +95,8 @@ Table of Contents
      6.7.  Maximum Response Size for Client Metadata Documents
      6.8.  Displaying Logos to End-Users
      6.9.  Client ID Domain Trust
+     6.10. Supporting Both Pre-Registered and Unregistered Clients
+     6.11. Pre-Registering Client ID Metadata Document URLs
    7.  IANA Considerations
      7.1.  OAuth Authorization Server Metadata Registry
    8.  References
@@ -450,6 +452,33 @@ Table of Contents
    before the OAuth consent screen.  The authorization server could
    check attributes of the domain reputation, such as how recently the
    domain was registered, and put up extra warnings for new domains.
+
+6.10.  Supporting Both Pre-Registered and Unregistered Clients
+
+   If an Authorization Server wishes to support clients using Client ID
+   Metadata Documents as well as clients where the Authorization Server
+   generates the client_id, it SHOULD ensure that the client_id strings
+   it generates do not start with https://. Given that most
+   implementations of Authorization Servers generate random values for
+   the client_id, this is not expected to be a problem in practice.
+
+6.11.  Pre-Registering Client ID Metadata Document URLs
+
+   An Authorization Server MAY pre-register Client ID Metadata Document
+   URLs.  While this effectively defeats the purpose of enabling the
+   dynamic relationship between clients and authorization servers, it
+   can be a good way to support clients that define their own client IDs
+   as Client ID Metadata Document URLs while not wanting to enable
+   unknown clients to access the authorization server.
+
+   This deployment pattern is expected to be common in enterprise
+   environments where the enterprise customers wish to explicitly
+   onboard particular clients into their environment.  The Client ID
+   Metadata Document URL can be registered with the identity provider,
+   including establishing client authentication as described in
+   Section 6.2, where it can behave the same way as a pre-registered
+   client.  There is no obligation to support dynamic client onboarding
+   by using the mechanisms described in this document.
 
 7.  IANA Considerations
 
