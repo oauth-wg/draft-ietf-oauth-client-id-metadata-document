@@ -35,6 +35,7 @@ normative:
   RFC6819:
   RFC7591:
   RFC8414:
+  RFC9110:
   RFC9700:
 
 informative:
@@ -90,6 +91,9 @@ informative:
   I-D.draft-ietf-oauth-attestation-based-client-auth:
   RFC7523:
   RFC9111:
+  OWASP.SSRF:
+    title: OWASP SSRF Cheat Sheet
+    target: https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html
 
 entity:
   SELF: "[draft-ietf-oauth-client-id-metadata-document-latest]"
@@ -142,7 +146,7 @@ be displayed to the end user in the authorization interface or in
 management interfaces. Usage of a stable URL that does not frequently
 change for the client is also RECOMMENDED.
 
-# Client Information Discovery
+# Client Information Discovery {#client-information-discovery}
 
 One purpose of registering clients at the authorization server is so that
 the authorization server has additional information about the client that
@@ -151,7 +155,9 @@ the client to the user in an authorization consent screen, for example the
 client name and logo.
 
 The authorization server SHOULD fetch the document indicated by the `client_id`
-to retrieve the client registration information.
+to retrieve the client registration information. The Authorization Server MUST
+send an `Accept` header of `application/cimd+json` as described in {{Section 12.5.1 of RFC9110}}
+when fetching the client metadata. See {{accept-header}} for additional details.
 
 ## Client Metadata
 
@@ -237,7 +243,7 @@ Authorization servers that publish Authorization Server Metadata {{RFC8414}} MUS
 This enables clients to avoid sending the user to a dead end, by only redirecting the user to an authorization server that supports this specification. Otherwise, the client would redirect the user and the user would be met with an error about an invalid client as described by Section 4.1.2.1 of {{RFC6749}}.
 
 
-# Security Considerations
+# Security Considerations {#security-considerations}
 
 In addition to the security considerations in OAuth 2.0 Core {{RFC6749}}, and OAuth 2.0 Threat Model and Security Considerations {{RFC6819}}, and {{RFC9700}} the additional considerations apply.
 
@@ -297,6 +303,12 @@ If fetching the client metadata document fails for any reason, the `client_id` U
 
 Authorization servers fetching the client metadata document and resolving URLs located in the metadata document should be aware of possible SSRF attacks. Authorization servers SHOULD avoid fetching any URLs using private or loopback addresses and consider network policies or other measures to prevent making requests to these addresses. Authorization servers SHOULD also be aware of the possibility that URLs might be non-http-based URI schemes which can lead to other possible SSRF attack vectors.
 
+Authorization servers SHOULD follow the recommendations in {{OWASP.SSRF}}.
+
+### Accept Header {#accept-header}
+
+As described in {{client-information-discovery}}, when fetching the Client ID Metadata Document, the authorization server MUST send an `Accept` header of `application/cimd+json`. This reduces the chances that the authorization server can be used in a reflection attack on unrelated resources, as the target server has the `Accept` header to early reject the request if the request is made to a resource that does not return JSON.
+
 
 ## Maximum Response Size for Client Metadata Documents
 
@@ -328,6 +340,51 @@ The following authorization server metadata value is defined by this specificati
 * Specification Document: {{as-metadata}} of {{&SELF}}
 
 
+## Media Type Registration
+
+This document registers the `application/cimd+json` media type for Client ID Metadata Documents carrying parameters encoded in JSON.
+
+**Type name:** `application`
+
+**Subtype name:** `cimd+json`
+
+**Required parameters:** N/A
+
+**Optional parameters:** N/A
+
+**Encoding considerations:** Encoding considerations are identical to those specified for the `application/json` media type.
+
+**Security considerations:** {{security-considerations}}
+
+**Interoperability considerations:** none
+
+**Published specification:** TBD
+
+**Applications that use this media type:** This media type is intended for Authorization-Server-Client communication as part of the OAuth framework for clients that use Client ID Metadata Documents as described in this document.
+
+**Fragment identifier considerations:** none
+
+**Additional information:**
+
+  **Deprecated alias names for this type:** none
+
+  **Magic number(s):** none
+
+  **File extension(s):** none
+
+  **Macintosh file type code(s):** none
+
+**Person & email address to contact for further information:** Aaron Parecki (aaron@parecki.com)
+
+**Intended usage:** COMMON
+
+**Restrictions on usage:** none
+
+**Author:** Aaron Parecki (aaron@parecki.com)
+
+**Change controller:** IETF
+
+
 
 --- back
 
@@ -347,6 +404,7 @@ The authors would like to thank the following people for their contributions and
 -01
 
 * Added security consideration for changes in Client Metadata
+* Require sending Accept header when fetching metadata, and register the `application/cimd+json` media type
 
 -00
 
