@@ -327,6 +327,16 @@ The authorization server MAY choose to have its own heuristics and policies arou
 
 For example, the authorization server could require that the first 100 users to authorize a `client_id` see an additional warning screen before the OAuth consent screen. The authorization server could check attributes of the domain reputation, such as how recently the domain was registered, and put up extra warnings for new domains.
 
+## Supporting Both Pre-Registered and Unregistered Clients
+
+If an Authorization Server wishes to support clients using Client ID Metadata Documents as well as clients where the Authorization Server generates the `client_id`, it SHOULD ensure that the `client_id` strings it generates do not start with `https://`. Given that most implementations of Authorization Servers generate random values for the `client_id`, this is not expected to be a problem in practice.
+
+## Pre-Registering Client ID Metadata Document URLs
+
+An Authorization Server MAY pre-register Client ID Metadata Document URLs. While this effectively defeats the purpose of enabling the dynamic relationship between clients and authorization servers, it can be a good way to support clients that define their own client IDs as Client ID Metadata Document URLs while not wanting to enable unknown clients to access the authorization server.
+
+This deployment pattern is expected to be common in enterprise environments where the enterprise customers wish to explicitly onboard particular clients into their environment. The Client ID Metadata Document URL can be registered with the identity provider, including establishing client authentication as described in {{client_authentication}}, where it can behave the same way as a pre-registered client. There is no obligation to support dynamic client onboarding by using the mechanisms described in this document.
+
 
 # IANA Considerations
 
