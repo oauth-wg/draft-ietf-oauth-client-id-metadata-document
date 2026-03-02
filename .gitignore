@@ -21,3 +21,4 @@ draft-ietf-oauth-client-id-metadata-document.xml
 package-lock.json
 report.xml
 !requirements.txt
+.DS_Store
