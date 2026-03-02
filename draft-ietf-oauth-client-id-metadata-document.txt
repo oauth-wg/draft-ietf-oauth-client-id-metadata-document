@@ -603,8 +603,9 @@ Acknowledgments
 
    The authors would like to thank the following people for their
    contributions and reviews of this specification: Bobby Tiernay, Brian
-   Campbell, Dick Hardt, Leif Johansson, Pieter Kasselman, Bryan
-   Newbold, Matthieu Sieben, and Filip Skokan.
+   Campbell, Bryan Newbold, Dick Hardt, Filip Skokan, Jeff Lombardo,
+   Leif Johansson, Matthieu Sieben, Meghna Dubey, Orie Steele, Pieter
+   Kasselman, and Takahiko Kawasaki.
 
 Document History
 
@@ -614,6 +615,13 @@ Document History
    -01
 
    *  Added security consideration for changes in Client Metadata
+
+   *  Added guidance for an AS that supports both registered and
+      unregistered clients
+
+   *  Require HTTP 200 response for fetching metadata
+
+   *  Added additional SSRF considerations
 
    -00
 
