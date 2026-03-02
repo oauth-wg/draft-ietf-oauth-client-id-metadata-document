@@ -293,7 +293,7 @@ If fetching the client metadata document fails for any reason, the `client_id` U
 
 Authorization servers fetching the client metadata document and resolving URLs located in the metadata document should be aware of possible SSRF attacks. Authorization servers MUST validate that the Client ID Metadata Document URL does not resolve to special-use IP addresses as defined in [RFC6890], except when the authorization server itself is also running on a loopback address and the resolved address matches the same loopback interface.
 
-Authorization servers SHOULD avoid fetching any URLs contained within Client ID Metadata Documents that resolve to special-use IP addresses as defined in [RFC6890] and consider network policies or other measures to prevent making requests to these addresses. Authorization servers SHOULD also be aware of the possibility that URLs might be non-http-based URI schemes which can lead to other possible SSRF attack vectors.
+Authorization servers SHOULD NOT fetch any URLs contained within Client ID Metadata Documents that resolve to special-use IP addresses as defined in [RFC6890] and consider network policies or other measures to prevent making requests to these addresses. Authorization servers which support non-http-based URI schemes are at additional risk to SSRF attacks.
 
 
 ## Maximum Response Size for Client Metadata Documents
