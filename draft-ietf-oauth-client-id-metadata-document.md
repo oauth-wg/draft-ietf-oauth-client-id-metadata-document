@@ -1,6 +1,6 @@
 ---
 title: "OAuth Client ID Metadata Document"
-abbrev: "Client ID Document"
+abbrev: "CIMD"
 category: std
 
 docname: draft-ietf-oauth-client-id-metadata-document-latest
