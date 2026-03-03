@@ -144,6 +144,9 @@ be displayed to the end user in the authorization interface or in
 management interfaces. Usage of a stable URL that does not frequently
 change for the client is also RECOMMENDED.
 
+The URL MAY include a reference to the `software_version` field of the client
+metadata document, as discussed in {{identifying_metadata_changes}}.
+
 # Client Information Discovery
 
 One purpose of registering clients at the authorization server is so that
@@ -291,6 +294,31 @@ Significant changes to client metadata may affect the trust relationship between
 ### Changes in Client Keys {#client_key_changes}
 
 If the authorization server notices that the `jwks`, `jwks_uri` or the contents at the `jwks_uri` have changed compared to the last time it fetched the metadata, the authorization server MAY take actions such as revoking any tokens issued to this client, or revoking the user's consent for this client. The particular actions to take are left up to the discretion of the authorization server based on its own risk assessment. However, periodic rotation of keys can also be expected as good security hygiene by the client.
+
+### Identifying Changes in Client Metadata {#identifying_metadata_changes}
+
+The client metadata document MAY include the `software_version` field as defined in {{RFC7591}}. For the purposes of this specification, it is RECOMMENDED that this field be updated when a meaningful change is made to any of the other fields in the client metadata document. The definition of what constitutes a meaningful change is out of scope of this specification.
+
+The `software_version` may also be part of the URL for the client metadata document, in order to allow authorization servers to differentiate between versions of a client that may have different capabilities. For example:
+
+    GET /client_metadata/1.0.json
+    HTTP 200 OK
+    {
+        "software_version": "1.0",
+        ...
+    }
+
+    GET /client_metadata/2.0.json
+    HTTP 200 OK
+    {
+        "software_version": "2.0",
+        ...
+        "token_endpoint_auth_method": "private_key_jwt",
+        "jwks_uri": "https://client.example.com/jwks.json",
+        ...
+    }
+
+In this non-normative example, client instances of version 1.0 may not support the `private_key_jwt` authentication method, while client instances of version 2.0 would. The authorization server may want to treat these versions as independent clients and apply different policies to them.
 
 
 ## OAuth Phishing Attacks
