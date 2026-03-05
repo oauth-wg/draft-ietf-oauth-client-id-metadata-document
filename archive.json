@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-03-03T00:02:23.212852+00:00",
+  "timestamp": "2026-03-05T00:02:05.862590+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -3977,6 +3977,56 @@
           ]
         }
       ]
+    },
+    {
+      "number": 67,
+      "id": "PR_kwDOL_Xevs7HtZJ6",
+      "title": "Add `software_version` to identify metadata changes",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/67",
+      "state": "OPEN",
+      "author": "itsvs",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [
+        "ietf-125"
+      ],
+      "body": "The -01 draft suggests that clients should refrain from updating metadata too frequently, and that authorization servers should expect occasional changes to metadata. It might be helpful for clients to make it easy for servers to identify when metadata has changed.\r\n\r\nRFC 7591 provides a `software_version` field that we could use for this purpose. This PR introduces a couple of recommendations along these lines:\r\n- Clients may include this field to indicate when the metadata document has changed and/or to differentiate between application versions with different capabilities\r\n- If clients parameterize this in the URL, authorization servers could treat different versions as different clients with different policies.\r\n\r\nI briefly chatted about this with Aaron before making this PR, and I am very much open to discussing further!",
+      "createdAt": "2026-03-03T20:51:11Z",
+      "updatedAt": "2026-03-03T23:12:54Z",
+      "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "64566e8d7abae313e200903549301f9fb33a2204",
+      "headRepository": "itsvs/draft-ietf-oauth-client-id-metadata-document",
+      "headRefName": "add-software-version",
+      "headRefOid": "d98dc54147c24e5cc02bc79fa3d4fcfa50d5749b",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "Vaguely related to #57 as well",
+          "createdAt": "2026-03-03T20:53:09Z",
+          "updatedAt": "2026-03-03T20:53:09Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "In the wild these two different URLs would be treated as two distinct clients, with no carry over between them. Is that what you're intending here?",
+          "createdAt": "2026-03-03T21:54:25Z",
+          "updatedAt": "2026-03-03T21:54:25Z"
+        },
+        {
+          "author": "itsvs",
+          "authorAssociation": "NONE",
+          "body": "Yes. Authorization servers may wish to enforce different policies based on client capabilities, so if those vary across client versions, the versions should be treated as different clients. Updating the same client wouldn't work since multiple versions of a client might exist at any given time (e.g. if users need to update the client app).\r\n\r\nThat being said, I don't think clients have to host _every_ new software version at a separate URL. If it's something like a logo change, the client might just update `software_version` to `2.0.1` and leave the URL as `2.0`. URL changes should really be reserved for things that would make a meaningful difference to an AS (but this is left up to the client implementer's judgment).",
+          "createdAt": "2026-03-03T23:12:54Z",
+          "updatedAt": "2026-03-03T23:12:54Z"
+        }
+      ],
+      "reviews": []
     }
   ]
 }
