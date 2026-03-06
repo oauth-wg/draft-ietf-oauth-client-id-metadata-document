@@ -90,6 +90,7 @@ informative:
       - name: V. Dzhuvinov
         org: Connect2id
   I-D.draft-ietf-oauth-attestation-based-client-auth:
+  I-D.draft-ietf-oauth-spiffe-client-auth:
   RFC7523:
   RFC9111:
 
@@ -262,9 +263,12 @@ Some restrictions on `redirect_uris` can make developer usage of Client ID Metad
 ## Client Authentication {#client_authentication}
 
 Since the client establishes its own registration data at the authorization server,
-prior coordination of client credentials is not possible. However, clients MAY establish
+prior coordination of client credentials is not possible. However, establishing
 credentials at the authorization server by using authentication methods that use
-public/private key pairs, by publishing the public key in their metadata document.
+public/private key pairs is possible by publishing the public key in their metadata document.
+
+Clients that are capable of maintaining private key material and performing client authentication
+SHOULD do so with an acceptable method.
 
 For example, the client MAY include the following properties in its metadata document
 to establish a public key and advertise the `private_key_jwt` authentication method defined in {{OpenID}}:
@@ -279,7 +283,10 @@ to establish a public key and advertise the `private_key_jwt` authentication met
 This establishes this client as a confidential client, and any communication with
 the authorization server MUST include client authentication of the registered type.
 
-The particular method of how the client manages the private key is out of scope of this specification, but may include manual provisioning or methods such as Attestation Based Client Authentication [I-D.draft-ietf-oauth-attestation-based-client-auth]. For example, the client developer could run a Client Attester Backend, using a native application's platform-specific APIs to authenticate to the backend service, where the private key corresponding to the `jwks_uri` key is managed by the backend service. This would allow a mobile app to request JWTs from the backend service that the mobile app could then use as client authentication to the authorization server.
+When a client declares `token_endpoint_auth_method` as `private_key_jwt`, the authorization server
+MUST require client authentication according to {{Section 2.2 or RFC7523}} using the corresponding key published in the client's metadata document.
+
+The particular method of how the client manages the private key is out of scope of this specification, but may include manual provisioning or methods such as "Attestation Based Client Authentication" [I-D.draft-ietf-oauth-attestation-based-client-auth] or "OAuth SPIFFE Client Authentication" [I-D.draft-ietf-oauth-spiffe-client-auth]. For example, the client developer could run a Client Attester Backend, using a native application's platform-specific APIs to authenticate to the backend service, where the private key corresponding to the `jwks_uri` key is managed by the backend service. This would allow a mobile app to request JWTs from the backend service that the mobile app could then use as client authentication to the authorization server.
 
 
 ## Changes in Client Metadata
