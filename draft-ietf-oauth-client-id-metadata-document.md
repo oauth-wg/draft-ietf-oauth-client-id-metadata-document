@@ -284,7 +284,7 @@ This establishes this client as a confidential client, and any communication wit
 the authorization server MUST include client authentication of the registered type.
 
 When a client declares `token_endpoint_auth_method` as `private_key_jwt`, the authorization server
-MUST require client authentication according to {{Section 2.2 or RFC7523}} using the corresponding key published in the client's metadata document.
+MUST require client authentication according to {{Section 2.2 of RFC7523}} using the corresponding key published in the client's metadata document.
 
 The particular method of how the client manages the private key is out of scope of this specification, but may include manual provisioning or methods such as "Attestation Based Client Authentication" [I-D.draft-ietf-oauth-attestation-based-client-auth] or "OAuth SPIFFE Client Authentication" [I-D.draft-ietf-oauth-spiffe-client-auth]. For example, the client developer could run a Client Attester Backend, using a native application's platform-specific APIs to authenticate to the backend service, where the private key corresponding to the `jwks_uri` key is managed by the backend service. This would allow a mobile app to request JWTs from the backend service that the mobile app could then use as client authentication to the authorization server.
 
