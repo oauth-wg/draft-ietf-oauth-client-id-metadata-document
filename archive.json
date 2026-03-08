@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-03-05T00:02:05.862590+00:00",
+  "timestamp": "2026-03-08T00:00:48.541356+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -1187,7 +1187,7 @@
       "labels": [],
       "body": "From time to time I come across people using unstable URLs for semi-production ready apps, for instance, this one from SafeSkies (a bluesky moderation app) \u2014 whilst they have the domain `https://safeskies.app/` which is where you're redirected to, it seems the `client_id` that they use has become an internal heroku URL that backs that domain.\n\n```\nprod-safe-skies-api-231a3f5f5b17.herokuapp.com/oauth/client-metadata.json\n```\n\nWe should probably figure out some way for that client_id to signal \"hey, I'm actually `https://safeskies.app/oauth/client-metadata.json` \u2014 perhaps through redirect handling or signing or something?",
       "createdAt": "2025-03-30T13:43:13Z",
-      "updatedAt": "2025-09-29T19:00:00Z",
+      "updatedAt": "2026-03-05T21:45:23Z",
       "closedAt": null,
       "comments": [
         {
@@ -1196,6 +1196,69 @@
           "body": "@aaronpk I don't have a good solution here, since #46 prohibits redirects. The only way I could think of supporting this would be to have something like a `previous_client_ids` array in the resulting document, but even that would be unsafe, I think?",
           "createdAt": "2025-09-29T19:00:00Z",
           "updatedAt": "2025-09-29T19:00:00Z"
+        },
+        {
+          "author": "max-stytch",
+          "authorAssociation": "NONE",
+          "body": "  We're running into a version of this problem with per-deployment preview environments. Platforms like Vercel, Cloudflare Workers/Pages, and Netlify give every deployment its own URL, so a typical project ends up with something like:\n\n  - https://app.example.com/oauth/metadata.json (evergreen production)\n  - https://staging.example.com/oauth/metadata.json (evergreen pre-production)\n  - https://dev.example.com/oauth/metadata.json (evergreen dev environment)\n  - https://abc123.preview.example.com/oauth/metadata.json (ephemeral PR #123)\n  - https://def456.preview.example.com/oauth/metadata.json (ephemeral PR #456)\n\nThese are all the same application at different points in its lifecycle, talking to the same AS. \n\nWe find folks generally want to model production and staging as standalone, completely independent environments, and dev + previews as one big shared environment. Under CIMD each one is a distinct client_id, which causes a few problems:\n\n1. Client proliferation at the AS. The AS accumulates an unbounded number of client records over time \u2014 one per preview deployment. For ASes that maintain per-client state, this gets noisy. Client expiry could definitely help here.\n2. Repeated user consent. A developer who already authorized the dev environment has to re-consent for every preview deployment individually. This is annoying, but workable.\n3. Admin allowlisting becomes much harder. In environments where an admin must approve client identities before they can be used with a tenant, every preview deployment needs separate approval. There's no standardized way to say \"this is the same software as that other client, justat a different URL.\" And client proliferation means that the allowlist of installed apps within the tenant grows continuously.\n\nThis feels like the same fundamental issue as the SafeSkies/Heroku case described here \u2014 the client's identity is tied to a URL that doesn't represent the stable identity of the software. With preview environments, it's a continuous stream of new URLs.\n",
+          "createdAt": "2026-03-05T00:12:43Z",
+          "updatedAt": "2026-03-05T00:12:43Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "@max-stytch what you're describing is a bit different here, I'm more suggesting a way to go from a previous CIMD document URI to a more stable identifier.\n\nFor development, I'd probably suggest running a CIMD Service (I've a [reference implementation](https://github.com/ThisIsMissEm/cimd-service/)), or just using a fairly static document that registers those URLs. There's also a broker pattern that can be used.",
+          "createdAt": "2026-03-05T02:10:36Z",
+          "updatedAt": "2026-03-05T02:10:36Z"
+        },
+        {
+          "author": "max-stytch",
+          "authorAssociation": "NONE",
+          "body": "I don't think the CIMD service can help me here. Each of these preview environments is running on the public internet and can host its own CIMD document URI. They aren't running on localhost.\n\nA fairly static document won't work because each of these environments has a different redirect URI.\n- `https://abc123.preview.example.com` -> `https://abc123.preview.example.com/oauth/callback` \n- `https://def456.preview.example.com` -> `https://def456.preview.example.com/oauth/callback` \n- `https://dev.example.com` -> `https://dev.example.com/oauth/callback` ",
+          "createdAt": "2026-03-05T17:30:28Z",
+          "updatedAt": "2026-03-05T17:30:28Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "If I'm reading you correctly, you want several different clients (i.e., those across all dev/preview environments) to be treated as one. That's not really something CIMD is designed to do, there are no trust chains here. The only way you could do one big shared environment is if you knew all the redirect URIs in advance. You're probably better off using a token mediating service in these cases. Such that the token mediator is actually the one with the CIMD, and it's just mediating to each of a allow list of environment URL patterns.\n\nThat also allows you to then keep your preview/dev environments private.",
+          "createdAt": "2026-03-05T18:35:33Z",
+          "updatedAt": "2026-03-05T18:35:33Z"
+        },
+        {
+          "author": "max-stytch",
+          "authorAssociation": "NONE",
+          "body": "> If I'm reading you correctly, you want several different clients (i.e., those across all dev/preview environments) to be treated as one. That's not really something CIMD is designed to do, there are no trust chains here.\n\nYes, that's correct. I want a mechanism to draw a trust boundary around many different preview domains. You want a mechanism to draw a trust boundary from the internal URL to the external URLs. \n\nI'm interested in https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/55 as a solution. I think that trust boundaries should be explicit and defined in the CIMD document itself (as opposed to implicit, and set by the AS). If trust boundaries are set by the AS, then the same client (or... set of CIMD documents) can get parsed and treated differently by different ASs. (I think I'll add that as a comment to 55, actually)...\n\nA token mediator approach would definitely work, but I don't like that solution because it places the onus on every client to go out and build or get their own token mediator. Token mediators are also nontrivial to implement and have a lot of security considerations. ",
+          "createdAt": "2026-03-05T20:14:26Z",
+          "updatedAt": "2026-03-05T20:14:26Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "You would share this across your infrastructure. There's already several such token mediating services that exist for the AT Protocol ecosystem, for example. The client can't be trusted in general, so you can't have the client define the trust boundaries. Only the authorization server can decide what it trusts and how/why.",
+          "createdAt": "2026-03-05T20:25:37Z",
+          "updatedAt": "2026-03-05T20:25:37Z"
+        },
+        {
+          "author": "max-stytch",
+          "authorAssociation": "NONE",
+          "body": "Ah - I am not in the ATProto ecosystem, and I run an AS-as-a-service. I'm not a client implementor. So the token mediator approach means that I need to tell my customers (who are the ones with CIMD documents in preview environments) \"go do this token mediating thing\" - I can't fix the problem for them.\n\n> The client can't be trusted in general, so you can't have the client define the trust boundaries. Only the authorization server can decide what it trusts and how/why.\n\nPerhaps trust boundary is not the right phrase. If a client says `I am example.com` and lists its redirects as `example.com/callback` and `othersite.com/callback`, what do you call the relationship between `example.com` and `othersite.com`? The CIMD document has linked them in some way.",
+          "createdAt": "2026-03-05T21:25:48Z",
+          "updatedAt": "2026-03-05T21:25:48Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "@max-stytch it'd be possible to do a generic token mediator that only accepts requests from a given set of URL patterns.",
+          "createdAt": "2026-03-05T21:43:33Z",
+          "updatedAt": "2026-03-05T21:43:33Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "There is no relationship between `https://example.com/callback` and `https://othersite.com/callback`, they're just redirect URIs for a given client. An Authorization Server _may_ limit what redirect URIs it'll accept for a given client (e.g., requiring same domain for example), but that's up to the AS's discretion as noted in the security sections.",
+          "createdAt": "2026-03-05T21:45:23Z",
+          "updatedAt": "2026-03-05T21:45:23Z"
         }
       ]
     },
@@ -1667,7 +1730,7 @@
       "labels": [],
       "body": "An AS can decide what it considers the security boundary client identity. For example, an AS can decide that the domain name is the security boundary of the client, and any path variations on the domain are considered the \"same client\" for purposes like auto-approving previously authorized OAuth grants.\n\ne.g. `https://example.com/client/v1.json` `https://example.com/client/v2.json` could be considered different versions of the same client.\n\nThe AS may want to take various factors into account, like only considering the domain the boundary for trusted domains, to avoid domains commonly used for hosting services like azure that are shared across multiple customers.",
       "createdAt": "2025-10-08T17:48:59Z",
-      "updatedAt": "2025-10-08T21:28:17Z",
+      "updatedAt": "2026-03-05T20:20:23Z",
       "closedAt": null,
       "comments": [
         {
@@ -1697,6 +1760,20 @@
           "body": "This is very much related to #32 ",
           "createdAt": "2025-10-08T21:28:17Z",
           "updatedAt": "2025-10-08T21:28:17Z"
+        },
+        {
+          "author": "max-stytch",
+          "authorAssociation": "NONE",
+          "body": "I'm a fan of opt-in additional metadata fields within the CIMD over a new meta-client document. Or a new `software_id` document - `software_id` is also currently defined as an opaque string, not a URL \u2014 so there's no way to dereference it and link back to the clients that claim it. \n\nWhat if we built the bidirectionality directly into CIMD with a root/instance model? (naming... to be improved on?)\n\nRoot document \u2014 the canonical client identity. A complete CIMD document that additionally declares URL patterns for deployments it considers part of the same logical client:\n```\n  {\n    \"client_id\": \"https://example.com/client.json\",\n    \"client_id_type\": \"root\",\n    \"client_instance_patterns\": [\n      \"https://example.com/client/v*.json\"\n    ],\n    \"client_name\": \"My App\",\n    \"redirect_uris\": [\"https://example.com/callback\"],\n    \"token_endpoint_auth_method\": \"none\"\n  }\n```\n\nInstance document \u2014 a complete, fully standalone CIMD document that additionally declares a relationship to a root:\n```\n  {\n    \"client_id\": \"https://example.com/client/v2.json\",\n    \"client_id_type\": \"instance\",\n    \"client_root\": \"https://example.com/client.json\",\n    \"client_name\": \"My App\",\n    \"redirect_uris\": [\"https://example.com/callback2\"],\n    \"token_endpoint_auth_method\": \"none\"\n  }\n```\nAn instance document is a fully valid CIMD document on its own. The `client_id_type` and `client_root` fields are additional metadata. An AS that doesn't understand root/instance ignores those fields and processes the document normally \u2014 it just sees a regular client.\n\nAn AS that does support the extension can:\n1. Fetch the instance, note the `client_root`\n2. Fetch the root, confirm the instance's `client_id` matches a pattern in `client_instance_patterns`\n3. Treat the instance as the same logical client as the root for purposes of consent, grants, and admin allowlisting\n\nBoth sides must agree \u2014 the instance claims a root, and the root's pattern list confirms the claim. The AS may want to verify that some security-critical fields are consistent between the two - the same way the AS needs to handle metadata changing in `6.3.  Changes in Client Metadata` today.\n",
+          "createdAt": "2026-03-05T00:33:55Z",
+          "updatedAt": "2026-03-05T00:33:55Z"
+        },
+        {
+          "author": "max-stytch",
+          "authorAssociation": "NONE",
+          "body": "Dialing back the solutioning a tad from my last comment:\n- I agree with @ThisIsMissEm's comment from October that the trust boundaries should be explicit. If trust boundaries are implicit and defined by the AS, then the same client (or... set of CIMD documents) can be parsed and treated differently by different ASs and we will get interoperability issues.\n- I think that the existing CIMD document is the best place to define the trust boundary, instead of creating a new meta-document or software-statement structure\n",
+          "createdAt": "2026-03-05T20:20:10Z",
+          "updatedAt": "2026-03-05T20:20:23Z"
         }
       ]
     },
@@ -4027,6 +4104,175 @@
         }
       ],
       "reviews": []
+    },
+    {
+      "number": 68,
+      "id": "PR_kwDOL_Xevs7In6L8",
+      "title": "Stronger recommendation for client authentication",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/68",
+      "state": "OPEN",
+      "author": "aaronpk",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [
+        "ietf-125"
+      ],
+      "body": "Clarified client credential management and authentication methods in the metadata document.",
+      "createdAt": "2026-03-06T23:13:59Z",
+      "updatedAt": "2026-03-07T00:00:56Z",
+      "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "64566e8d7abae313e200903549301f9fb33a2204",
+      "headRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "headRefName": "aaronpk-patch-1",
+      "headRefOid": "443dc070e822f984e023394ae9fc975fd8226c94",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOL_Xevs7o2SGa",
+          "commit": {
+            "abbreviatedOid": "21719b8"
+          },
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-06T23:16:00Z",
+          "updatedAt": "2026-03-06T23:16:00Z",
+          "comments": [
+            {
+              "originalPosition": 29,
+              "body": "```suggestion\nMUST require client authentication according to {{Section 2.2 of RFC7523}} using the corresponding key published in the client's metadata document.\n```",
+              "createdAt": "2026-03-06T23:16:00Z",
+              "updatedAt": "2026-03-06T23:16:00Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs7o2sCz",
+          "commit": {
+            "abbreviatedOid": "443dc07"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-06T23:54:40Z",
+          "updatedAt": "2026-03-06T23:54:40Z",
+          "comments": [
+            {
+              "originalPosition": 19,
+              "body": "Should this just explicitly say \"e.g., private_key_jwt\" ?",
+              "createdAt": "2026-03-06T23:54:40Z",
+              "updatedAt": "2026-03-06T23:54:40Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs7o2skN",
+          "commit": {
+            "abbreviatedOid": "443dc07"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-06T23:55:32Z",
+          "updatedAt": "2026-03-06T23:55:32Z",
+          "comments": [
+            {
+              "originalPosition": 29,
+              "body": "This makes it sound like we *MUST* use `jwks` in the CIMD, instead of `jwks_uri` (which I think we prefer?)",
+              "createdAt": "2026-03-06T23:55:32Z",
+              "updatedAt": "2026-03-06T23:55:32Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs7o2tDT",
+          "commit": {
+            "abbreviatedOid": "443dc07"
+          },
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-06T23:56:35Z",
+          "updatedAt": "2026-03-06T23:56:35Z",
+          "comments": [
+            {
+              "originalPosition": 19,
+              "body": "I wanted to leave the door open for other methods in the future",
+              "createdAt": "2026-03-06T23:56:35Z",
+              "updatedAt": "2026-03-06T23:56:35Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs7o2tR4",
+          "commit": {
+            "abbreviatedOid": "443dc07"
+          },
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-06T23:57:07Z",
+          "updatedAt": "2026-03-06T23:57:07Z",
+          "comments": [
+            {
+              "originalPosition": 29,
+              "body": "yeah that was not my intent. maybe \"published or referenced\"?",
+              "createdAt": "2026-03-06T23:57:07Z",
+              "updatedAt": "2026-03-06T23:57:07Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs7o2uhM",
+          "commit": {
+            "abbreviatedOid": "443dc07"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-06T23:59:14Z",
+          "updatedAt": "2026-03-06T23:59:14Z",
+          "comments": [
+            {
+              "originalPosition": 19,
+              "body": "Yeah, I can see that... maybe we could reference https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-endpoint-auth-method ?",
+              "createdAt": "2026-03-06T23:59:14Z",
+              "updatedAt": "2026-03-06T23:59:14Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs7o2vNe",
+          "commit": {
+            "abbreviatedOid": "443dc07"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-03-07T00:00:56Z",
+          "updatedAt": "2026-03-07T00:00:56Z",
+          "comments": [
+            {
+              "originalPosition": 29,
+              "body": "I'd probably just say \"referenced\", since embedding is a reference in a way.. maybe \"discovered from the client's metadata document\" ?",
+              "createdAt": "2026-03-07T00:00:56Z",
+              "updatedAt": "2026-03-07T00:00:56Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
