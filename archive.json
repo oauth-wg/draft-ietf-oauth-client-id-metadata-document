@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-03-08T00:00:48.541356+00:00",
+  "timestamp": "2026-03-10T00:00:53.695459+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -1730,7 +1730,7 @@
       "labels": [],
       "body": "An AS can decide what it considers the security boundary client identity. For example, an AS can decide that the domain name is the security boundary of the client, and any path variations on the domain are considered the \"same client\" for purposes like auto-approving previously authorized OAuth grants.\n\ne.g. `https://example.com/client/v1.json` `https://example.com/client/v2.json` could be considered different versions of the same client.\n\nThe AS may want to take various factors into account, like only considering the domain the boundary for trusted domains, to avoid domains commonly used for hosting services like azure that are shared across multiple customers.",
       "createdAt": "2025-10-08T17:48:59Z",
-      "updatedAt": "2026-03-05T20:20:23Z",
+      "updatedAt": "2026-03-09T05:04:13Z",
       "closedAt": null,
       "comments": [
         {
@@ -1774,6 +1774,13 @@
           "body": "Dialing back the solutioning a tad from my last comment:\n- I agree with @ThisIsMissEm's comment from October that the trust boundaries should be explicit. If trust boundaries are implicit and defined by the AS, then the same client (or... set of CIMD documents) can be parsed and treated differently by different ASs and we will get interoperability issues.\n- I think that the existing CIMD document is the best place to define the trust boundary, instead of creating a new meta-document or software-statement structure\n",
           "createdAt": "2026-03-05T20:20:10Z",
           "updatedAt": "2026-03-05T20:20:23Z"
+        },
+        {
+          "author": "itsvs",
+          "authorAssociation": "NONE",
+          "body": "I think we could establish links between clients without the need for an additional meta-client, `software_id`, or root client document. #67 suggests adding guidance around how clients can identify versions of themselves, and we could build on that:\n\n<details>\n\n<summary> (example collapsed for space) </summary>\n\n```diff\n{\n    \"client_id\": \"example.com/client/prod-v1.0.json\",\n    \"software_id\": \"example.com/client/prod\",\n    \"software_version\": \"v1.0\",\n+   \"next_software_version\": \"v1.1\"\n}\n\n{\n    \"client_id\": \"example.com/client/prod-v1.1.json\",\n    \"software_id\": \"example.com/client/prod\",\n    \"software_version\": \"v1.1\",\n+   \"prev_software_version\": \"v1.0\"\n+   \"next_software_version\": \"v1.2\"\n}\n\n{\n    \"client_id\": \"example.com/client/prod-v1.2.json\",\n    \"software_id\": \"example.com/client/prod\",\n    \"software_version\": \"v1.2\",\n+   \"prev_software_version\": \"v1.1\"\n}\n```\n\n</details>\n\nThis allows for a couple of things:\n- The client can use `software_id` to indicate a _minimum_ trust boundary, i.e. \"even if an AS treats different versions as part of the same client, it MUST NOT treat different `software_id`s the same.\"\n  - This also allows for multiple independent client version chains, e.g. the client can have another `software_id: example.com/client/dev` that has different capabilities and perhaps localhost redirects.\n- The client can present a trust chain within that boundary as a suggestion to the AS, i.e. \"`v1.2` is just a new version of the same software.\"\n- The AS can use all of that information to decide if it wants to:\n  - Treat different `client_id`s as different clients\n  - Treat different `software_id`s as different clients\n  - (some third option)\n\n> keep the client ID value the same to avoid an AS revoking tokens and prior user consent\n\nAt the end of the day, I think this is entirely up to the AS, but I do agree that the client should be able to indicate what should happen.\n\n@ThisIsMissEm, this slightly modifies my thoughts in #67 -- I'll add a comment there indicating that :)",
+          "createdAt": "2026-03-08T19:18:19Z",
+          "updatedAt": "2026-03-09T05:04:13Z"
         }
       ]
     },
@@ -3908,7 +3915,7 @@
       ],
       "body": "Replaces #51, for #30",
       "createdAt": "2026-03-02T02:05:06Z",
-      "updatedAt": "2026-03-02T19:05:38Z",
+      "updatedAt": "2026-03-09T18:05:52Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "b5cf62d9abf63fa11f6465a6b670356c85257dfb",
@@ -3940,6 +3947,27 @@
           "body": "Interesting prior-art to using `application/cimd+json` is that there is actually `application/jwks+json` https://datatracker.ietf.org/doc/html/rfc7517#section-8.5\r\n\r\n(although I don't think I've ever seen that in the wild)",
           "createdAt": "2026-03-02T19:05:38Z",
           "updatedAt": "2026-03-02T19:05:38Z"
+        },
+        {
+          "author": "trwnh",
+          "authorAssociation": "NONE",
+          "body": "@aaronpk wrote:\r\n\r\n> I am a bit rusty on media types but isn't there a way to say `application/cimd+ld+json` or something as a more specific media type than `application/ld+json` that is also compatible with `application/cimd+json`?\r\n\r\nRelevant history:\r\n\r\n- https://github.com/w3c/did/issues/208\r\n- https://datatracker.ietf.org/doc/draft-ietf-mediaman-suffixes/01/\r\n- https://github.com/w3c/did/issues/863\r\n- https://datatracker.ietf.org/doc/draft-ietf-mediaman-6838bis/\r\n\r\nIn summary: DID work reached out to IETF about +ld+json as a potential structured suffix, and got a skeptical response in 2020. An RFC draft was filed to update the structured suffix registry in 2022, but after IETF review it was rejected and the RFC draft expired. There is now another draft RFC updating the structured suffix registry to disallow multiple suffixes:\r\n\r\n> While it might be desirable to indicate multiple use cases simultaneously using a compound suffix (e.g., \"+xml+zip\"), experience shows that suffixes are a poor basis for this; the combinations of suffixes quickly multiply, and there is not a well-specified processing model that can handle them safely.  Therefore, multiple suffixes are disallowed from use.\r\n\r\nIt is possible for the DID work to have pursued something like `application/did+ld` or `application/did+jsonld`, but they ended up going with `application/did` instead. This pattern was adopted for Verifiable Credentials (VC) and Controlled Identifiers (CID) work as well, with `application/vc`, `application/vp`,  and `application/cid`.\r\n\r\n## Multiple media types\r\n\r\nUnfortunately, this creates a bit of a new quagmire: how do you signal or know when multiple media types apply? https://www.w3.org/TR/vc-data-model-2.0/#media-type-precision describes the concept of \"media type precision\": \r\n\r\n- application/vc and application/vp are the most specific types, indicating that Verifiable Credentials or Verifiable Presentations semantics and processing are in effect.\r\n- application/ld+json is a less precise media type, indicating a Linked Data processing mode, with explicit semantics provided by the `@context`.\r\n- application/json is even less precise, indicating JSON document processing and no in-band semantics. (Semantics are loaded out-of-band in the application layer.)\r\n- text/plain is even less precise, indicating a plain-text processing mode that renders the content of the document verbatim as a UTF-8 sequence (or some other encoding).\r\n- application/octet-stream is the least precise media type, indicating a processing mode where raw bytes are streamed in sequence.\r\n\r\nSo we can see that the best practice right now is to be as precise as possible, wherever feasible.\r\n\r\n### JSON-LD and Solid-OIDC compatibility\r\n\r\nSide note regarding JSON-LD: content type sniffing is also possible in some cases, such as detecting the presence of a `@context` key. However, the JSON-LD context may be missing, in which case applications using JSON-LD processing can make use of \"context injection\" to kinda convert the more specific types to `application/ld+json`, using out-of-band application knowledge/semantics to recognize which media types can be converted like this (and which contexts to inject): https://www.w3.org/TR/cid-1.0/#context-injection\r\n\r\nSolid-OIDC specifically does not require any specific Accept type; it currently requires `application/ld+json` for the *response* only, and also makes an exception for content negotiation: https://solidproject.org/TR/oidc#clientids-document\r\n\r\n> When a Client Identifier is dereferenced, the resource MUST be serialized as an application/ld+json document unless content negotiation requires a different outcome.\r\n\r\nIt seems like CIMD doesn't require the *response* to use `Content-Type: application/cimd+json`, which means for compatibility, the CIMD processor should probably be prepared to accept less precise media types such as `application/ld+json` or `application+json` \r\n\r\n## Summary\r\n\r\n- Clients can always request the most specific type of `application/cimd+json`, to indicate that they are CIMD processors and intend to process the returned content as a CIMD document serialized in JSON.\r\n- Servers should be prepared to respond to requests for `application/cimd+json`.\r\n  - If the server supports negotiating for `application/cimd+json`, it can return 200 OK with the CIMD.\r\n  - If the server has a default representation, it can return the CIMD as the default representation.\r\n  - Edge case: the server might return 300 Multiple Choices for client-driven content negotiation. This should be recommended against.\r\n  - Edge case: the server might return 406 Not Acceptable, if it strictly recognizes only certain content types as having representations. This should also be recommended against.\r\n- Clients should be prepared to receive a less precise Content-Type in the response, and should not treat this as an error.\r\n  - Potential security consideration for \"raw\" servers which accept user-generated content. These servers may use `Content-Type: text/plain` or `Content-Type: application/octet-stream` as an indication that the content should not be processed with more specific processing models. (I am not sure if this allows for CIMD-based impersonation, or if there are other security considerations that prevent this from being an issue.)\r\n\r\n### Recommended language to add\r\n\r\n- Something about serving CIMD documents as the default representation:\r\n  > \"The client metadata document MUST be the default representation when content negotiation is used. The HTTP server hosting the client metadata document MUST NOT use client-driven content negotiation (responding with HTTP 300 Multiple Choices). The HTTP server hosting the client metadata document also MUST NOT respond with 406 Not Acceptable.\"\r\n- Something about clients not erroring out on other Content-Type values in the response:\r\n  > \"The HTTP server hosting the client metadata document might be configured to respond with a Content-Type other than application/cimd+json, so the Authorization Server MUST be prepared to process valid client metadata documents served with less precise media types. These less precise media types MAY include application/json or application/ld+json.\"\r\n  - ...maybe briefly include a note about media type precision?\r\n  - describe in more detail exactly when the document \"conforms to `application/<AS-defined>+json`\" \r\n    - btw you left a \"`application/<AS-defined>+json`\" in there, so replace that placeholder :)\r\n  - is any +json suffix okay here?",
+          "createdAt": "2026-03-09T13:44:53Z",
+          "updatedAt": "2026-03-09T13:47:37Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "@trwnh I think we already solve for both those edge cases of returning 300 / 406 by requiring the response status code of 200 for a CIMD request from the authorization server.",
+          "createdAt": "2026-03-09T18:01:12Z",
+          "updatedAt": "2026-03-09T18:01:12Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "I think on:\r\n> Clients should be prepared to receive a less precise Content-Type in the response, and should not treat this as an error. \r\n\r\nWe could use language that says:\r\n> Authorization Servers requesting Client ID Metadata Documents SHOULD expect to receive a less specific `Content-Type` in response to the requested `Accept: application/cimd+json`, where the server MAY respond with either `application/cimd+json` or `application/json`\r\n\r\nWould that make sense? I'm also saying \"Authorization Servers\" there instead of \"Clients\" because the OAuth Relying Party \"client application\" would generally not actually need to \"request\" the CIMD, though, of course anything can request a CIMD. I just want to set the expectations for an Authorization Server more explicitly.\r\n\r\nThat language also precludes the usage of `text/plain` and `application/octet-stream`, which tbh, I'd treat those responses as a potential security error.",
+          "createdAt": "2026-03-09T18:05:02Z",
+          "updatedAt": "2026-03-09T18:05:52Z"
         }
       ],
       "reviews": []
@@ -4069,7 +4097,7 @@
       ],
       "body": "The -01 draft suggests that clients should refrain from updating metadata too frequently, and that authorization servers should expect occasional changes to metadata. It might be helpful for clients to make it easy for servers to identify when metadata has changed.\r\n\r\nRFC 7591 provides a `software_version` field that we could use for this purpose. This PR introduces a couple of recommendations along these lines:\r\n- Clients may include this field to indicate when the metadata document has changed and/or to differentiate between application versions with different capabilities\r\n- If clients parameterize this in the URL, authorization servers could treat different versions as different clients with different policies.\r\n\r\nI briefly chatted about this with Aaron before making this PR, and I am very much open to discussing further!",
       "createdAt": "2026-03-03T20:51:11Z",
-      "updatedAt": "2026-03-03T23:12:54Z",
+      "updatedAt": "2026-03-08T19:20:18Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "64566e8d7abae313e200903549301f9fb33a2204",
@@ -4101,6 +4129,13 @@
           "body": "Yes. Authorization servers may wish to enforce different policies based on client capabilities, so if those vary across client versions, the versions should be treated as different clients. Updating the same client wouldn't work since multiple versions of a client might exist at any given time (e.g. if users need to update the client app).\r\n\r\nThat being said, I don't think clients have to host _every_ new software version at a separate URL. If it's something like a logo change, the client might just update `software_version` to `2.0.1` and leave the URL as `2.0`. URL changes should really be reserved for things that would make a meaningful difference to an AS (but this is left up to the client implementer's judgment).",
           "createdAt": "2026-03-03T23:12:54Z",
           "updatedAt": "2026-03-03T23:12:54Z"
+        },
+        {
+          "author": "itsvs",
+          "authorAssociation": "NONE",
+          "body": "As mentioned in #55, I want to dial back the answer above. I said:\r\n\r\n> the versions should be treated as different clients\r\n\r\nBut after following the trust boundary thread, I think this is more of a \"may\" than a \"should.\" The different versions can link to each other to suggest to the AS that they are the same, and _then_ it remains up to the AS to decide whether to treat them as the same client or different ones.",
+          "createdAt": "2026-03-08T19:20:18Z",
+          "updatedAt": "2026-03-08T19:20:18Z"
         }
       ],
       "reviews": []
