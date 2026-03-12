@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-03-10T00:00:53.695459+00:00",
+  "timestamp": "2026-03-12T00:02:01.702603+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -3915,7 +3915,7 @@
       ],
       "body": "Replaces #51, for #30",
       "createdAt": "2026-03-02T02:05:06Z",
-      "updatedAt": "2026-03-09T18:05:52Z",
+      "updatedAt": "2026-03-10T18:37:45Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "b5cf62d9abf63fa11f6465a6b670356c85257dfb",
@@ -3968,6 +3968,34 @@
           "body": "I think on:\r\n> Clients should be prepared to receive a less precise Content-Type in the response, and should not treat this as an error. \r\n\r\nWe could use language that says:\r\n> Authorization Servers requesting Client ID Metadata Documents SHOULD expect to receive a less specific `Content-Type` in response to the requested `Accept: application/cimd+json`, where the server MAY respond with either `application/cimd+json` or `application/json`\r\n\r\nWould that make sense? I'm also saying \"Authorization Servers\" there instead of \"Clients\" because the OAuth Relying Party \"client application\" would generally not actually need to \"request\" the CIMD, though, of course anything can request a CIMD. I just want to set the expectations for an Authorization Server more explicitly.\r\n\r\nThat language also precludes the usage of `text/plain` and `application/octet-stream`, which tbh, I'd treat those responses as a potential security error.",
           "createdAt": "2026-03-09T18:05:02Z",
           "updatedAt": "2026-03-09T18:05:52Z"
+        },
+        {
+          "author": "trwnh",
+          "authorAssociation": "NONE",
+          "body": "@ThisIsMissEm wrote:\r\n\r\n> edge cases of returning 300 / 406 by requiring the response status code of 200\r\n\r\nthe language could be more clear; \"require 200\" implies \"default representation\" to avoid the 300 or 406.\r\n\r\n---\r\n\r\n@ThisIsMissEm wrote:\r\n\r\n> We could use language that says:\r\n> \r\n> > Authorization Servers requesting Client ID Metadata Documents SHOULD expect to receive a less specific `Content-Type` in response to the requested `Accept: application/cimd+json`, where the server MAY respond with either `application/cimd+json` or `application/json`\r\n\r\ni don't think the requester of a CIMD \"SHOULD expect to receive a less specific Content-Type\", but rather they \"SHOULD be prepared to handle responses with a less specific Content-Type\". it wouldn't be weird for the CIMD host to serve `application/cimd+json` if it's already capable of `Accept`ing that type.\r\n\r\n---\r\n\r\n@ThisIsMissEm wrote:\r\n\r\n> precludes the usage of `text/plain` and `application/octet-stream`, which tbh, I'd treat those responses as a potential security error\r\n\r\nthe earlier language already precludes this sort of: \"These less precise media types MAY include application/json or application/ld+json\"\r\n\r\nwhat i left out was an explicit requirement that the CIMD requester SHOULD NOT / MUST NOT proceed with text/plain or application/octet-stream, though. i also left out any considerations of +json as a structured suffix. i'm not sure that these kinds of responses are always or generally security errors; it depends on whether the CIMD requester can be potentially misled by a text file which happens to parse as a valid CIMD, and i don't see how...",
+          "createdAt": "2026-03-10T18:17:39Z",
+          "updatedAt": "2026-03-10T18:37:45Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "> the trust model seems to have more to do with the requirement that `client_uri` is a prefix of `client_id`\r\n\r\n@trwnh no, this isn't the case. We only require `client_id` match the requested URL, what you've seen there is language that is not MUST/SHOULD, but lowercase may, as in an authorization server may do this for security purposes.",
+          "createdAt": "2026-03-10T18:31:23Z",
+          "updatedAt": "2026-03-10T18:31:31Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "I don't understand what you're trying to show on the nginx block there.",
+          "createdAt": "2026-03-10T18:32:09Z",
+          "updatedAt": "2026-03-10T18:32:09Z"
+        },
+        {
+          "author": "trwnh",
+          "authorAssociation": "NONE",
+          "body": "sorry, i must have been reading an older version of the text, disregard that part",
+          "createdAt": "2026-03-10T18:37:25Z",
+          "updatedAt": "2026-03-10T18:37:25Z"
         }
       ],
       "reviews": []
