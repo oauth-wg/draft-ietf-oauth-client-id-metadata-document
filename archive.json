@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-03-12T00:02:01.702603+00:00",
+  "timestamp": "2026-03-15T00:02:43.839873+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -1727,10 +1727,12 @@
       "author": "aaronpk",
       "authorAssociation": "MEMBER",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "ietf-125"
+      ],
       "body": "An AS can decide what it considers the security boundary client identity. For example, an AS can decide that the domain name is the security boundary of the client, and any path variations on the domain are considered the \"same client\" for purposes like auto-approving previously authorized OAuth grants.\n\ne.g. `https://example.com/client/v1.json` `https://example.com/client/v2.json` could be considered different versions of the same client.\n\nThe AS may want to take various factors into account, like only considering the domain the boundary for trusted domains, to avoid domains commonly used for hosting services like azure that are shared across multiple customers.",
       "createdAt": "2025-10-08T17:48:59Z",
-      "updatedAt": "2026-03-09T05:04:13Z",
+      "updatedAt": "2026-03-12T10:31:49Z",
       "closedAt": null,
       "comments": [
         {
