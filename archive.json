@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-03-15T00:02:43.839873+00:00",
+  "timestamp": "2026-03-17T00:02:48.501768+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2007,6 +2007,38 @@
           "updatedAt": "2026-02-13T18:35:54Z"
         }
       ]
+    },
+    {
+      "number": 69,
+      "id": "I_kwDOL_Xevs7zM214",
+      "title": "Concerns on Client Identifier allowing Query Strings",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/69",
+      "state": "OPEN",
+      "author": "MichaelFraser99",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "The draft's text includes the following stipulation:\n\n```\nClient identifier URLs SHOULD NOT include a query string component\n```\n\nGiven query strings are inherently unordered, this leads to the scenario where client identifier comparisons using strict string comparison may fail for two URLs that are still semantically the same. As such, I believe we should explicitly ban the use of them to reduce ambiguity.\n\nAdditionally, it's worth noting that OpenID Federation 1.0 (referenced by the document as another example of Client Identifiers being URLs) explicitly bans Query parameters in this location so aligning for interoperability may also be valuable.",
+      "createdAt": "2026-03-16T04:59:21Z",
+      "updatedAt": "2026-03-16T04:59:21Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 70,
+      "id": "I_kwDOL_Xevs7zOFtZ",
+      "title": "Consider including explicit guidance for deployments in ecosystems with optionality",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/70",
+      "state": "OPEN",
+      "author": "MichaelFraser99",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "[OpenID Relying Party Metadata Choices](https://openid.net/specs/openid-connect-rp-metadata-choices-1_0.html) introduces a set of metadata for a scenario where an RP needs to advertise support for a set of metadata that itself is a single-value claim. Such metadata is intended to be used where an RP _may_ support multiple different options for a given claim such as `token_endpoint_auth_method` that a given ecosystem or domain may support.\n\nWhile nothing in this document explicitly prohibits this, an implementation consideration would be valuable here. \n\nPerhaps some text akin to:\n\n```markdown\nIn a deployment where a given Client may be expected to interact \nwith servers that support multiple different options for single-value \nclaims, the claims registered in the [OpenID Relying Party Metadata Choices](https://openid.net/specs/openid-connect-rp-metadata-choices-1_0.html) \ndocument SHOULD be used.\n```",
+      "createdAt": "2026-03-16T06:40:20Z",
+      "updatedAt": "2026-03-16T06:40:20Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": [
