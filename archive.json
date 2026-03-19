@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-03-17T00:02:48.501768+00:00",
+  "timestamp": "2026-03-19T00:02:43.269624+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2037,6 +2037,22 @@
       "body": "[OpenID Relying Party Metadata Choices](https://openid.net/specs/openid-connect-rp-metadata-choices-1_0.html) introduces a set of metadata for a scenario where an RP needs to advertise support for a set of metadata that itself is a single-value claim. Such metadata is intended to be used where an RP _may_ support multiple different options for a given claim such as `token_endpoint_auth_method` that a given ecosystem or domain may support.\n\nWhile nothing in this document explicitly prohibits this, an implementation consideration would be valuable here. \n\nPerhaps some text akin to:\n\n```markdown\nIn a deployment where a given Client may be expected to interact \nwith servers that support multiple different options for single-value \nclaims, the claims registered in the [OpenID Relying Party Metadata Choices](https://openid.net/specs/openid-connect-rp-metadata-choices-1_0.html) \ndocument SHOULD be used.\n```",
       "createdAt": "2026-03-16T06:40:20Z",
       "updatedAt": "2026-03-16T06:40:20Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 71,
+      "id": "I_kwDOL_Xevs7z0zAR",
+      "title": "Define AS behavior when CIMD contains unsupported metadata values",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/71",
+      "state": "OPEN",
+      "author": "panva",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "CIMD Section 4.1 client metadata values are those from the DCR Metadata registry but doesn't say what an AS should do when the document contains values the AS doesn't support - for instance a `grant_types` entry like `urn:ietf:params:oauth:grant-type:device_code` on an AS that doesn't offer DAG.\n\nBoth RFC 7591 and OpenID Connect DCR explicitly permit the AS to either reject or substitute/filter unsupported metadata. RFC 7591 says the AS \"MAY reject or replace any of the client's requested metadata values [...] and substitute them with suitable values\" and that the client can then \"check the values in the response to determine if the registration is sufficient for use.\"\n\nThat last part is key - DCR has a negotiation step. The client sends requested metadata, gets back what the AS actually registered, and decides whether it can work with that. Both behaviors (reject or filter) are fine because the client gets feedback.\n\nCIMD doesn't have this (by design). The client publishes one static document for all ASs. There's no response for the client to inspect. Without guidance in the spec, AS implementers may default to the stricter DCR behavior (reject), either by choice or unknowingly by reusing the DCR client metadata validations, which is at odds with clients having a single general purpose static document.\n\nExample: VS Code publishes `https://vscode.dev/oauth/client-metadata.json` with `grant_types` including `authorization_code`, `refresh_token`, and `urn:ietf:params:oauth:grant-type:device_code`. An AS that supports CIMD but not DAG may reject the whole thing, even though `authorization_code` would work fine.\n\nThe spec could say that when processing a CIMD, the AS should filter array-valued fields like `grant_types` and `response_types` to the intersection of what the client declares and what the AS supports, and must reject only when that intersection is empty. This is consistent with what DCR already allows - it just makes filtering the expected default for CIMD, which makes sense given the lack of a negotiation step.\n\nBut the remaining issue is the potential lack of upfront knowledge. Especially for client metadata related to AS metadata that is defined as optional such as grant_types_supported. Note that I now realize grant_types_supported does have a default specified when omitted.\n\nSo I wonder if, combined with the prescribed non-eager reject behaviour, select AS metadata without a default should in addition be made REQUIRED when used in combination with CIMD so that the client knows (or at least can infer) what the resulting metadata likely is that the AS will use. (note I didn't give much thought into scouring each metadata definition for a list just yet)\n\nRefs: https://github.com/panva/node-oidc-provider/issues/1398",
+      "createdAt": "2026-03-17T19:27:32Z",
+      "updatedAt": "2026-03-18T10:04:40Z",
       "closedAt": null,
       "comments": []
     }
