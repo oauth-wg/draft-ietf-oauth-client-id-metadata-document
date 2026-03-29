@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-03-19T00:02:43.269624+00:00",
+  "timestamp": "2026-03-29T00:03:13.640788+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2055,6 +2055,37 @@
       "updatedAt": "2026-03-18T10:04:40Z",
       "closedAt": null,
       "comments": []
+    },
+    {
+      "number": 72,
+      "id": "I_kwDOL_Xevs73pRB2",
+      "title": "Clients shouldn't rely on CIMD for their own configuration",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/72",
+      "state": "OPEN",
+      "author": "aaronpk",
+      "authorAssociation": "MEMBER",
+      "assignees": [],
+      "labels": [],
+      "body": "https://mailarchive.ietf.org/arch/msg/oauth/VZnfgpw1bLbgyQZ6HonqYb3O2TE/\n\n> While the Client ID Metadata Document is intended to enable authorization servers to obtain client metadata, it occurred to me that client developers might be tempted to use their own CIMD as local configuration.\n\n> I think it would be worthwhile to add a paragraph to the Security Considerations section to discourage that use. A client that relies on the redirect_uris from its own CIMD could cause authorization servers to send an authorization code to an attacker-controlled endpoint if the CIMD is ever compromised, even if the authorization server performs exact redirect URI matching. The use of PKCE may reduce the impact of authorization code disclosure, but it does not eliminate the need to protect redirect handling and related metadata.\n",
+      "createdAt": "2026-03-27T17:50:16Z",
+      "updatedAt": "2026-03-27T18:46:08Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "I think this is \"fine\" in that if your CIMD is compromised, then your server entirely is compromised, so all bets are off.\n\nHardcoding your `redirect_uri` to match one in the CIMD is a good practice, which we should encourage, especially for CIMDs not hosted by the application server. (e.g., cimd-service or split domain CIMDs)",
+          "createdAt": "2026-03-27T18:44:51Z",
+          "updatedAt": "2026-03-27T18:44:51Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "However, a client _may_ fetch a remote CIMD document, to verify the values passed to the `authorize()` call to kick off the OAuth flow are indeed actually valid parameters according to the CIMD.",
+          "createdAt": "2026-03-27T18:46:08Z",
+          "updatedAt": "2026-03-27T18:46:08Z"
+        }
+      ]
     }
   ],
   "pulls": [
