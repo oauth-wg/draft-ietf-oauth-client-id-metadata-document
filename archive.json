@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-03-29T00:03:13.640788+00:00",
+  "timestamp": "2026-04-02T00:03:33.083186+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -1013,7 +1013,7 @@
       ],
       "body": "This issue was initially reported by @DavidBuchanan314 in https://github.com/bluesky-social/atproto/issues/3396.\n\nIn a federated network, in which hosts are known (as are PDS in the atproto network), the fact that OAuth Server will try to `GET` the client metadata can be used to faking traffic from a bunch of fake IPs, simply by forging authorization requests using the `client_id` as parameter.\n\nFor example, by forging the following requests:\n\n- `https://<pds_1>/oauth/authorize?client_id=https://example.com/page_1&...`\n- `https://<pds_2>/oauth/authorize?client_id=https://example.com/page_1&...`\n- `https://<pds_3>/oauth/authorize?client_id=https://example.com/page_1&...`\n\nThe website at `https://example.com/page_1` will see `GET` traffic from the IPs of all those hosts.\n\nPossible mitigations:\n- Retrieve the metadata document *after* the user authorized the request (though that could lead to weird UX & DX)\n- Add strong constraint on the URI format (eg. `.well-known`, \"must end with `.json`\", other...)\n- ~Recommend OAuth servers to remember the origins of previously failed metadata document retrieval, and prevent more call to be made on these origins~ (redacted: could be abused to cause DoS on legitimate services)\n- Other",
       "createdAt": "2025-01-20T09:23:25Z",
-      "updatedAt": "2026-03-02T02:59:13Z",
+      "updatedAt": "2026-03-31T04:16:37Z",
       "closedAt": null,
       "comments": [
         {
@@ -1141,6 +1141,13 @@
           "body": "The other thing with `application/cimd+json` is that we'd need to register it afaik.",
           "createdAt": "2026-01-23T11:31:14Z",
           "updatedAt": "2026-01-23T11:31:14Z"
+        },
+        {
+          "author": "josephdecock",
+          "authorAssociation": "NONE",
+          "body": "I noticed in the IETF 125 recording that @aaronpk mentioned authenticating the user first, but I don't think that actually is in the draft yet. I'm curious what the current state is.\n\nI would actually prefer to not have it be a hard requirement for two reasons:\n- The PAR endpoint is required to \"Authenticate the client in the same way as at the token endpoint\". The spec allows for deferral of a lot of validation until it is used at the authorize endpoint, but not the client authentication piece. \n- Even if not using PAR, the user authentication experience sometimes depends on the client (e.g., the public-facing apps use one user store, while the internal apps use a separate employee user store, perhaps federating).\n\nI also will admit that I don't understand the benefit to authenticating the user first. It seems like in many cases an attacker could simply create burner accounts to get around that. ",
+          "createdAt": "2026-03-31T04:13:01Z",
+          "updatedAt": "2026-03-31T04:16:37Z"
         }
       ]
     },
@@ -2084,6 +2091,30 @@
           "body": "However, a client _may_ fetch a remote CIMD document, to verify the values passed to the `authorize()` call to kick off the OAuth flow are indeed actually valid parameters according to the CIMD.",
           "createdAt": "2026-03-27T18:46:08Z",
           "updatedAt": "2026-03-27T18:46:08Z"
+        }
+      ]
+    },
+    {
+      "number": 73,
+      "id": "I_kwDOL_Xevs742Pdh",
+      "title": "Are SSRF checks when AS is running on loopback needed for URLs *within* CIMDs?",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/73",
+      "state": "OPEN",
+      "author": "josephdecock",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "In section 6.5, there's an exception that allows SSRF checks for the CIMD URL to be skipped when the AS is running on a loopback address. The same exception isn't included in the language about SSRF checks for URLs within the CIMD. Should the same exception apply there?",
+      "createdAt": "2026-03-31T01:04:25Z",
+      "updatedAt": "2026-03-31T03:03:36Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Feel free to open a pull request to add this. I think it may make sense? I'm not 100% sure. The reason to be careful of SSRF in the property URLs is that a domain name could resolve to loopback.\n\nIf both AS and client are on loopback and not publicly exposed to the internet, then yeah, you can probably ignore SSRF checks for those URLs, since you'd be operating in a controlled environment, I think?",
+          "createdAt": "2026-03-31T03:03:36Z",
+          "updatedAt": "2026-03-31T03:03:36Z"
         }
       ]
     }
@@ -4417,6 +4448,32 @@
           ]
         }
       ]
+    },
+    {
+      "number": 74,
+      "id": "PR_kwDOL_Xevs7O0Z6v",
+      "title": "Clarify loopback exception for SSRF checks",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/74",
+      "state": "OPEN",
+      "author": "josephdecock",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "This clarifies that SSRF checks for both the CIMD itself and URLs within it should be handled the same way: don't fetch special use IPs unless everything is running on loopback. \r\n\r\nThis change does normatively strengthen the requirements for URLs within the CIMD. My assumption is that the current wording of MUST NOT for the CIMD itself with an exception for running on loopback and SHOULD NOT for contained URLs is meant to accomplish the same thing, and I thought combining the two made it read more clearly.\r\n\r\nSee also #73. ",
+      "createdAt": "2026-03-31T03:49:22Z",
+      "updatedAt": "2026-03-31T03:49:22Z",
+      "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "64566e8d7abae313e200903549301f9fb33a2204",
+      "headRepository": "josephdecock/draft-ietf-oauth-client-id-metadata-document",
+      "headRefName": "main",
+      "headRefOid": "8cba2ecd3a625defdad05815e610246e4777b07d",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
