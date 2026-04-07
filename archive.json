@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-04-02T00:03:33.083186+00:00",
+  "timestamp": "2026-04-07T00:05:39.731230+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2115,6 +2115,30 @@
           "body": "Feel free to open a pull request to add this. I think it may make sense? I'm not 100% sure. The reason to be careful of SSRF in the property URLs is that a domain name could resolve to loopback.\n\nIf both AS and client are on loopback and not publicly exposed to the internet, then yeah, you can probably ignore SSRF checks for those URLs, since you'd be operating in a controlled environment, I think?",
           "createdAt": "2026-03-31T03:03:36Z",
           "updatedAt": "2026-03-31T03:03:36Z"
+        }
+      ]
+    },
+    {
+      "number": 75,
+      "id": "I_kwDOL_Xevs77KGtO",
+      "title": "Ambiguity around `application_type` when metadata defaults and usage patterns point to different client types",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/75",
+      "state": "OPEN",
+      "author": "btiernay",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "## Summary\n\nThe CIMD specification does not appear to say how `application_type` should be handled when it is omitted and therefore defaults to `\"web\"` under [RFC 7591](https://www.rfc-editor.org/rfc/rfc7591), but the client uses redirect URI patterns described in [RFC 8252](https://datatracker.ietf.org/doc/html/rfc8252) for native applications.\n\nThis seems relevant because RFC 8252 also says that redirect URI alone is not enough to distinguish client type, and that the client type needs to be recorded during registration so the authorization server can determine how to treat the client.\n\nThat leaves some uncertainty around how CIMD is expected to interact with existing OAuth guidance on client type.\n\n## Problem Description\n\nCIMD reuses the OAuth Dynamic Client Registration metadata model from [RFC 7591](https://www.rfc-editor.org/rfc/rfc7591). In that model, `application_type` is client metadata, and if it is omitted, the default value is `\"web\"`.\n\nAt the same time, [RFC 8252](https://datatracker.ietf.org/doc/html/rfc8252) describes redirect URI patterns used by native applications, including loopback redirect URIs. It also says that redirect URI alone is not sufficient to distinguish a public native app from a confidential web client, and that the client type is required to be recorded during client registration.\n\nThis creates a question when:\n\n- `application_type` is omitted, so the RFC 7591 default is `\"web\"`, and\n- the client uses loopback redirect URIs associated with native apps in RFC 8252\n\n## Example\n\nConsider a client that:\n\n- omits `application_type`\n- uses loopback redirect URIs such as `http://127.0.0.1` or `http://localhost`\n\nRelevant specifications:\n\n- [RFC 7591](https://www.rfc-editor.org/rfc/rfc7591)  \n  If `application_type` is omitted, the default is `\"web\"`.\n\n- [RFC 8252](https://datatracker.ietf.org/doc/html/rfc8252)  \n  Loopback redirect URIs are described for native applications, but redirect URI alone is not enough to determine client type, and the client type is required to be recorded during registration.\n\nIn that situation, it is not clear how CIMD expects an authorization server to treat the omitted `application_type`:\n\n| Possible reading | Possible result |\n| --- | --- |\n| Apply the RFC 7591 default strictly | The recorded client type is `\"web\"` |\n| Treat the configuration as incomplete for RFC 8252 purposes | The client metadata is insufficient until client type is explicitly recorded |\n\nCIMD does not currently seem to say how this case should be understood.\n\n## Interoperability Impact\n\nIf different implementations handle this differently, the same client configuration may be accepted in one environment and rejected in another.\n\nThis appears to have practical relevance in deployed systems, for example:\n\n- [anthropics/claude-code#18251](https://github.com/anthropics/claude-code/issues/18251)\n- [anthropics/claude-code#37747](https://github.com/anthropics/claude-code/issues/37747)\n\nPossible effects include:\n\n- inconsistent handling of clients that omit `application_type`\n- uncertainty about whether the RFC 7591 default is sufficient in RFC 8252 scenarios\n- reduced interoperability across implementations\n\n## Question\n\nWhen `application_type` is omitted and therefore defaults to `\"web\"` under RFC 7591, but the client uses loopback redirect URIs described in RFC 8252, is that default intended to be sufficient for recording client type, or is explicit client type metadata expected?\n\n## Motivation\n\nClarifying this would make it easier to understand how CIMD relates to RFC 8252\u2019s requirement that client type be recorded during registration, especially in cases where `application_type` is omitted and the RFC 7591 default may not reflect the intended client type.",
+      "createdAt": "2026-04-06T19:45:05Z",
+      "updatedAt": "2026-04-06T20:49:16Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "We could make `application_type` required in this specification, but we couldn't change how it's inferred as a default value \u2014 that'd probably need to be brought up with RFC 7591 / RFC 8252.",
+          "createdAt": "2026-04-06T20:49:16Z",
+          "updatedAt": "2026-04-06T20:49:16Z"
         }
       ]
     }
