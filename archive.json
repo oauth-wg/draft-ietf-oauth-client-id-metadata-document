@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-04-09T00:04:29.780657+00:00",
+  "timestamp": "2026-04-14T00:10:06.188665+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2181,6 +2181,72 @@
           "body": "Yes, all loopback interface redirect uris refer to native applications, in the OAuth 2.0 for Native applications or the OAuth 2.1 draft there is a section for it for native applications. But when we are registering a client we don't know what type of client it is, we only know it is confidential or public, but there is not verification we can make to know what clients we could allow or not to have loopback interface redirect uris. We were using application_type in order to have this mapping with a default value of web, but it conflicts with what we have seen in the CIMD clients. \nWhat is your recommendation in general, allow any client to use loopback interface redirect_uris, any security concern here?",
           "createdAt": "2026-04-07T21:15:29Z",
           "updatedAt": "2026-04-07T21:15:29Z"
+        }
+      ]
+    },
+    {
+      "number": 76,
+      "id": "I_kwDOL_Xevs79ifhA",
+      "title": "Mixup attacks with issuer identifiers",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/76",
+      "state": "OPEN",
+      "author": "erincandescent",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "Picture this scenario:\n\n* `example.com` run an AS which implements this spec\n* `example.net` also run an AS with issuer identifier `https://example.net/`. \n* `example.com`'s AS is also connected to `example.net` as a client \n\nIf an attacker can place a JSON file at `https://example.net/`, they can use it as a client ID. They can then use the client credentials grant and potentially (depending upon which OAuth 2 extensions are implemented by `example.com`) will mint JWTs with `{\"iss\":\"https://example.com\",\"sub\":\"https://example.net\"}`.They may be able to trigger flows which result in minting OpenID Connect ID tokens `{\"iss\":\"https://example.com\",\"aud\":\"https://example.net\",\"sub\":\"usersub\"}`. These ID tokens may then be abusable with e.g. the JWT bearer authorization grant, e.g. via the identity chaining spec. \n\nIt may seem unlikely that an attacker can place a JSON file at the root of `https://example.net/`, but consider a setup where a frontend proxy has the configuration:\n\n* `https://example.net/.well-known/` -> forwarded to IDP. The other endpoints of the IDP might live on e.g. `https://auth.example.com/`\n* `https://example.net/` -> forwarded to a Wordpress installation with insecure plugins\n\nThis attack can be relatively silently executed. The attacker can modify the code at `example.net` to sniff if the request is coming from a web browser (inferable because the user agent starts with `Mozilla`, or because `text/html` is in the accept header, or similar) and return the usual home page, only returning the client ID metadata to clients that look like an AS.\n\nThere are three potential ways I see of avoiding this:\n\n1. Embed the client metadata inside the AS metadata document. This makes the `oauth-authorization-server` name misleading (though `openid-connect` less so), but it absolutely guarantees the two entities with the same URI are actually the same entity (In retrospect it might have been better for it to be `/.well-known/oauth` with properties under e.g. `\"as\"`, `\"rp\"` and `\"rs\"`, but that ship sailed a long time ago)\n2. Place the client metadata in `/.well-known/oauth-client` and trust that `.well-known` is well controlled. This is probably OK. There may be a hazard here between OAuth and OpenID style uses of `.well-known`...\n3. Proceed as is, write several paragraphs of guidance in the Security Considerations section cautioning people about potential for confusion between client IDs and AS issuer IDs and watch as everyone gets it wrong and we create a new rich mine of security vulnerabilities",
+      "createdAt": "2026-04-13T10:33:27Z",
+      "updatedAt": "2026-04-13T22:23:11Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "erincandescent",
+          "authorAssociation": "NONE",
+          "body": "This is in some ways a continuation of #38 but this time there are actual security consdierations :/",
+          "createdAt": "2026-04-13T10:33:53Z",
+          "updatedAt": "2026-04-13T10:34:00Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "CIMDs don't use `/.well-known/` presently, but any path they want to ",
+          "createdAt": "2026-04-13T12:56:44Z",
+          "updatedAt": "2026-04-13T12:56:44Z"
+        },
+        {
+          "author": "erincandescent",
+          "authorAssociation": "NONE",
+          "body": "But that's exactly the problem, the client metadata document at `https://example.com/` and the AS configured at `https://example.com/.well-known/oauth-authorization-server` produce the same subject identifier claim values despite being declared in different security domains ",
+          "createdAt": "2026-04-13T13:28:18Z",
+          "updatedAt": "2026-04-13T13:28:18Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "I can't recall, but we may require a path component that's at least one non-/ character; there was an issue tracking this, I can't recall were we got to with it; cc @aaronpk ",
+          "createdAt": "2026-04-13T17:51:18Z",
+          "updatedAt": "2026-04-13T17:51:18Z"
+        },
+        {
+          "author": "erincandescent",
+          "authorAssociation": "NONE",
+          "body": "I don't think requiring a path component really helps; you just have the same problem with issuer identifiers which contain paths (`https://example.com/foo` -> `https://example.com/.well-known/oauth-authorization-server/foo` or `https://example.com/foo/.well-known/openid-configuration`)\n\nIn fact I'm not even sure option (2) is secure in the face of both styles of `.well-known` usage existing, but maybe(?) we can reasonably assume that OpenID Connect deployers have secured `.well-known` under the root of their domain... ",
+          "createdAt": "2026-04-13T20:38:17Z",
+          "updatedAt": "2026-04-13T20:38:17Z"
+        },
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "Fun fact: OpenID Connect breaks the premise of `.well-known` by requiring _appending_ the `.well-known/openid-configuration` string to the issuer URL: \n\nhttps://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest\n\n```\nGET /issuer1/.well-known/openid-configuration\n```\n",
+          "createdAt": "2026-04-13T20:58:16Z",
+          "updatedAt": "2026-04-13T20:58:16Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "@erincandescent what's the use case for using a CIMD when you have a known relationship with the AS? `example.com` should be using a direct relationship with `example.net` instead of a CIMD, no?",
+          "createdAt": "2026-04-13T22:23:11Z",
+          "updatedAt": "2026-04-13T22:23:11Z"
         }
       ]
     }
