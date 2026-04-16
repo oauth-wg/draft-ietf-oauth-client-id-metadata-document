@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-04-14T00:10:06.188665+00:00",
+  "timestamp": "2026-04-16T00:10:24.650654+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2196,7 +2196,7 @@
       "labels": [],
       "body": "Picture this scenario:\n\n* `example.com` run an AS which implements this spec\n* `example.net` also run an AS with issuer identifier `https://example.net/`. \n* `example.com`'s AS is also connected to `example.net` as a client \n\nIf an attacker can place a JSON file at `https://example.net/`, they can use it as a client ID. They can then use the client credentials grant and potentially (depending upon which OAuth 2 extensions are implemented by `example.com`) will mint JWTs with `{\"iss\":\"https://example.com\",\"sub\":\"https://example.net\"}`.They may be able to trigger flows which result in minting OpenID Connect ID tokens `{\"iss\":\"https://example.com\",\"aud\":\"https://example.net\",\"sub\":\"usersub\"}`. These ID tokens may then be abusable with e.g. the JWT bearer authorization grant, e.g. via the identity chaining spec. \n\nIt may seem unlikely that an attacker can place a JSON file at the root of `https://example.net/`, but consider a setup where a frontend proxy has the configuration:\n\n* `https://example.net/.well-known/` -> forwarded to IDP. The other endpoints of the IDP might live on e.g. `https://auth.example.com/`\n* `https://example.net/` -> forwarded to a Wordpress installation with insecure plugins\n\nThis attack can be relatively silently executed. The attacker can modify the code at `example.net` to sniff if the request is coming from a web browser (inferable because the user agent starts with `Mozilla`, or because `text/html` is in the accept header, or similar) and return the usual home page, only returning the client ID metadata to clients that look like an AS.\n\nThere are three potential ways I see of avoiding this:\n\n1. Embed the client metadata inside the AS metadata document. This makes the `oauth-authorization-server` name misleading (though `openid-connect` less so), but it absolutely guarantees the two entities with the same URI are actually the same entity (In retrospect it might have been better for it to be `/.well-known/oauth` with properties under e.g. `\"as\"`, `\"rp\"` and `\"rs\"`, but that ship sailed a long time ago)\n2. Place the client metadata in `/.well-known/oauth-client` and trust that `.well-known` is well controlled. This is probably OK. There may be a hazard here between OAuth and OpenID style uses of `.well-known`...\n3. Proceed as is, write several paragraphs of guidance in the Security Considerations section cautioning people about potential for confusion between client IDs and AS issuer IDs and watch as everyone gets it wrong and we create a new rich mine of security vulnerabilities",
       "createdAt": "2026-04-13T10:33:27Z",
-      "updatedAt": "2026-04-13T22:23:11Z",
+      "updatedAt": "2026-04-14T00:10:54Z",
       "closedAt": null,
       "comments": [
         {
@@ -2247,6 +2247,13 @@
           "body": "@erincandescent what's the use case for using a CIMD when you have a known relationship with the AS? `example.com` should be using a direct relationship with `example.net` instead of a CIMD, no?",
           "createdAt": "2026-04-13T22:23:11Z",
           "updatedAt": "2026-04-13T22:23:11Z"
+        },
+        {
+          "author": "erincandescent",
+          "authorAssociation": "NONE",
+          "body": "There's a simple answer as to why an AS might want to use both: pushing configuration updates to every \"upstream\" AS is more work than letting them pull said configuration. This is also what OpenID federation is all about\n\nBut in the case in the example the AS was never intentionally using this spec",
+          "createdAt": "2026-04-14T00:10:54Z",
+          "updatedAt": "2026-04-14T00:10:54Z"
         }
       ]
     }
