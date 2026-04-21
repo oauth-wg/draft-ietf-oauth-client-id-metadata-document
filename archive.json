@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-04-16T00:10:24.650654+00:00",
+  "timestamp": "2026-04-21T00:09:33.968388+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -1807,7 +1807,7 @@
       ],
       "body": "The text in https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-00#name-changes-in-client-keys suggests that a change in the content of the jwks_uri might indicate a condition that would need some kind of remediation or proactive disruption of something. \n\nHowever the key rotation dance in OIDC at https://openid.net/specs/openid-connect-core-1_0.html#RotateSigKeys and https://openid.net/specs/openid-connect-core-1_0.html#RotateEncKeys has the possibility of changes in the content of the jwks_uri as a normal course of events. And while that is in OIDC and this isn't OIDC, the pattern has permeated into the OAuth sphere. I think that if some of the actions from https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-00#name-changes-in-client-keys were taken, it would be detrimental to interop. \n\nCan this draft tone down the suggestions in Changes in Client Keys? \n\n",
       "createdAt": "2025-11-07T20:11:35Z",
-      "updatedAt": "2026-03-02T21:51:26Z",
+      "updatedAt": "2026-04-20T02:23:48Z",
       "closedAt": null,
       "comments": [
         {
@@ -1830,6 +1830,13 @@
           "body": "Thanks Aaron, perhaps we can discuss more at 125?  That change is moving in the right direction I think but IMHO could use more in that direction and feels maybe a bit self contradictory now. ",
           "createdAt": "2026-03-02T21:51:26Z",
           "updatedAt": "2026-03-02T21:51:26Z"
+        },
+        {
+          "author": "sdesen",
+          "authorAssociation": "NONE",
+          "body": "What was outcome at 125?",
+          "createdAt": "2026-04-20T02:23:48Z",
+          "updatedAt": "2026-04-20T02:23:48Z"
         }
       ]
     },
