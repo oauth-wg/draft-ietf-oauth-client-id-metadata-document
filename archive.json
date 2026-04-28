@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-04-21T00:09:33.968388+00:00",
+  "timestamp": "2026-04-28T00:12:21.927565+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -1013,7 +1013,7 @@
       ],
       "body": "This issue was initially reported by @DavidBuchanan314 in https://github.com/bluesky-social/atproto/issues/3396.\n\nIn a federated network, in which hosts are known (as are PDS in the atproto network), the fact that OAuth Server will try to `GET` the client metadata can be used to faking traffic from a bunch of fake IPs, simply by forging authorization requests using the `client_id` as parameter.\n\nFor example, by forging the following requests:\n\n- `https://<pds_1>/oauth/authorize?client_id=https://example.com/page_1&...`\n- `https://<pds_2>/oauth/authorize?client_id=https://example.com/page_1&...`\n- `https://<pds_3>/oauth/authorize?client_id=https://example.com/page_1&...`\n\nThe website at `https://example.com/page_1` will see `GET` traffic from the IPs of all those hosts.\n\nPossible mitigations:\n- Retrieve the metadata document *after* the user authorized the request (though that could lead to weird UX & DX)\n- Add strong constraint on the URI format (eg. `.well-known`, \"must end with `.json`\", other...)\n- ~Recommend OAuth servers to remember the origins of previously failed metadata document retrieval, and prevent more call to be made on these origins~ (redacted: could be abused to cause DoS on legitimate services)\n- Other",
       "createdAt": "2025-01-20T09:23:25Z",
-      "updatedAt": "2026-03-31T04:16:37Z",
+      "updatedAt": "2026-04-26T14:40:03Z",
       "closedAt": null,
       "comments": [
         {
@@ -1124,9 +1124,9 @@
         {
           "author": "trwnh",
           "authorAssociation": "NONE",
-          "body": "@aaronpk wrote:\n\n> An Accept header of application/json should allow the server to respond with application/foo+json as well if I remember my HTTP correctly.\n\nthe server can technically respond with anything, since the response is wholly up to the server.\n\n- 406 Not Acceptable\n- 300 Multiple Choices\n- 200 OK with a default representation\n- 200 OK with the requested type\n- 418 I'm A Teapot\n- ...and so on.\n\ni think `application/cimd+json` is more precise than `application/json` and provides the following benefits:\n\n- it gives the server a potential indication that something is wrong. if a server expects `application/json` and receives a request for `application/cimd+json`, it can now discriminate based on the `Content-Type` that the requester will `Accept` (whereas `application/json` does not provide any added information).\n- it more fully constraints and signals constraints around the intended content model (processing model + semantic model). in `application/json`, terms like `client_id` and `redirect_uris` mean nothing. in `application/cimd+json`, these terms have unambiguous definitions imported from the content type.\n\nthe best thing to do here is have the client request cimd+json and servers not understanding cimd will most likely either 406, or they will 200 with a default representation.",
+          "body": "@aaronpk wrote:\n\n> An Accept header of application/json should allow the server to respond with application/foo+json as well if I remember my HTTP correctly.\n\nthe server can technically respond with anything, since the response is wholly up to the server.\n\n- 406 Not Acceptable\n- 300 Multiple Choices\n- 200 OK with a default representation\n- 200 OK with the requested type\n- 418 I'm A Teapot\n- ...and so on.\n\ni think `application/cimd+json` is more precise than `application/json` and provides the following benefits:\n\n- it gives the server a potential indication that something is wrong. if a server expects `application/json` and receives a request for `application/cimd+json`, it can now discriminate based on the `Content-Type` that the requester will `Accept` (whereas `application/json` does not provide any added information).\n- it more fully constrains and signals constraints around the intended content model (processing model + semantic model). in `application/json`, terms like `client_id` and `redirect_uris` mean nothing. in `application/cimd+json`, these terms have unambiguous definitions imported from the content type.\n\nthe best thing to do here is have the client request cimd+json and servers not understanding cimd will most likely either 406, or they will 200 with a default representation.",
           "createdAt": "2026-01-23T07:35:11Z",
-          "updatedAt": "2026-01-23T07:35:11Z"
+          "updatedAt": "2026-04-26T14:40:03Z"
         },
         {
           "author": "ThisIsMissEm",
