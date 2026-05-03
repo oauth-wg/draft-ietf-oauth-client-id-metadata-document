@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-04-28T00:12:21.927565+00:00",
+  "timestamp": "2026-05-03T00:10:47.242251+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -1013,7 +1013,7 @@
       ],
       "body": "This issue was initially reported by @DavidBuchanan314 in https://github.com/bluesky-social/atproto/issues/3396.\n\nIn a federated network, in which hosts are known (as are PDS in the atproto network), the fact that OAuth Server will try to `GET` the client metadata can be used to faking traffic from a bunch of fake IPs, simply by forging authorization requests using the `client_id` as parameter.\n\nFor example, by forging the following requests:\n\n- `https://<pds_1>/oauth/authorize?client_id=https://example.com/page_1&...`\n- `https://<pds_2>/oauth/authorize?client_id=https://example.com/page_1&...`\n- `https://<pds_3>/oauth/authorize?client_id=https://example.com/page_1&...`\n\nThe website at `https://example.com/page_1` will see `GET` traffic from the IPs of all those hosts.\n\nPossible mitigations:\n- Retrieve the metadata document *after* the user authorized the request (though that could lead to weird UX & DX)\n- Add strong constraint on the URI format (eg. `.well-known`, \"must end with `.json`\", other...)\n- ~Recommend OAuth servers to remember the origins of previously failed metadata document retrieval, and prevent more call to be made on these origins~ (redacted: could be abused to cause DoS on legitimate services)\n- Other",
       "createdAt": "2025-01-20T09:23:25Z",
-      "updatedAt": "2026-04-26T14:40:03Z",
+      "updatedAt": "2026-05-01T00:15:20Z",
       "closedAt": null,
       "comments": [
         {
@@ -1148,6 +1148,13 @@
           "body": "I noticed in the IETF 125 recording that @aaronpk mentioned authenticating the user first, but I don't think that actually is in the draft yet. I'm curious what the current state is.\n\nI would actually prefer to not have it be a hard requirement for two reasons:\n- The PAR endpoint is required to \"Authenticate the client in the same way as at the token endpoint\". The spec allows for deferral of a lot of validation until it is used at the authorize endpoint, but not the client authentication piece. \n- Even if not using PAR, the user authentication experience sometimes depends on the client (e.g., the public-facing apps use one user store, while the internal apps use a separate employee user store, perhaps federating).\n\nI also will admit that I don't understand the benefit to authenticating the user first. It seems like in many cases an attacker could simply create burner accounts to get around that. ",
           "createdAt": "2026-03-31T04:13:01Z",
           "updatedAt": "2026-03-31T04:16:37Z"
+        },
+        {
+          "author": "njwatson32",
+          "authorAssociation": "NONE",
+          "body": "Agree that CIMD should not require user authentication before fetching CIMD. Client config can influence authentication in some cases.\n\n`Accept` header sounds reasonable to me. I also think short-lived caching of errors and invalid documents makes sense. I was planning to open a separate issue for that discussion if there isn't one already.",
+          "createdAt": "2026-05-01T00:15:20Z",
+          "updatedAt": "2026-05-01T00:15:20Z"
         }
       ]
     },
@@ -1194,7 +1201,7 @@
       "labels": [],
       "body": "From time to time I come across people using unstable URLs for semi-production ready apps, for instance, this one from SafeSkies (a bluesky moderation app) \u2014 whilst they have the domain `https://safeskies.app/` which is where you're redirected to, it seems the `client_id` that they use has become an internal heroku URL that backs that domain.\n\n```\nprod-safe-skies-api-231a3f5f5b17.herokuapp.com/oauth/client-metadata.json\n```\n\nWe should probably figure out some way for that client_id to signal \"hey, I'm actually `https://safeskies.app/oauth/client-metadata.json` \u2014 perhaps through redirect handling or signing or something?",
       "createdAt": "2025-03-30T13:43:13Z",
-      "updatedAt": "2026-03-05T21:45:23Z",
+      "updatedAt": "2026-05-01T00:05:12Z",
       "closedAt": null,
       "comments": [
         {
@@ -1266,6 +1273,13 @@
           "body": "There is no relationship between `https://example.com/callback` and `https://othersite.com/callback`, they're just redirect URIs for a given client. An Authorization Server _may_ limit what redirect URIs it'll accept for a given client (e.g., requiring same domain for example), but that's up to the AS's discretion as noted in the security sections.",
           "createdAt": "2026-03-05T21:45:23Z",
           "updatedAt": "2026-03-05T21:45:23Z"
+        },
+        {
+          "author": "njwatson32",
+          "authorAssociation": "NONE",
+          "body": "Drive-by comment on:\n\n> 2. Repeated user consent. A developer who already authorized the dev environment has to re-consent for every preview deployment individually. This is annoying, but workable.\n\nIMO repeated consent in this circumstance is WAI. These different deployments may have radically different levels of security/privacy robustness, release qualification, code review, etc.",
+          "createdAt": "2026-05-01T00:05:12Z",
+          "updatedAt": "2026-05-01T00:05:12Z"
         }
       ]
     },
@@ -2066,9 +2080,17 @@
       "labels": [],
       "body": "CIMD Section 4.1 client metadata values are those from the DCR Metadata registry but doesn't say what an AS should do when the document contains values the AS doesn't support - for instance a `grant_types` entry like `urn:ietf:params:oauth:grant-type:device_code` on an AS that doesn't offer DAG.\n\nBoth RFC 7591 and OpenID Connect DCR explicitly permit the AS to either reject or substitute/filter unsupported metadata. RFC 7591 says the AS \"MAY reject or replace any of the client's requested metadata values [...] and substitute them with suitable values\" and that the client can then \"check the values in the response to determine if the registration is sufficient for use.\"\n\nThat last part is key - DCR has a negotiation step. The client sends requested metadata, gets back what the AS actually registered, and decides whether it can work with that. Both behaviors (reject or filter) are fine because the client gets feedback.\n\nCIMD doesn't have this (by design). The client publishes one static document for all ASs. There's no response for the client to inspect. Without guidance in the spec, AS implementers may default to the stricter DCR behavior (reject), either by choice or unknowingly by reusing the DCR client metadata validations, which is at odds with clients having a single general purpose static document.\n\nExample: VS Code publishes `https://vscode.dev/oauth/client-metadata.json` with `grant_types` including `authorization_code`, `refresh_token`, and `urn:ietf:params:oauth:grant-type:device_code`. An AS that supports CIMD but not DAG may reject the whole thing, even though `authorization_code` would work fine.\n\nThe spec could say that when processing a CIMD, the AS should filter array-valued fields like `grant_types` and `response_types` to the intersection of what the client declares and what the AS supports, and must reject only when that intersection is empty. This is consistent with what DCR already allows - it just makes filtering the expected default for CIMD, which makes sense given the lack of a negotiation step.\n\nBut the remaining issue is the potential lack of upfront knowledge. Especially for client metadata related to AS metadata that is defined as optional such as grant_types_supported. Note that I now realize grant_types_supported does have a default specified when omitted.\n\nSo I wonder if, combined with the prescribed non-eager reject behaviour, select AS metadata without a default should in addition be made REQUIRED when used in combination with CIMD so that the client knows (or at least can infer) what the resulting metadata likely is that the AS will use. (note I didn't give much thought into scouring each metadata definition for a list just yet)\n\nRefs: https://github.com/panva/node-oidc-provider/issues/1398",
       "createdAt": "2026-03-17T19:27:32Z",
-      "updatedAt": "2026-03-18T10:04:40Z",
+      "updatedAt": "2026-04-30T23:51:39Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "njwatson32",
+          "authorAssociation": "NONE",
+          "body": "> The spec could say that when processing a CIMD, the AS should filter array-valued fields like grant_types and response_types to the intersection of what the client declares and what the AS supports, and must reject only when that intersection is empty. \n\n+1\n\nIn general I'm a fan of making more required fields. It's easy for developers to copy-paste default values into their config. It can be hard to deal with the ambiguities around missing values.\n\nAlso does CIMD say anywhere what the AS should do with unknown metadata fields (not just values)? DCR says it MAY ignore, filter, or reject them, but I think the lack of negotiation in CIMD means that the AS MUST ignore all unknown field values. This enables clients to add extra fields that they know some AS will read (as this will surely happen in practice).",
+          "createdAt": "2026-04-30T23:51:39Z",
+          "updatedAt": "2026-04-30T23:51:39Z"
+        }
+      ]
     },
     {
       "number": 72,
@@ -2137,7 +2159,7 @@
       "labels": [],
       "body": "## Summary\n\nThe CIMD specification does not appear to say how `application_type` should be handled when it is omitted and therefore defaults to `\"web\"` under [RFC 7591](https://www.rfc-editor.org/rfc/rfc7591), but the client uses redirect URI patterns described in [RFC 8252](https://datatracker.ietf.org/doc/html/rfc8252) for native applications.\n\nThis seems relevant because RFC 8252 also says that redirect URI alone is not enough to distinguish client type, and that the client type needs to be recorded during registration so the authorization server can determine how to treat the client.\n\nThat leaves some uncertainty around how CIMD is expected to interact with existing OAuth guidance on client type.\n\n## Problem Description\n\nCIMD reuses the OAuth Dynamic Client Registration metadata model from [RFC 7591](https://www.rfc-editor.org/rfc/rfc7591). In that model, `application_type` is client metadata, and if it is omitted, the default value is `\"web\"`.\n\nAt the same time, [RFC 8252](https://datatracker.ietf.org/doc/html/rfc8252) describes redirect URI patterns used by native applications, including loopback redirect URIs. It also says that redirect URI alone is not sufficient to distinguish a public native app from a confidential web client, and that the client type is required to be recorded during client registration.\n\nThis creates a question when:\n\n- `application_type` is omitted, so the RFC 7591 default is `\"web\"`, and\n- the client uses loopback redirect URIs associated with native apps in RFC 8252\n\n## Example\n\nConsider a client that:\n\n- omits `application_type`\n- uses loopback redirect URIs such as `http://127.0.0.1` or `http://localhost`\n\nRelevant specifications:\n\n- [RFC 7591](https://www.rfc-editor.org/rfc/rfc7591)  \n  If `application_type` is omitted, the default is `\"web\"`.\n\n- [RFC 8252](https://datatracker.ietf.org/doc/html/rfc8252)  \n  Loopback redirect URIs are described for native applications, but redirect URI alone is not enough to determine client type, and the client type is required to be recorded during registration.\n\nIn that situation, it is not clear how CIMD expects an authorization server to treat the omitted `application_type`:\n\n| Possible reading | Possible result |\n| --- | --- |\n| Apply the RFC 7591 default strictly | The recorded client type is `\"web\"` |\n| Treat the configuration as incomplete for RFC 8252 purposes | The client metadata is insufficient until client type is explicitly recorded |\n\nCIMD does not currently seem to say how this case should be understood.\n\n## Interoperability Impact\n\nIf different implementations handle this differently, the same client configuration may be accepted in one environment and rejected in another.\n\nThis appears to have practical relevance in deployed systems, for example:\n\n- [anthropics/claude-code#18251](https://github.com/anthropics/claude-code/issues/18251)\n- [anthropics/claude-code#37747](https://github.com/anthropics/claude-code/issues/37747)\n\nPossible effects include:\n\n- inconsistent handling of clients that omit `application_type`\n- uncertainty about whether the RFC 7591 default is sufficient in RFC 8252 scenarios\n- reduced interoperability across implementations\n\n## Question\n\nWhen `application_type` is omitted and therefore defaults to `\"web\"` under RFC 7591, but the client uses loopback redirect URIs described in RFC 8252, is that default intended to be sufficient for recording client type, or is explicit client type metadata expected?\n\n## Motivation\n\nClarifying this would make it easier to understand how CIMD relates to RFC 8252\u2019s requirement that client type be recorded during registration, especially in cases where `application_type` is omitted and the RFC 7591 default may not reflect the intended client type.",
       "createdAt": "2026-04-06T19:45:05Z",
-      "updatedAt": "2026-04-07T21:15:29Z",
+      "updatedAt": "2026-05-01T00:22:03Z",
       "closedAt": null,
       "comments": [
         {
@@ -2188,6 +2210,13 @@
           "body": "Yes, all loopback interface redirect uris refer to native applications, in the OAuth 2.0 for Native applications or the OAuth 2.1 draft there is a section for it for native applications. But when we are registering a client we don't know what type of client it is, we only know it is confidential or public, but there is not verification we can make to know what clients we could allow or not to have loopback interface redirect uris. We were using application_type in order to have this mapping with a default value of web, but it conflicts with what we have seen in the CIMD clients. \nWhat is your recommendation in general, allow any client to use loopback interface redirect_uris, any security concern here?",
           "createdAt": "2026-04-07T21:15:29Z",
           "updatedAt": "2026-04-07T21:15:29Z"
+        },
+        {
+          "author": "njwatson32",
+          "authorAssociation": "NONE",
+          "body": "The primary argument I could see for rejecting CIMDs with empty `application_type` and loopback redirect URIs (rather than just treating as native) is to prevent nasty surprises for the developer later.  We should assume developers are not well-versed with OAuth and are just vibe-coding something. They may indeed be running a confidential client that wants related policies enforced (e.g. around client authn), but they or their coding agent have \"helpfully\" added localhost as a redirect_uri to aid in development.",
+          "createdAt": "2026-05-01T00:22:03Z",
+          "updatedAt": "2026-05-01T00:22:03Z"
         }
       ]
     },
@@ -2261,6 +2290,68 @@
           "body": "There's a simple answer as to why an AS might want to use both: pushing configuration updates to every \"upstream\" AS is more work than letting them pull said configuration. This is also what OpenID federation is all about\n\nBut in the case in the example the AS was never intentionally using this spec",
           "createdAt": "2026-04-14T00:10:54Z",
           "updatedAt": "2026-04-14T00:10:54Z"
+        }
+      ]
+    },
+    {
+      "number": 77,
+      "id": "I_kwDOL_Xevs8AAAABBACuMg",
+      "title": "Negative caching",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/77",
+      "state": "OPEN",
+      "author": "njwatson32",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "The draft says:\n\n```\nThe authorization server MUST NOT cache error responses.  The\nauthorization server also MUST NOT cache documents which are invalid\nor malformed.\n```\n\nI think there need to be allowances for short-lived negative caching to avoid:\n\n1. Spamming unrelated websites with calls (#30)\n2. Exacerbating outages with repeated requests\n\nMaybe leaving it a little vague is ok, something like:\n\n```\nThe authorization server MUST NOT cache error responses or invalid documents for more than a few minutes.\n```",
+      "createdAt": "2026-05-01T00:32:18Z",
+      "updatedAt": "2026-05-01T16:26:26Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "njwatson32",
+          "authorAssociation": "NONE",
+          "body": "Another thing to maybe add to a non-normative implementation notes section is to recommend that an AS not discard a cached (valid) CIMD until it successfully retrieves a new one from the client.",
+          "createdAt": "2026-05-01T16:26:26Z",
+          "updatedAt": "2026-05-01T16:26:26Z"
+        }
+      ]
+    },
+    {
+      "number": 78,
+      "id": "I_kwDOL_Xevs8AAAABBAFIKg",
+      "title": "Can AS optionally provide `iss` when fetching client_id?",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/78",
+      "state": "OPEN",
+      "author": "njwatson32",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "For example, if `client_id=https://example.com/oauth/client_id.json`, the AS would `GET https://example.com/oauth/client_id.json?iss=https://example-as.com`.\n\nThis allows the client to do a few things:\n\nProgressive rollouts of changes to CIMD, so that blast radius is limited to only certain AS. Making a global change to a client id is bad practice from a production safety point of view, and \"random percentage\" rollouts may not work if the AS queries the CIMD more than once and gets two different documents.  Of course, `iss` isn't a perfect solution here, but it's easy and better than nothing.\n\nThe client could also return AS-specific metadata (as long as it's not secret because `iss` is unvalidated). This could help address certain incompatibilities that may arise in practice where the same values are rejected by some AS but not by others.",
+      "createdAt": "2026-05-01T00:45:14Z",
+      "updatedAt": "2026-05-01T05:25:29Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "This goes against the nature of CIMDs, which is explicitly to not be variable, they're meant to be static files. \n\n> Client identifier URLs SHOULD NOT include a query string component\n\nAn AS issuing a `GET /oauth/client_id.json?iss=https://as.example` would be getting a different document, a different client_id from `GET /oauth/client_id.json` since the URL must strictly match the client_id",
+          "createdAt": "2026-05-01T02:35:44Z",
+          "updatedAt": "2026-05-01T02:35:44Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "CIMDs also do not know anything about their AS's, they are just presenting data to an AS when the AS requests it. They shouldn't know the difference.",
+          "createdAt": "2026-05-01T02:36:27Z",
+          "updatedAt": "2026-05-01T02:36:27Z"
+        },
+        {
+          "author": "njwatson32",
+          "authorAssociation": "NONE",
+          "body": "> Client identifier URLs SHOULD NOT include a query string component\n\nAs written in the draft, this refers to the URL the _client_ presents, not the HTTP GET request made by the AS.  Analogously, redirect URIs shouldn't contain query strings either, and must strictly match a registered value, but obviously the AS attaches parameters when it redirects there. It's the same idea here.\n\n> they're meant to be static files.\n\nThis is an implementation detail up to the client.  Indeed, clients aren't required to do anything with `iss`. They are free to ignore it and serve a static file if they want.\n\n> CIMDs also do not know anything about their AS's\n\nThey still don't have to.  This proposal builds in a piece of flexibility that is sure to be necessary at some point. Authorization servers already have serious problems updating AS metadata, and the same will be true of CIMD. Having an `iss` parameter would allow something as simple as a gradual rollout of a change that's sticky on AS (e.g. `return hash(iss) % 100 <= rollout_percent ?  new_cimd : old_cimd`.) It's also a near certainty that authorization servers will have different policies (or bugs) that make a CIMD work with one and not with the other, so an `iss` parameter gives a client (who is so inclined) the opportunity to correct that.\n\nI would phrase the language as:\n\n```\nThe authorization server SHOULD include an `iss` parameter when fetching client_id,\nwhich clients MAY use to modify the results of the document. The `client_id` field in\nthe document MUST be equal to the client_id URL _without_ the `iss` parameter.\n```",
+          "createdAt": "2026-05-01T05:25:29Z",
+          "updatedAt": "2026-05-01T05:25:29Z"
         }
       ]
     }
