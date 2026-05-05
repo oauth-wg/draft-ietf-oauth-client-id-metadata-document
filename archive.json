@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-05-03T00:10:47.242251+00:00",
+  "timestamp": "2026-05-05T00:13:42.373798+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -1163,15 +1163,15 @@
       "id": "I_kwDOL_Xevs6uU574",
       "title": "Omit `client_id` from client metadata document?",
       "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/31",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "jogu",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
       "body": "Current spec says:\n\n> The client metadata document MUST contain a client_id property whose value MUST compare and match the URL of the document using simple string comparison as defined in [[RFC3986](https://www.ietf.org/archive/id/draft-parecki-oauth-client-id-metadata-document-02.html#RFC3986)] Section 6.2.1.\n\nI'm not sure of the reason this text is here, so perhaps there's a good reason?\n\nThere's definitely an argument against including `client_id` in the metadata document though. We've seen that implementations of https://datatracker.ietf.org/doc/html/rfc8414 often just blindly trust the `issuer` value in the metadata document, without verifying it matches the location they retrieved it from. Omitting `client_id` (by requiring it is not be present and must be ignored if present) from the metadata document sort of completely removes the possibility to do that.\n\nThe only downside I can think of is that if the metadata document is somehow getting exposed at multiple urls (https://example.com/client.json and https://www.example.com/client.json for example) then both would end up being valid client ids. I'm not sure if that's bad though?\n",
       "createdAt": "2025-03-17T11:26:12Z",
-      "updatedAt": "2025-03-17T12:53:48Z",
-      "closedAt": null,
+      "updatedAt": "2026-05-04T21:24:54Z",
+      "closedAt": "2026-05-04T21:24:54Z",
       "comments": [
         {
           "author": "ThisIsMissEm",
