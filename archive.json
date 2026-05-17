@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-05-05T00:13:42.373798+00:00",
+  "timestamp": "2026-05-17T00:13:47.985757+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2354,6 +2354,56 @@
           "updatedAt": "2026-05-01T05:25:29Z"
         }
       ]
+    },
+    {
+      "number": 79,
+      "id": "I_kwDOL_Xevs8AAAABCa7ZIg",
+      "title": "Review from Justin Richer",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/79",
+      "state": "OPEN",
+      "author": "ThisIsMissEm",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Just so we don't loose his comments in the [mailing list](https://mailarchive.ietf.org/arch/msg/oauth/DRzDT8q_j3PaGwoEJEpgZwcyccI/), I'm copying them here below, we'll probably want to review these separately or split them out into separate issues later:\n\n---\n\nOverall:\n\nI think this is missing a discussion on the kinds of clients where this approach makes sense, and where it does not. Namely, if a client is relatively well-known and has an established home, like a website, then this works great. For other clients, including those in \u00a74.2, it's not as great a fit. I think it's fine for this specification to not work for a class of clients - and it should be upfront about it instead of pretending it fits well.\n\n\u00a73\n\nThis feels like it should be a list, not a paragraph. Try reformatting and see if that works?\n\nGlobally redefining \"client identifier\" seems a bridge too far for this spec to do in isolation, consider perhaps defining \"Client Identifier URI\" or something specific to CIMD so as not to imply that ALL client identifiers are now URLs.\n\nRefer to the URI spec (RFC3986) for URI parts. The \"username or password\" is called the \"userinfo\" subcomponent of the authority, for example. And \"port\" is also part of the authority.\n\n\"Port\" should probably have some matching done to it \u2014 like defaults of 443 being equivalent to non included \u2014 or it should be direct string comparison only as implied by \u00a74.1 and default port processing expressly disallowed. Really, leaning on the URI definitions will help this too.\n\n\"This specification places no restrictions\" after a bunch of restrictions is \u2026 weird. Perhaps be more specific about what \"no restrictions\" are included in \"no restrictions\" like URL shorteners or stability. That said, most shorteners use redirects to work, which breaks the resolution restriction in \u00a74, can we square that circle?\n\n\u00a74\n\nIt's not clear why fetching the document is a \"should\". I know it can be associated by hand, so I think maybe that's what this SHOULD is trying to get at. Perhaps call out that it MUST be associated with a set of client metadata, which is available at the URL, and the AS SHOULD fetch it automatically within security considerations.\n\n\u00a74.1\n\n\"The client metadata document MUST be served with a 200 OK HTTP status code\" this is a requirement of the fetch process not the document.\n\nDoes \"the URL of the document\" mean the URL used to fetch the document, exactly? This sounds like it's something the AS (fetcher) needs to validate, then \u2014 call out both of these more explicitly.\n\nSuggest that the discussion on client secrets be pulled out as a separate section to highlight its importance here. Also add discussion on private keys, but public keys are allowable.\n\nI see no discussion of software_Statement and how it would fit with this work, suggest we add discussion of how (or if) they fit together. I personally think they could be layered with some cautions on the trustworthiness of the software_statement (since it's no longer presented inline by the client).\n\nSuggest that you separate the \"what's in the doc\" from \"how you get the doc\" in this section overall.\n\n\u00a74.2\n\nWhile I see the practical appeal, the CIMD-service really just feels like a weird way to do static registration but use a side door to do so. This also seems like it directly contradicts the trust model proposed by this specification. I would recommend removal of this beyond discussion in security considerations, or add it as an appendix to describe how CIMD-as-a-service could be built and offered by a party, and discuss the security and reputation implications thereof.\n\n\u00a74.3\n\nWhat if the server isn't fetching it, under some circumstances allowed by \u00a74? Are there any validation requirements (that might need its own section alongside 4.1)\n\n\u00a74.5\n\nBy \"exact match\" I assume this means string-match, either call that out or point to the logic in the core OAuth specs that say so.\n\nThis also implies that only redirect-based grants are allowed to be used, but I don't see that called out anywhere in here. Could I use CIMD for client_credentials or token exchange? Device flow? CIBA? Why or why not?\n\n\u00a76\n\nGenerally speaking, there shouldn't be any normative text in security considerations. Especially the MAYs here are pointless and more explanatory than requirement anyway. Stick to non-normative text in this section and put the normative requirements further up.\n\n\u00a76.5\n\n\"except when the authorization server itself is also running on a loopback address and the resolved address matches the same loopback interface\" \u2014 couldn't this be used to force an AS to call a loopback function from the outside via a client-provided value? I'm failing to see what the use case to allow this cutout is. Development is a different world where restrictions like this are routinely relaxed, but here it reads like this should be a normal cutout for the protocol.\n\n\u00a76.6\n\n\"Authorization servers SHOULD limit the response size\" \u2014 how does the AS limit the size of a file it does not control? Do you mean limit processing to the first 5k and erroring or discarding the rest?\n\n\u00a76.8\n\nSuggest adding a discussion of allowlists, especially of domain patterns \u2014 eg, \"anything from [foo.com](http://foo.com/)\". The framing of different policies for different states of client trust is a good one, keep that.\n\n\u00a76.9\n\nThis doesn't seem like a security consideration, but an implementation consideration.\n\nMore to the point, the AS needs to be able to differentiate between clients registered via CIMD and clients registered by other means. Client ID prefix is only one aspect of this, as there might be AS's that do use https:// for clients (such as vanity IDs or stable developer-facing identifiers), but don't fetch the data. Suggest calling out that \"do I fetch this or not\" is the key difference.\n\n\u00a76.10\n\nThis doesn't seem like a security consideration, but an implementation consideration. I would argue that it leverages the namespacing and other aspects of CIMD while not relying on automated systems \u2014 so I would suggest not framing it as \"Defeating the purpose\". This discussion could be helped by separating the \"fetch\" from \"format\" as suggested above.\n\n\u00a7??\n\nThis is missing privacy considerations, please add them. In particular, AS fetching or providing to the end user any URLs dynamically handed over by the client in a CIMD could lead to leaking user usage patterns or information.",
+      "createdAt": "2026-05-15T22:48:54Z",
+      "updatedAt": "2026-05-15T22:48:54Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 80,
+      "id": "I_kwDOL_Xevs8AAAABCeQOLw",
+      "title": "Privacy Considerations Section",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/80",
+      "state": "OPEN",
+      "author": "ThisIsMissEm",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "> This is missing privacy considerations, please add them. In particular, AS fetching or providing to the end user any URLs dynamically handed over by the client in a CIMD could lead to leaking user usage patterns or information.\n\nThis comes from Justin Richer's review (#79), and it is a section we should probably cover. We already have a bunch of security considerations around URLs in CIMDs, but we don't yet have a privacy considerations section. I think this would be an extension of the text in [Dynamic Client Registration](https://datatracker.ietf.org/doc/html/rfc7591#autoid-23), however, this specifically would not apply:\n\n> Note that clients are forbidden by this specification from creating their own client identifier.\n\nIn CIMDs the client does indeed control the document URL and therefore the `client_id`, so could theoretically use those for tracking purposes. I think I've even seen some people attempting this, which lead to some of the restrictions on redirects and other security considerations.",
+      "createdAt": "2026-05-16T18:35:54Z",
+      "updatedAt": "2026-05-16T18:35:54Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 81,
+      "id": "I_kwDOL_Xevs8AAAABCeUNzA",
+      "title": "Section 4.5 Redirect URIs",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/81",
+      "state": "OPEN",
+      "author": "ThisIsMissEm",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [
+        "enhancement"
+      ],
+      "body": "Also from #79, Section 4.5 specifies some language for Redirect URIs, https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-01.html#name-redirect-url-registration\n\nWe may want to consider aligning this text with OAuth 2.1's text: https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1#section-4.1.1-28\n\n> In particular, the authorization server MUST validate the redirect_uri in the request if present, ensuring that it matches one of the registered redirect URIs previously established during client registration ([Section 2](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1#client-registration)). When comparing the two URIs the authorization server MUST ensure that the two URIs are equal, see [Section 6.2.1](https://rfc-editor.org/rfc/rfc3986#section-6.2.1) of [[RFC3986](https://www.rfc-editor.org/info/rfc3986)], Simple String Comparison, for details. The only exception is native apps using a localhost URI: In this case, the authorization server MUST allow variable port numbers as described in [Section 7.3](https://rfc-editor.org/rfc/rfc8252#section-7.3) of [[RFC8252](https://www.rfc-editor.org/info/rfc8252)].\n\nOr specify it in a way that directly references the normative model for redirect URIs and registration / validation of them.",
+      "createdAt": "2026-05-16T19:02:34Z",
+      "updatedAt": "2026-05-16T19:02:34Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": [
