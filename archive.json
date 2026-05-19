@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-05-17T00:13:47.985757+00:00",
+  "timestamp": "2026-05-19T00:18:40.724392+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2404,6 +2404,30 @@
       "updatedAt": "2026-05-16T19:02:34Z",
       "closedAt": null,
       "comments": []
+    },
+    {
+      "number": 82,
+      "id": "I_kwDOL_Xevs8AAAABCkZcAg",
+      "title": "Add guidance for pattern-based Client ID Metadata Document URL admission policies",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/82",
+      "state": "OPEN",
+      "author": "anoopgarlapati",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "## Summary\n\n[Section 6.8](https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-01.html#name-client-id-domain-trust) describes heuristic trust decisions (for example, reputation systems or user warning flows) while [Section 6.10](https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-01.html#name-pre-registering-client-id-m) describes exact URL pre-registration of Client ID Metadata Document URLs. The specification does not currently discuss deployment models where authorization servers apply administrator-configured policies based on URL patterns, such as domain allowlists or path-prefix restrictions.\n\nSome enterprise deployments require admitting Client ID Metadata Document URLs based on trusted origins or URL namespaces without requiring exact enumeration of every permitted URL.\n\n## Motivation\n\n### Dynamic-path Client ID Metadata Document URLs\n\nSome deployments generate distinct Client ID Metadata Document URLs per integration or per protected resource while maintaining a common origin and URL structure.\n\nFor example, [OpenAI's developer documentation](https://developers.openai.com/apps-sdk/build/auth) describes ChatGPT-originated flows using Client ID Metadata Document URLs of the form:\n\n* `https://chatgpt.com/oauth/github/client.json`\n* `https://chatgpt.com/oauth/example/client.json`\n* `https://chatgpt.com/oauth/<server>/client.json`\n\nIn this model, the authorization server may wish to admit Client ID Metadata Document URLs under a trusted path namespace such as `https://chatgpt.com/oauth/*` without requiring exact pre-registration of every possible URL.\n\nThis deployment pattern is not directly addressed by either [Section 6.8](https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-01.html#name-client-id-domain-trust) heuristic trust evaluation or [Section 6.10](https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-01.html#name-pre-registering-client-id-m) exact URL pre-registration.\n\n### Implementation Experience\n\nRelated deployment models and implementation mechanisms have appeared in multiple implementations and proposals, including:\n\n* administrative trust configuration for CIMD-enabled deployments\n* domain-based trust policy configuration in MCP ecosystem implementations\n* [MCP SEP-991](https://github.com/modelcontextprotocol/modelcontextprotocol/issues/991) discussion of protected-server trust models based on trusted domains or specific clients.\n\nProviding guidance in the specification may improve interoperability and reduce divergence in deployment behavior.\n\n## Proposed Change\n\nAdd a subsection under [Section 6.8](https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-01.html#name-client-id-domain-trust) describing pattern-based admission policies for Client ID Metadata Document URLs.\n\nProposed text:\n\n> Authorization servers MAY apply admission policies to Client ID Metadata Document URLs based on URL patterns rather than requiring exact URL pre-registration as described in [Section 6.10](https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-01.html#name-pre-registering-client-id-m).\n>\n> Such policies MAY include:\n>\n> * domain-based allowlists,\n> * URL path-prefix matching, or\n> * other administrator-configured policy mechanisms.\n>\n> For example, an authorization server might permit Client ID Metadata Document URLs under a configured namespace such as `https://trusted-client.example.com/oauth/*`.\n>\n> In enterprise or managed deployments, authorization server implementations SHOULD provide administrators with mechanisms to configure such policies.\n>\n> Authorization servers SHOULD evaluate these policies before retrieving the referenced metadata document in order to reduce unnecessary outbound requests and limit exposure to SSRF-related attack surfaces described in [Section 6.5](https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-01.html#name-server-side-request-forgery).\n>\n> Pattern-based admission policies do not replace redirect URI validation requirements. Authorization servers MUST continue validating redirect URIs against the client metadata as described in [Section 4.5](https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-01.html#name-redirect-url-registration).\n>\n> The syntax and matching semantics of pattern-based policies are outside the scope of this specification.",
+      "createdAt": "2026-05-18T08:03:10Z",
+      "updatedAt": "2026-05-18T09:54:59Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "In a recent review it was noted that security considerations should generally be non-normative rather than normative text. Current we list these as part of the normative text.\n\nMy understanding of section 6.10 is actually that they're onboarding a specific CIMD URL and the exact version of that document, such that live fetching isn't happening, @aaronpk knows more about this specific deployment pattern.\n\nThere are parts of section 6 that need to be moved up to normative sections, but you can already do what you're proposing if you want (I think).\n\nThat said though, having multiple CIMDs can be an anti-pattern, especially if it allows user tracking, though obviously you'd likely need a CIMD per ecosystem supported (or the server would need to discard invalid scopes)",
+          "createdAt": "2026-05-18T09:54:59Z",
+          "updatedAt": "2026-05-18T09:54:59Z"
+        }
+      ]
     }
   ],
   "pulls": [
