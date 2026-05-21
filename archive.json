@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-05-19T00:18:40.724392+00:00",
+  "timestamp": "2026-05-21T00:19:03.681540+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2329,7 +2329,7 @@
       "labels": [],
       "body": "For example, if `client_id=https://example.com/oauth/client_id.json`, the AS would `GET https://example.com/oauth/client_id.json?iss=https://example-as.com`.\n\nThis allows the client to do a few things:\n\nProgressive rollouts of changes to CIMD, so that blast radius is limited to only certain AS. Making a global change to a client id is bad practice from a production safety point of view, and \"random percentage\" rollouts may not work if the AS queries the CIMD more than once and gets two different documents.  Of course, `iss` isn't a perfect solution here, but it's easy and better than nothing.\n\nThe client could also return AS-specific metadata (as long as it's not secret because `iss` is unvalidated). This could help address certain incompatibilities that may arise in practice where the same values are rejected by some AS but not by others.",
       "createdAt": "2026-05-01T00:45:14Z",
-      "updatedAt": "2026-05-01T05:25:29Z",
+      "updatedAt": "2026-05-20T20:17:02Z",
       "closedAt": null,
       "comments": [
         {
@@ -2352,6 +2352,69 @@
           "body": "> Client identifier URLs SHOULD NOT include a query string component\n\nAs written in the draft, this refers to the URL the _client_ presents, not the HTTP GET request made by the AS.  Analogously, redirect URIs shouldn't contain query strings either, and must strictly match a registered value, but obviously the AS attaches parameters when it redirects there. It's the same idea here.\n\n> they're meant to be static files.\n\nThis is an implementation detail up to the client.  Indeed, clients aren't required to do anything with `iss`. They are free to ignore it and serve a static file if they want.\n\n> CIMDs also do not know anything about their AS's\n\nThey still don't have to.  This proposal builds in a piece of flexibility that is sure to be necessary at some point. Authorization servers already have serious problems updating AS metadata, and the same will be true of CIMD. Having an `iss` parameter would allow something as simple as a gradual rollout of a change that's sticky on AS (e.g. `return hash(iss) % 100 <= rollout_percent ?  new_cimd : old_cimd`.) It's also a near certainty that authorization servers will have different policies (or bugs) that make a CIMD work with one and not with the other, so an `iss` parameter gives a client (who is so inclined) the opportunity to correct that.\n\nI would phrase the language as:\n\n```\nThe authorization server SHOULD include an `iss` parameter when fetching client_id,\nwhich clients MAY use to modify the results of the document. The `client_id` field in\nthe document MUST be equal to the client_id URL _without_ the `iss` parameter.\n```",
           "createdAt": "2026-05-01T05:25:29Z",
           "updatedAt": "2026-05-01T05:25:29Z"
+        },
+        {
+          "author": "mcguinness",
+          "authorAssociation": "NONE",
+          "body": "I think the key issue is not \u201cdifferent ecosystems.\u201d\n\nThe harder problem is that even a single ecosystem is operationally heterogeneous during rollout, migration, experimentation, and recovery. Modern SaaS systems are almost never upgraded atomically.\n\nThat matters because CIMD changes can directly affect interoperability and protocol behavior.\n\nFor example, a client may begin enabling DPoP, PAR, JAR, or private_key_jwt, while only some AS deployments in the ecosystem support it yet.\n\nWithout per-iss metadata:\n\n* the CIMD changes globally\n* every AS immediately sees the new metadata\n* older or partially upgraded ASs may reject or mishandle it\n\nWith per-iss metadata:\n\n* upgraded ASs receive the new metadata\n* older ASs continue receiving compatible metadata\n* rollout can proceed incrementally with isolated rollback and reduced blast radius\n\nI do not think \u201cjust publish a new CIMD URL\u201d solves this cleanly because a new CIMD URL effectively creates a new client_id. **That turns deployment management into identifier management.**\n\nOperators may end up creating:\n\n* \u201cstable\u201d client IDs\n* \u201cbeta\u201d client IDs\n* \u201cdpop-enabled\u201d client IDs\n* rollback client IDs\n\neven though the logical client has not changed.\n\nMany of these rollout differences are temporary operational states:\n\n* partial AS upgrades\n* feature validation\n* staged key rotation\n* migration windows\n* bug mitigation\n\nPer-iss metadata treats compatibility as deployment state rather than client identity, which I think is the cleaner abstraction for progressive delivery within a single ecosystem.\n\nA concrete enterprise failure mode here is partial rollout across a multi-region SaaS deployment.\n\nFor example, a client enables private_key_jwt or DPoP support in its CIMD. Some AS clusters in the ecosystem have been upgraded and support the new behavior, while others are still on the previous version due to staged rollout or rollback.\n\nWith a single static CIMD:\n- upgraded ASs succeed\n- older ASs may reject the client\n- authentication failures appear intermittently depending on routing, region, or cluster\n- rollback now requires reverting the global CIMD for everyone\n\nThat creates an ecosystem-wide blast radius from what should have been a controlled incremental deployment.\n\nPer-iss metadata allows the metadata publisher to safely stage compatibility changes against specific AS deployments without fragmenting the ecosystem into separate client IDs purely for rollout management.",
+          "createdAt": "2026-05-19T05:00:47Z",
+          "updatedAt": "2026-05-19T05:00:47Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "CIMDs come from a decentralised world where there is no relationships between Authorization Servers and Clients, effectively a many-to-many ecosystem between clients and Authorization Servers.\n\nThey work around the short comings of DCR where in a many-to-many ecosystem, you end up with an explosion of client registrations of increasing complexity to manage for both the client and the AS.\n\nIf you have a relationship between the client and AS, why are you using a CIMD? Why not use a statically registered client with each AS? Alternatively, there is the option presented in the security considerations at the end of CIMDs-but-not-really where you use a URI for client_id but it's just statically registered with the AS (tbh, that section should probably be dropped)\n\nVarying CIMD contents based on AS requesting it explicitly creates a relationship between clients and the AS's.",
+          "createdAt": "2026-05-19T12:16:39Z",
+          "updatedAt": "2026-05-19T12:16:39Z"
+        },
+        {
+          "author": "matthieusieben",
+          "authorAssociation": "NONE",
+          "body": "I tend to agree with @ThisIsMissEm here. If your purpose is to authenticate the AS towards the CIMD endpoint, this would be better done using an `Authorization` header which would contain a JWT bearer with the `iss` field you want.\n\nI'd rather be discussing that than adding hard coded query string params to the spec, especially since the proposed iss params conflicts with the fact that the client id may (tho it should not) contain query params. ",
+          "createdAt": "2026-05-19T13:02:19Z",
+          "updatedAt": "2026-05-19T13:02:19Z"
+        },
+        {
+          "author": "itsvs",
+          "authorAssociation": "NONE",
+          "body": "i think the upgrades/rollout problem might be better solved by versioning CIMD, which came up as a separate topic some time ago (alignment pending, see #55 and #67). i'm also not entirely sure that i follow this point @mcguinness :\n\n> For example, a client may begin enabling DPoP, PAR, JAR, or private_key_jwt, while only some AS deployments in the ecosystem support it yet.\n\nisn't this why we have AS metadata, so that ASes and clients can align on which features they both support and communicate appropriately? if a client looks at an AS's metadata and sees no support for `private_key_jwt`, i'd imagine it should not try to use a client assertion with that AS, much like an AS wouldn't expect a client assertion from a client that doesn't claim to support `private_key_jwt`s. perhaps i'm missing something here?\n\n> Operators may end up creating:\n>\n> - \u201cstable\u201d client IDs\n> - \u201cbeta\u201d client IDs\n> - \u201cdpop-enabled\u201d client IDs\n> - rollback client IDs\n\nto me, each of these should correspond to a separate client ID (or at least a separate version or software ID). if i am an AS, i might want to distinguish between stable/prod and beta clients for the same underlying app, because these clients may pose different security considerations.\n\nmore to the point, i'm not a fan of codifying in this draft any request metadata that the AS is expected to send in a CIMD request. the client, when identifying itself to an AS, knows enough about the AS to provide a different client ID altogether if it really wants to, which i don't think is currently _prohibited_ by this draft. if a client wants to call itself `client.dev/mcp-client.json` when connecting to an MCP server and `client.dev/atproto-client.json` otherwise, that is the client's discretion and the AS doesn't have to be involved.",
+          "createdAt": "2026-05-19T16:15:08Z",
+          "updatedAt": "2026-05-19T16:18:20Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "For something like `token_endpoint_auth_method` currently the client metadata can only present a single option, `private_key_jwt` or `none` or one of the other registered auth methods. This makes sense in DCR perhaps, but maybe for CIMD we would actually need an array of supported values by the client.\n\nSo instead of negotiating the CIMD based on the AS, and having:\n\n```\n// legacy AS requests and gets:\n{\n  \"client_id\": \"https://client.dev/oauth/metadata.json\",\n  \"client_name\": \"client.dev\",\n  \"client_uri\": \"https://client.dev\",\n  \"redirect_uris\": [\"https://client.dev/oauth/callback\"],\n  \"token_endpoint_auth_method\": \"none\"\n}\n\n// modern AS requests and gets:\n{\n  \"client_id\": \"https://client.dev/oauth/metadata.json\",\n  \"client_name\": \"client.dev\",\n  \"client_uri\": \"https://client.dev\",\n  \"redirect_uris\": [\"https://client.dev/oauth/callback\"],\n  \"token_endpoint_auth_method\": \"private_key_jwt\"\n}\n```\n\nyou'd be saying, all AS's get the same metadata about the client, but the client can present multiple values, so, regardless of which AS requests, you'd get:\n```\n{\n  \"client_id\": \"https://client.dev/oauth/metadata.json\",\n  \"client_name\": \"client.dev\",\n  \"client_uri\": \"https://client.dev\",\n  \"redirect_uris\": [\"https://client.dev/oauth/callback\"],\n  \"token_endpoint_auth_method\": [\"none\", \"private_key_jwt\"]\n}\n```\n\nAnd then the client during PAR or Authorization Requests would specify the exact value for `token_endpoint_auth_method` to use for that grant.\n\n\n",
+          "createdAt": "2026-05-19T16:50:15Z",
+          "updatedAt": "2026-05-19T16:50:15Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "(I'm not sure how that'd work with DPoP though, due to it being a boolean value, a `dpop_bound_access_tokens: [false, true]` would be kinda weird)",
+          "createdAt": "2026-05-19T16:52:08Z",
+          "updatedAt": "2026-05-19T16:52:08Z"
+        },
+        {
+          "author": "mcguinness",
+          "authorAssociation": "NONE",
+          "body": "> token_endpoint_auth_method currently the client metadata can only present a single option\n> I'm not sure how that'd work with DPoP though, due to it being a boolean value, a dpop_bound_access_tokens: [false, true]\n\nThis is getting to the root of my feedback. CIMD is currently publishing configured values and not just supported capabilities by reusing client registration metadata params that was originally intended as part of a single client registration (configured values).  Change management of these values is very risky as currently defined.   A CIMD publisher can't just publish a new capability is supported without changing the configured value which may have broad impact across the ecosystem. \n",
+          "createdAt": "2026-05-19T17:00:27Z",
+          "updatedAt": "2026-05-19T17:09:37Z"
+        },
+        {
+          "author": "njwatson32",
+          "authorAssociation": "NONE",
+          "body": "I strongly agree with Karl's statement:\n\n> I do not think \u201cjust publish a new CIMD URL\u201d solves this cleanly because a new CIMD URL effectively creates a new client_id. That turns deployment management into identifier management.\n\nCreating a new client id is going to have far broader implications in many cases, including invalidation of existing user consent. Suppose a client starts out with a single global CIMD https://client.example.com, and then a year later it wants to modify its config for AS1. If it starts passing https://client.example.com/as1 to AS1, AS1 will treat this as a brand new client_id which will force all users of the client to consent again.\n\nAnd if you're not changing the client_id, all you can do is change the contents of the document, and clients need a safe way to deploy such changes.\n\n> If you have a relationship between the client and AS, why are you using a CIMD? Why not use a statically registered client with each AS?\n\nBecause you might already be using CIMD in your deployment, including with that AS, and switching client ids to a statically registered one could be disruptive. This also doesn't address the global config change blast radius problem that CIMD has as written.\n\nEven if CIMD is updated to reflect client capabilities rather than configured values, global config changes are still problematic. AS Metadata is proof of this, as it has arrays of supported values and still runs into trouble when making \"backwards compatible\" updates (https://www.hyrumslaw.com/). Building in support for `iss` from v0 provides a harmless (clients can ignore it if they want) piece of flexibility.",
+          "createdAt": "2026-05-19T17:29:53Z",
+          "updatedAt": "2026-05-19T17:29:53Z"
+        },
+        {
+          "author": "max-stytch",
+          "authorAssociation": "NONE",
+          "body": "Per-issuer CIMD documents would also enable a client to reveal a unique callback URL per-issuer, which is one of the mitigation strategies for issuer mix-up attacks. ",
+          "createdAt": "2026-05-20T20:17:02Z",
+          "updatedAt": "2026-05-20T20:17:02Z"
         }
       ]
     },
@@ -2426,6 +2489,44 @@
           "body": "In a recent review it was noted that security considerations should generally be non-normative rather than normative text. Current we list these as part of the normative text.\n\nMy understanding of section 6.10 is actually that they're onboarding a specific CIMD URL and the exact version of that document, such that live fetching isn't happening, @aaronpk knows more about this specific deployment pattern.\n\nThere are parts of section 6 that need to be moved up to normative sections, but you can already do what you're proposing if you want (I think).\n\nThat said though, having multiple CIMDs can be an anti-pattern, especially if it allows user tracking, though obviously you'd likely need a CIMD per ecosystem supported (or the server would need to discard invalid scopes)",
           "createdAt": "2026-05-18T09:54:59Z",
           "updatedAt": "2026-05-18T09:54:59Z"
+        }
+      ]
+    },
+    {
+      "number": 83,
+      "id": "I_kwDOL_Xevs8AAAABCq5Lxg",
+      "title": "Sergio",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/83",
+      "state": "CLOSED",
+      "author": "sergioalzatejimenez68-ai",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2026-05-19T03:27:01Z",
+      "updatedAt": "2026-05-19T04:26:34Z",
+      "closedAt": "2026-05-19T04:26:27Z",
+      "comments": [
+        {
+          "author": "sergioalzatejimenez68-ai",
+          "authorAssociation": "NONE",
+          "body": "Byy",
+          "createdAt": "2026-05-19T03:29:40Z",
+          "updatedAt": "2026-05-19T03:29:40Z"
+        },
+        {
+          "author": "sergioalzatejimenez68-ai",
+          "authorAssociation": "NONE",
+          "body": "Nb",
+          "createdAt": "2026-05-19T03:29:51Z",
+          "updatedAt": "2026-05-19T03:29:51Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "@sergioalzatejimenez68-ai ",
+          "createdAt": "2026-05-19T04:26:27Z",
+          "updatedAt": "2026-05-19T04:26:27Z"
         }
       ]
     }
