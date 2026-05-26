@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-05-24T00:15:36.572832+00:00",
+  "timestamp": "2026-05-26T00:17:14.666322+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2472,9 +2472,17 @@
       ],
       "body": "Also from #79, Section 4.5 specifies some language for Redirect URIs, https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-01.html#name-redirect-url-registration\n\nWe may want to consider aligning this text with OAuth 2.1's text: https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1#section-4.1.1-28\n\n> In particular, the authorization server MUST validate the redirect_uri in the request if present, ensuring that it matches one of the registered redirect URIs previously established during client registration ([Section 2](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1#client-registration)). When comparing the two URIs the authorization server MUST ensure that the two URIs are equal, see [Section 6.2.1](https://rfc-editor.org/rfc/rfc3986#section-6.2.1) of [[RFC3986](https://www.rfc-editor.org/info/rfc3986)], Simple String Comparison, for details. The only exception is native apps using a localhost URI: In this case, the authorization server MUST allow variable port numbers as described in [Section 7.3](https://rfc-editor.org/rfc/rfc8252#section-7.3) of [[RFC8252](https://www.rfc-editor.org/info/rfc8252)].\n\nOr specify it in a way that directly references the normative model for redirect URIs and registration / validation of them.",
       "createdAt": "2026-05-16T19:02:34Z",
-      "updatedAt": "2026-05-16T19:02:34Z",
+      "updatedAt": "2026-05-24T06:05:48Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "localden",
+          "authorAssociation": "NONE",
+          "body": "+1. We hit this in practice with Claude Code's CIMD client metadata: at least one implementer (FastMCP, before PrefectHQ/fastmcp#3589) read the current Section 4.5 wording as unconditional exact-match and rejected ephemeral-port loopback redirects from a native client whose `redirect_uris` were registered portless per RFC 8252 Section 7.3. Their fix cited 7.3 directly, but Section 4.5 gave them no hint the exception applied.\n\nOne thing worth making explicit alongside the OAuth 2.1 text: the \"native apps\" condition in that exception ties to `application_type` (per RFC 8252 Section 8.4), which connects this to #75. A client metadata document that omits `application_type` defaults to `web`, so an authorization server reading the proposed text strictly wouldn't apply the loopback exception unless the document sets `application_type: \"native\"`.\n",
+          "createdAt": "2026-05-24T06:05:48Z",
+          "updatedAt": "2026-05-24T06:05:48Z"
+        }
+      ]
     },
     {
       "number": 82,
