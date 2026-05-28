@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-05-26T00:17:14.666322+00:00",
+  "timestamp": "2026-05-28T00:16:55.152709+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2329,7 +2329,7 @@
       "labels": [],
       "body": "For example, if `client_id=https://example.com/oauth/client_id.json`, the AS would `GET https://example.com/oauth/client_id.json?iss=https://example-as.com`.\n\nThis allows the client to do a few things:\n\nProgressive rollouts of changes to CIMD, so that blast radius is limited to only certain AS. Making a global change to a client id is bad practice from a production safety point of view, and \"random percentage\" rollouts may not work if the AS queries the CIMD more than once and gets two different documents.  Of course, `iss` isn't a perfect solution here, but it's easy and better than nothing.\n\nThe client could also return AS-specific metadata (as long as it's not secret because `iss` is unvalidated). This could help address certain incompatibilities that may arise in practice where the same values are rejected by some AS but not by others.",
       "createdAt": "2026-05-01T00:45:14Z",
-      "updatedAt": "2026-05-20T20:17:02Z",
+      "updatedAt": "2026-05-27T03:11:46Z",
       "closedAt": null,
       "comments": [
         {
@@ -2415,6 +2415,13 @@
           "body": "Per-issuer CIMD documents would also enable a client to reveal a unique callback URL per-issuer, which is one of the mitigation strategies for issuer mix-up attacks. ",
           "createdAt": "2026-05-20T20:17:02Z",
           "updatedAt": "2026-05-20T20:17:02Z"
+        },
+        {
+          "author": "ciamshrek",
+          "authorAssociation": "NONE",
+          "body": "I think a slightly different use-case here might for something like SingPass, or Highly Controlled Ecosystems, where its required to use a different signing key. Right now since CIMD exposes a single `jwks_uri` it also ends up requiring us to generate urls as \n\n```https://example.com/connection/<unique_name>/oauth/client.json```\n\nWhich IMO is suboptimal to\n\n```\nhttps://example.com/oauth/client.json\n```",
+          "createdAt": "2026-05-27T03:11:46Z",
+          "updatedAt": "2026-05-27T03:11:46Z"
         }
       ]
     },
