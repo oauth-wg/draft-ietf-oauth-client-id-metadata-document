@@ -1374,7 +1374,12 @@ by requiring the <code>token_endpoint_auth_method</code> property be set to <cod
 <p id="section-4.2-2">When developing applications against an authorization server which uses this specification, developers often encounter the issue of "how do I serve a Client ID Metadata Document at a publicly accessible https URL whilst developing my application on my localhost?".<a href="#section-4.2-2" class="pilcrow">¶</a></p>
 <p id="section-4.2-3">To enable developers to author applications on their machines, without exposing their machines to the public internet, the usage of Client ID Metadata Document Services by the authorization server is <span class="bcp14">RECOMMENDED</span>.<a href="#section-4.2-3" class="pilcrow">¶</a></p>
 <p id="section-4.2-4">A Client ID Metadata Document Service is a web service through which developers can acquire a stable URL to a Client ID Metadata Document. This service <span class="bcp14">MAY</span> expire clients from time to time, and <span class="bcp14">MAY</span> require developers to provide additional information about the client being developed.<a href="#section-4.2-4" class="pilcrow">¶</a></p>
-<p id="section-4.2-5">By providing at least one Client ID Metadata Document Service, an authorization server can enable developers to create applications, and still indicate to non-technical people that the client that they are about to authorize is currently under-development and may not be trustworthy or secure.<a href="#section-4.2-5" class="pilcrow">¶</a></p>
+<p id="section-4.2-5">The only requirement on Client ID Metadata Document Services is that they <span class="bcp14">MUST</span>
+return valid Client ID Metadata Documents for the <code>client_id</code>s that they
+provision, or return a status code indicating an error response (e.g., 404 Not
+Found). How a Client ID Metadata Document Service creates or stores metadata
+documents is outside of the scope of this document.<a href="#section-4.2-5" class="pilcrow">¶</a></p>
+<p id="section-4.2-6">By providing at least one Client ID Metadata Document Service, an authorization server can enable developers to create applications, and still indicate to non-technical people that the client that they are about to authorize is currently under-development and may not be trustworthy or secure.<a href="#section-4.2-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="metadata-discovery-errors">
