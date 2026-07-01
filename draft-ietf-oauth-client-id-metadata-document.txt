@@ -622,14 +622,20 @@ Acknowledgments
 
    The authors would like to thank the following people for their
    contributions and reviews of this specification: Bobby Tiernay, Brian
-   Campbell, Bryan Newbold, Dick Hardt, Filip Skokan, Jeff Lombardo,
-   Leif Johansson, Matthieu Sieben, Meghna Dubey, Orie Steele, Pieter
-   Kasselman, and Takahiko Kawasaki.
+   Campbell, Bryan Newbold, Dick Hardt, Filip Skokan, Jeff Lombardo, Joe
+   DeCock, Leif Johansson, Matthieu Sieben, Meghna Dubey, Orie Steele,
+   Pieter Kasselman, and Takahiko Kawasaki.
 
 Document History
 
    (This appendix to be deleted by the RFC editor in the final
    specification.)
+
+   -02
+
+   *  Clarified loopback exception for SSRF checks
+
+   *  More strongly recommend doing client authentication
 
    -01
 
