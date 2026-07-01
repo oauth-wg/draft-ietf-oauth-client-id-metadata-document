@@ -1454,12 +1454,14 @@ redirect URIs.<a href="#section-4.5-2" class="pilcrow">¶</a></p>
 <a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-client-authentication" class="section-name selfRef">Client Authentication</a>
         </h3>
 <p id="section-6.2-1">Since the client establishes its own registration data at the authorization server,
-prior coordination of client credentials is not possible. However, clients <span class="bcp14">MAY</span> establish
+prior coordination of client credentials is not possible. However, establishing
 credentials at the authorization server by using authentication methods that use
-public/private key pairs, by publishing the public key in their metadata document.<a href="#section-6.2-1" class="pilcrow">¶</a></p>
-<p id="section-6.2-2">For example, the client <span class="bcp14">MAY</span> include the following properties in its metadata document
-to establish a public key and advertise the <code>private_key_jwt</code> authentication method defined in <span>[<a href="#OpenID" class="cite xref">OpenID</a>]</span>:<a href="#section-6.2-2" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-6.2-3">
+public/private key pairs is possible by publishing the public key in their metadata document.<a href="#section-6.2-1" class="pilcrow">¶</a></p>
+<p id="section-6.2-2">Clients that are capable of maintaining private key material and performing client authentication
+<span class="bcp14">SHOULD</span> do so with an acceptable method, such as a method in the <a href="https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-endpoint-auth-method">OAuth Token Endpoint Authentication Methods registry</a>.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
+<p id="section-6.2-3">For example, the client <span class="bcp14">MAY</span> include the following properties in its metadata document
+to establish a public key and advertise the <code>private_key_jwt</code> authentication method defined in <span>[<a href="#OpenID" class="cite xref">OpenID</a>]</span>:<a href="#section-6.2-3" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-6.2-4">
 <pre>
 {
   ...
@@ -1467,11 +1469,13 @@ to establish a public key and advertise the <code>private_key_jwt</code> authent
   "jwks_uri": "https://client.example.com/jwks.json"
   ...
 }
-</pre><a href="#section-6.2-3" class="pilcrow">¶</a>
+</pre><a href="#section-6.2-4" class="pilcrow">¶</a>
 </div>
-<p id="section-6.2-4">This establishes this client as a confidential client, and any communication with
-the authorization server <span class="bcp14">MUST</span> include client authentication of the registered type.<a href="#section-6.2-4" class="pilcrow">¶</a></p>
-<p id="section-6.2-5">The particular method of how the client manages the private key is out of scope of this specification, but may include manual provisioning or methods such as Attestation Based Client Authentication <span>[<a href="#I-D.draft-ietf-oauth-attestation-based-client-auth" class="cite xref">I-D.draft-ietf-oauth-attestation-based-client-auth</a>]</span>. For example, the client developer could run a Client Attester Backend, using a native application's platform-specific APIs to authenticate to the backend service, where the private key corresponding to the <code>jwks_uri</code> key is managed by the backend service. This would allow a mobile app to request JWTs from the backend service that the mobile app could then use as client authentication to the authorization server.<a href="#section-6.2-5" class="pilcrow">¶</a></p>
+<p id="section-6.2-5">This establishes this client as a confidential client, and any communication with
+the authorization server <span class="bcp14">MUST</span> include client authentication of the registered type.<a href="#section-6.2-5" class="pilcrow">¶</a></p>
+<p id="section-6.2-6">When a client declares <code>token_endpoint_auth_method</code> as <code>private_key_jwt</code>, the authorization server
+<span class="bcp14">MUST</span> require client authentication according to <span><a href="https://rfc-editor.org/rfc/rfc7523#section-2.2" class="relref">Section 2.2</a> of [<a href="#RFC7523" class="cite xref">RFC7523</a>]</span> using the corresponding key discovered from the client's metadata document.<a href="#section-6.2-6" class="pilcrow">¶</a></p>
+<p id="section-6.2-7">The particular method of how the client manages the private key is out of scope of this specification, but may include manual provisioning or methods such as "Attestation Based Client Authentication" <span>[<a href="#I-D.draft-ietf-oauth-attestation-based-client-auth" class="cite xref">I-D.draft-ietf-oauth-attestation-based-client-auth</a>]</span> or "OAuth SPIFFE Client Authentication" <span>[<a href="#I-D.draft-ietf-oauth-spiffe-client-auth" class="cite xref">I-D.draft-ietf-oauth-spiffe-client-auth</a>]</span>. For example, the client developer could run a Client Attester Backend, using a native application's platform-specific APIs to authenticate to the backend service, where the private key corresponding to the <code>jwks_uri</code> key is managed by the backend service. This would allow a mobile app to request JWTs from the backend service that the mobile app could then use as client authentication to the authorization server.<a href="#section-6.2-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="changes-in-client-metadata">
@@ -1647,6 +1651,10 @@ the authorization server <span class="bcp14">MUST</span> include client authenti
 <dt id="I-D.draft-ietf-oauth-attestation-based-client-auth">[I-D.draft-ietf-oauth-attestation-based-client-auth]</dt>
         <dd>
 <span class="refAuthor">Looker, T.</span>, <span class="refAuthor">Bastian, P.</span>, and <span class="refAuthor">C. Bormann</span>, <span class="refTitle">"OAuth 2.0 Attestation-Based Client Authentication"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-attestation-based-client-auth-09</span>, <time datetime="2026-05-25" class="refDate">25 May 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-09">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-09</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.draft-ietf-oauth-spiffe-client-auth">[I-D.draft-ietf-oauth-spiffe-client-auth]</dt>
+        <dd>
+<span class="refAuthor">Schwenkschuster, A.</span>, <span class="refAuthor">Kasselman, P.</span>, <span class="refAuthor">Rose, S.</span>, <span class="refAuthor">Thorgersen, S.</span>, and <span class="refAuthor">N. Cam-Winget</span>, <span class="refTitle">"OAuth SPIFFE Client Authentication"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-spiffe-client-auth-02</span>, <time datetime="2026-06-15" class="refDate">15 June 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-spiffe-client-auth-02">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-spiffe-client-auth-02</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="IndieAuth">[IndieAuth]</dt>
         <dd>
