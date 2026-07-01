@@ -1517,6 +1517,7 @@ the authorization server <span class="bcp14">MUST</span> include client authenti
         </h3>
 <p id="section-6.5-1">Authorization servers fetching the client metadata document and resolving URLs contained within it should be aware of possible SSRF attacks. Authorization servers <span class="bcp14">MUST NOT</span> fetch a Client ID Metadata Document URL or any URLs contained within a Client ID Metadata Document that resolve to special-use IP addresses as defined in <span>[<a href="#RFC6890" class="cite xref">RFC6890</a>]</span>, except when the authorization server itself is running on a loopback address and the resolved address matches the same loopback interface.<a href="#section-6.5-1" class="pilcrow">¶</a></p>
 <p id="section-6.5-2">Authorization servers <span class="bcp14">SHOULD</span> consider network policies or other measures to prevent making requests to special-use addresses. Authorization servers which support non-http-based URI schemes are at additional risk of SSRF attacks.<a href="#section-6.5-2" class="pilcrow">¶</a></p>
+<p id="section-6.5-3">Authorization servers <span class="bcp14">SHOULD</span> ensure they only fetch or parse URLs with known and supported URI schemes. This can help avoid leading to compromises if a client uses a URI scheme such as <code>javascript:</code> in a metadata property.<a href="#section-6.5-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="maximum-response-size-for-client-metadata-documents">

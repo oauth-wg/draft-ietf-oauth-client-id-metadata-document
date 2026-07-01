@@ -437,6 +437,11 @@ Table of Contents
    Authorization servers which support non-http-based URI schemes are at
    additional risk of SSRF attacks.
 
+   Authorization servers SHOULD ensure they only fetch or parse URLs
+   with known and supported URI schemes.  This can help avoid leading to
+   compromises if a client uses a URI scheme such as javascript: in a
+   metadata property.
+
 6.6.  Maximum Response Size for Client Metadata Documents
 
    Authorization servers SHOULD limit the response size when fetching
