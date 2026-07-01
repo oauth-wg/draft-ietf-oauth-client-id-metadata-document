@@ -5,7 +5,7 @@
 Web Authorization Protocol                                    A. Parecki
 Internet-Draft                                                      Okta
 Intended status: Standards Track                                E. Smith
-Expires: 3 September 2026                                   2 March 2026
+Expires: 2 January 2027                                      1 July 2026
 
 
                    OAuth Client ID Metadata Document
@@ -56,7 +56,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 3 September 2026.
+   This Internet-Draft will expire on 2 January 2027.
 
 Copyright Notice
 
@@ -405,17 +405,16 @@ Table of Contents
 6.5.  Server Side Request Forgery (SSRF) Attacks
 
    Authorization servers fetching the client metadata document and
-   resolving URLs located in the metadata document should be aware of
-   possible SSRF attacks.  Authorization servers MUST validate that the
-   Client ID Metadata Document URL does not resolve to special-use IP
-   addresses as defined in [RFC6890], except when the authorization
-   server itself is also running on a loopback address and the resolved
-   address matches the same loopback interface.
+   resolving URLs contained within it should be aware of possible SSRF
+   attacks.  Authorization servers MUST NOT fetch a Client ID Metadata
+   Document URL or any URLs contained within a Client ID Metadata
+   Document that resolve to special-use IP addresses as defined in
+   [RFC6890], except when the authorization server itself is running on
+   a loopback address and the resolved address matches the same loopback
+   interface.
 
-   Authorization servers SHOULD NOT fetch any URLs contained within
-   Client ID Metadata Documents that resolve to special-use IP addresses
-   as defined in [RFC6890] and consider network policies or other
-   measures to prevent making requests to these addresses.
+   Authorization servers SHOULD consider network policies or other
+   measures to prevent making requests to special-use addresses.
    Authorization servers which support non-http-based URI schemes are at
    additional risk of SSRF attacks.
 
@@ -558,9 +557,9 @@ Table of Contents
               Looker, T., Bastian, P., and C. Bormann, "OAuth 2.0
               Attestation-Based Client Authentication", Work in
               Progress, Internet-Draft, draft-ietf-oauth-attestation-
-              based-client-auth-07, 15 September 2025,
+              based-client-auth-09, 25 May 2026,
               <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
-              attestation-based-client-auth-07>.
+              attestation-based-client-auth-09>.
 
    [IndieAuth]
               Parecki, A., "IndieAuth", 12 February 2022,
