@@ -129,7 +129,7 @@ at each authorization server.
 
 This approach works best for clients that have an established, stable, and
 publicly accessible web presence, such as a web service, a website for a mobile app,
-or a service that controls its own domain. It is not a good fit for every kind of client.
+or a service that controls its own domain.
 Clients that do not control a stable public URL, such as clients under active development
 on a developer's local machine, or clients that cannot guarantee the longevity
 of a URL, are less well served by this mechanism. Deployments that need to
