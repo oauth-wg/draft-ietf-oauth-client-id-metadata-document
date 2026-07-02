@@ -227,10 +227,9 @@ According to {{RFC9700}}, the authorization server MUST require registration of
 redirect URLs, and MUST ensure that the redirect URL in an authorization request
 is an exact match, using simple string comparison, of a registered redirect URL.
 
-This method of client information discovery establishes a
-registered redirect URL with the authorization server which is used when
-comparing the redirect URL in an authorization request against the registered
-redirect URLs.
+This method of client information discovery establishes
+registered redirect URL(s) when the authorization server fetches
+the contents of the Client ID Metadata Document.
 
 This specification is not limited to grant types that use a redirect URL.
 For grant types that do not involve a redirect URL, such as the Client
