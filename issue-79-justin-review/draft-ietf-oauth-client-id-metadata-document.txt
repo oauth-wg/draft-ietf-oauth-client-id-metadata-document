@@ -215,9 +215,6 @@ Table of Contents
    responsible for validating this match as part of processing the
    fetched document.
 
-   The Client ID Metadata Document MAY define additional properties in
-   the response.
-
    The Client ID Metadata Document MUST be served with a 200 OK HTTP
    status code.  The Client ID Metadata Document MAY also be served with
    more specific content types as long as the response is JSON and
