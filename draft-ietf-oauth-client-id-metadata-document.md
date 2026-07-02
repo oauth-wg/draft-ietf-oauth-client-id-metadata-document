@@ -155,12 +155,10 @@ A Client Identifier URL:
 * SHOULD NOT contain a query component
 * MUST NOT contain a fragment component
 
-Client Identifier URLs are compared using simple string comparison, as
-defined in Section 6.2.1 of {{RFC3986}}. Implementations MUST NOT apply
-default port normalization when comparing Client Identifier URLs; for
-example, `https://example.com/client` and `https://example.com:443/client`
-are not equivalent even though 443 is the default port for the `https`
-scheme.
+Client Identifier URLs MUST be compared using simple string comparison, as
+defined in Section 6.2.1 of {{RFC3986}}. For example,
+`https://example.com/client` and `https://example.com:443/client`
+are not equivalent even though 443 is the default port for the `https` scheme.
 
 This specification places no restrictions on the brevity or longevity of a
 Client Identifier URL beyond the requirements listed above. A short URL is
