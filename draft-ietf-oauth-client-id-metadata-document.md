@@ -164,8 +164,11 @@ This specification places no restrictions on the brevity or longevity of a
 Client Identifier URL beyond the requirements listed above. A short URL is
 RECOMMENDED, since the URI may be displayed to the end user in the
 authorization interface or in management interfaces. Usage of a stable URL
-that does not change frequently for the client is also RECOMMENDED. Note
-that URL shortening services are generally not suitable as Client Identifier
+that does not change frequently for the client is also RECOMMENDED, as
+changing the URL will appear to the authorization server to be an entirely
+different Client Identifier URL as described in {{client_id_url_changes}}.
+
+Note that URL shortening services are generally not suitable as Client Identifier
 URLs, since they typically operate using HTTP redirects, which conflicts
 with the requirement in {{client_information_discovery}} when fetching the
 Client ID Metadata Document. Using a path of `/` (e.g., `https://example.com/`)
@@ -361,6 +364,24 @@ MUST require client authentication according to {{Section 2.2 of RFC7523}} using
 
 The particular method of how the client manages the private key is out of scope of this specification, but may include manual provisioning or methods such as "Attestation Based Client Authentication" [I-D.draft-ietf-oauth-attestation-based-client-auth] or "OAuth SPIFFE Client Authentication" [I-D.draft-ietf-oauth-spiffe-client-auth]. For example, the client developer could run a Client Attester Backend, using a native application's platform-specific APIs to authenticate to the backend service, where the private key corresponding to the `jwks_uri` key is managed by the backend service. This would allow a mobile app to request JWTs from the backend service that the mobile app could then use as client authentication to the authorization server.
 
+
+## Changes in Client Identifier URL {#client_id_url_changes}
+
+The Client Identifier URL is the client's identity from the perspective of
+the authorization server. Because OAuth treats two different `client_id`
+values as two entirely unrelated clients, a client that changes its Client
+Identifier URL is, as far as any authorization server is concerned, a
+brand new client with no relationship to the previous one. Any grants,
+tokens, or user consent that had been associated with the old URL may not be
+transferable to the new URL, and users may be prompted to re-authorize as
+if encountering the client for the first time.
+
+Clients should therefore treat their Client Identifier URL with the same
+degree of stability as they would treat any persistent identity. Operators
+should plan for the URL to remain resolvable and under their control
+indefinitely, as loss of control over the URL — for example through domain
+expiry or reassignment — would allow a third party to assume the client's
+identity.
 
 ## Changes in Client Metadata
 
