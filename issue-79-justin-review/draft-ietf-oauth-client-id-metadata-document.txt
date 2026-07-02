@@ -205,7 +205,7 @@ Table of Contents
    Metadata OAuth Parameters registry https://www.iana.org/assignments/
    oauth-parameters/oauth-parameters.xhtml#client-metadata
    (https://www.iana.org/assignments/oauth-parameters/oauth-
-   parameters.xhtml#client-metadata).
+   parameters.xhtml#client-metadata) as established by [RFC7591].
 
    The Client ID Metadata Document MUST contain a client_id property
    whose value MUST match the Client Identifier URL, which MUST also
