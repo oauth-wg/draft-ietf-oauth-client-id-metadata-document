@@ -1400,8 +1400,8 @@ The Client ID Metadata Document <span class="bcp14">MAY</span> also be served wi
 as long as the response is JSON and conforms to <code>application/&lt;AS-defined&gt;+json</code>.<a href="#section-4-4" class="pilcrow">¶</a></p>
 <p id="section-4-5">Other specifications <span class="bcp14">MAY</span> place additional restrictions on the contents of the
 Client ID Metadata Document accepted by authorization servers implementing their
-specification, for instance, requiring the registration of confidential clients
-by requiring the <code>token_endpoint_auth_method</code> property be set to <code>"private_key_jwt"</code>.<a href="#section-4-5" class="pilcrow">¶</a></p>
+specification. For example, requiring the <code>token_endpoint_auth_method</code> property
+be set to <code>"private_key_jwt"</code>, effectively requiring confidential clients.<a href="#section-4-5" class="pilcrow">¶</a></p>
 <p id="section-4-6">TBD: We may want a property such as <code>client_id_expires_at</code> for indicating that the client is ephemeral and not valid after a given timestamp, especially for documents issued by a service for development purposes.<a href="#section-4-6" class="pilcrow">¶</a></p>
 <div id="client_authentication_restrictions">
 <section id="section-4.1">
