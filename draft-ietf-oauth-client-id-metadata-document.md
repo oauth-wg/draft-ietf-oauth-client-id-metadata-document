@@ -196,8 +196,8 @@ as long as the response is JSON and conforms to `application/<AS-defined>+json`.
 
 Other specifications MAY place additional restrictions on the contents of the
 Client ID Metadata Document accepted by authorization servers implementing their
-specification, for instance, requiring the registration of confidential clients
-by requiring the `token_endpoint_auth_method` property be set to `"private_key_jwt"`.
+specification. For example, requiring the `token_endpoint_auth_method` property
+be set to `"private_key_jwt"`, effectively requiring confidential clients.
 
 TBD: We may want a property such as `client_id_expires_at` for indicating that the client is ephemeral and not valid after a given timestamp, especially for documents issued by a service for development purposes.
 
