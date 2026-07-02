@@ -1203,7 +1203,7 @@ metadata about the client as needed.<a href="#section-abstract-1" class="pilcrow
                 <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="auto internal xref">7.1</a>.  <a href="#name-supporting-both-pre-registe" class="internal xref">Supporting Both Pre-Registered and Unregistered Clients</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.2">
-                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="auto internal xref">7.2</a>.  <a href="#name-pre-registering-client-id-m" class="internal xref">Pre-Registering Client ID Metadata Document URLs</a></p>
+                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="auto internal xref">7.2</a>.  <a href="#name-pre-registering-client-iden" class="internal xref">Pre-Registering Client Identifier URLs</a></p>
 </li>
             </ul>
 </li>
@@ -1486,19 +1486,20 @@ relying on software statements delivered this way.<a href="#section-4.3-2" class
       <h2 id="name-client-information-discover">
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-client-information-discover" class="section-name selfRef">Client Information Discovery</a>
       </h2>
-<p id="section-5-1">The authorization server <span class="bcp14">SHOULD</span> automatically fetch the Client ID Metadata
-Document at the Client Identifier URL to retrieve the client metadata. An
-authorization server <span class="bcp14">MAY</span> instead associate a Client Identifier URL with
+<p id="section-5-1">Authorization servers <span class="bcp14">SHOULD</span> automatically fetch the Client ID Metadata
+Document at the Client Identifier URL to retrieve the client metadata.
+Authorization servers <span class="bcp14">SHOULD</span> periodically re-fetch the Client ID Metadata Document
+as the contents may change over time. See <a href="#metadata_caching" class="auto internal xref">Section 5.2</a> and
+<a href="#client_metadata_changes" class="auto internal xref">Section 8.4</a> for additional considerations.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-5-2">An authorization server <span class="bcp14">MAY</span> instead associate a Client Identifier URL with
 client metadata through other means, such as by pre-registering the URL as
-described in <a href="#prereg_cimd_urls" class="auto internal xref">Section 7.2</a>; in that case the authorization server is
-not required to automatically fetch the document, but instead could be fetched
-when triggered by a manual action.<a href="#section-5-1" class="pilcrow">¶</a></p>
-<p id="section-5-2">The Client ID Metadata Document <span class="bcp14">MUST</span> be served with a 200 OK HTTP status code.
+described in <a href="#prereg_cimd_urls" class="auto internal xref">Section 7.2</a>.<a href="#section-5-2" class="pilcrow">¶</a></p>
+<p id="section-5-3">The Client ID Metadata Document <span class="bcp14">MUST</span> be served with a 200 OK HTTP status code.
 The authorization server <span class="bcp14">MUST</span> treat all other HTTP status codes as an error response, as
 described in <a href="#metadata_discovery_errors" class="auto internal xref">Section 5.1</a>. The authorization server <span class="bcp14">MUST NOT</span>
-automatically follow HTTP redirects when fetching the Client ID Metadata Document.<a href="#section-5-2" class="pilcrow">¶</a></p>
-<p id="section-5-3">Special care should be taken to avoid Server Side Request Forgery (SSRF) Attacks
-when fetching Client ID Metadata Documents, as described in <a href="#ssrf_attacks" class="auto internal xref">Section 8.6</a>.<a href="#section-5-3" class="pilcrow">¶</a></p>
+automatically follow HTTP redirects when fetching the Client ID Metadata Document.<a href="#section-5-3" class="pilcrow">¶</a></p>
+<p id="section-5-4">Special care should be taken to avoid Server Side Request Forgery (SSRF) Attacks
+when fetching Client ID Metadata Documents, as described in <a href="#ssrf_attacks" class="auto internal xref">Section 8.6</a>.<a href="#section-5-4" class="pilcrow">¶</a></p>
 <div id="metadata_discovery_errors">
 <section id="section-5.1">
         <h3 id="name-metadata-discovery-errors">
@@ -1557,11 +1558,11 @@ server also <span class="bcp14">MUST NOT</span> cache documents which are invali
 </div>
 <div id="prereg_cimd_urls">
 <section id="section-7.2">
-        <h3 id="name-pre-registering-client-id-m">
-<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-pre-registering-client-id-m" class="section-name selfRef">Pre-Registering Client ID Metadata Document URLs</a>
+        <h3 id="name-pre-registering-client-iden">
+<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-pre-registering-client-iden" class="section-name selfRef">Pre-Registering Client Identifier URLs</a>
         </h3>
-<p id="section-7.2-1">An authorization server <span class="bcp14">MAY</span> pre-register Client ID Metadata Document URLs. This is a valid deployment pattern that leverages the namespacing and key-binding properties of Client Identifier URLs described in this specification, while not relying on the authorization server automatically fetching client metadata at request time.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
-<p id="section-7.2-2">This deployment pattern is expected to be common in enterprise environments where enterprise customers wish to explicitly onboard particular clients into their environment. The Client ID Metadata Document URL can be registered with the identity provider, including establishing client authentication as described in <a href="#client_authentication" class="auto internal xref">Section 8.2</a>, where it can behave the same way as a pre-registered client. There is no obligation to support dynamic client onboarding by using the mechanisms described in this document.<a href="#section-7.2-2" class="pilcrow">¶</a></p>
+<p id="section-7.2-1">An authorization server <span class="bcp14">MAY</span> pre-register Client Identifier URLs. This is a valid deployment pattern that leverages the namespacing and key-binding properties of Client Identifier URLs described in this specification, while not relying on the authorization server automatically fetching client metadata at request time. The authorization server <span class="bcp14">SHOULD</span> fetch the Client ID Metadata Document at the URL at the time of establishing this pre-registration, although other means of registering the metadata document are also valid.<a href="#section-7.2-1" class="pilcrow">¶</a></p>
+<p id="section-7.2-2">This deployment pattern is expected to be common in enterprise environments where enterprise customers wish to explicitly onboard particular clients into their environment. The Client Identifier URL can be registered with the identity provider, including establishing client authentication as described in <a href="#client_authentication" class="auto internal xref">Section 8.2</a>, where it can behave the same way as a pre-registered client. There is no obligation to support dynamic client onboarding by using the mechanisms described in this document.<a href="#section-7.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1633,7 +1634,7 @@ expiry or reassignment — would allow a third party to assume the client's
 identity.<a href="#section-8.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="changes-in-client-metadata">
+<div id="client_metadata_changes">
 <section id="section-8.4">
         <h3 id="name-changes-in-client-metadata">
 <a href="#section-8.4" class="section-number selfRef">8.4. </a><a href="#name-changes-in-client-metadata" class="section-name selfRef">Changes in Client Metadata</a>
