@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-05-28T00:16:55.152709+00:00",
+  "timestamp": "2026-07-02T00:20:51.709057+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -57,6 +57,11 @@
       "name": "ietf-125",
       "description": "",
       "color": "187c7d"
+    },
+    {
+      "name": "ietf-126",
+      "description": "",
+      "color": "07eadf"
     }
   ],
   "issues": [
@@ -1009,11 +1014,11 @@
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [
-        "ietf-125"
+        "ietf-126"
       ],
       "body": "This issue was initially reported by @DavidBuchanan314 in https://github.com/bluesky-social/atproto/issues/3396.\n\nIn a federated network, in which hosts are known (as are PDS in the atproto network), the fact that OAuth Server will try to `GET` the client metadata can be used to faking traffic from a bunch of fake IPs, simply by forging authorization requests using the `client_id` as parameter.\n\nFor example, by forging the following requests:\n\n- `https://<pds_1>/oauth/authorize?client_id=https://example.com/page_1&...`\n- `https://<pds_2>/oauth/authorize?client_id=https://example.com/page_1&...`\n- `https://<pds_3>/oauth/authorize?client_id=https://example.com/page_1&...`\n\nThe website at `https://example.com/page_1` will see `GET` traffic from the IPs of all those hosts.\n\nPossible mitigations:\n- Retrieve the metadata document *after* the user authorized the request (though that could lead to weird UX & DX)\n- Add strong constraint on the URI format (eg. `.well-known`, \"must end with `.json`\", other...)\n- ~Recommend OAuth servers to remember the origins of previously failed metadata document retrieval, and prevent more call to be made on these origins~ (redacted: could be abused to cause DoS on legitimate services)\n- Other",
       "createdAt": "2025-01-20T09:23:25Z",
-      "updatedAt": "2026-05-01T00:15:20Z",
+      "updatedAt": "2026-07-01T23:52:58Z",
       "closedAt": null,
       "comments": [
         {
@@ -1144,7 +1149,7 @@
         },
         {
           "author": "josephdecock",
-          "authorAssociation": "NONE",
+          "authorAssociation": "CONTRIBUTOR",
           "body": "I noticed in the IETF 125 recording that @aaronpk mentioned authenticating the user first, but I don't think that actually is in the draft yet. I'm curious what the current state is.\n\nI would actually prefer to not have it be a hard requirement for two reasons:\n- The PAR endpoint is required to \"Authenticate the client in the same way as at the token endpoint\". The spec allows for deferral of a lot of validation until it is used at the authorize endpoint, but not the client authentication piece. \n- Even if not using PAR, the user authentication experience sometimes depends on the client (e.g., the public-facing apps use one user store, while the internal apps use a separate employee user store, perhaps federating).\n\nI also will admit that I don't understand the benefit to authenticating the user first. It seems like in many cases an attacker could simply create burner accounts to get around that. ",
           "createdAt": "2026-03-31T04:13:01Z",
           "updatedAt": "2026-03-31T04:16:37Z"
@@ -2128,15 +2133,15 @@
       "id": "I_kwDOL_Xevs742Pdh",
       "title": "Are SSRF checks when AS is running on loopback needed for URLs *within* CIMDs?",
       "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/73",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "josephdecock",
-      "authorAssociation": "NONE",
+      "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "In section 6.5, there's an exception that allows SSRF checks for the CIMD URL to be skipped when the AS is running on a loopback address. The same exception isn't included in the language about SSRF checks for URLs within the CIMD. Should the same exception apply there?",
       "createdAt": "2026-03-31T01:04:25Z",
-      "updatedAt": "2026-03-31T03:03:36Z",
-      "closedAt": null,
+      "updatedAt": "2026-07-01T23:18:40Z",
+      "closedAt": "2026-07-01T23:18:40Z",
       "comments": [
         {
           "author": "ThisIsMissEm",
@@ -2326,10 +2331,12 @@
       "author": "njwatson32",
       "authorAssociation": "NONE",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "ietf-126"
+      ],
       "body": "For example, if `client_id=https://example.com/oauth/client_id.json`, the AS would `GET https://example.com/oauth/client_id.json?iss=https://example-as.com`.\n\nThis allows the client to do a few things:\n\nProgressive rollouts of changes to CIMD, so that blast radius is limited to only certain AS. Making a global change to a client id is bad practice from a production safety point of view, and \"random percentage\" rollouts may not work if the AS queries the CIMD more than once and gets two different documents.  Of course, `iss` isn't a perfect solution here, but it's easy and better than nothing.\n\nThe client could also return AS-specific metadata (as long as it's not secret because `iss` is unvalidated). This could help address certain incompatibilities that may arise in practice where the same values are rejected by some AS but not by others.",
       "createdAt": "2026-05-01T00:45:14Z",
-      "updatedAt": "2026-05-27T03:11:46Z",
+      "updatedAt": "2026-07-02T00:14:13Z",
       "closedAt": null,
       "comments": [
         {
@@ -4011,12 +4018,10 @@
       "author": "ThisIsMissEm",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
-      "labels": [
-        "ietf-125"
-      ],
+      "labels": [],
       "body": "This applies the recommendation in https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/issues/42",
       "createdAt": "2025-09-29T17:59:56Z",
-      "updatedAt": "2026-03-02T02:29:08Z",
+      "updatedAt": "2026-07-01T23:35:59Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "3aafad42b6ac4b3c60af674080ddf920a9975097",
@@ -4151,23 +4156,21 @@
       "id": "PR_kwDOL_Xevs6rKkZD",
       "title": "Restrict URI properties to absolute URIs using the https: scheme",
       "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/50",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "ThisIsMissEm",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
-      "labels": [
-        "ietf-125"
-      ],
+      "labels": [],
       "body": "This was originally noted in #18 and #19 and changed in #33, however prohibiting just `data:` and `javascript:` would not be a sufficient security measure, as there are other URI schemes that are unsafe, such as `vbscript:` and `shortcuts:` (apple shortcuts).\r\n\r\nInterestingly, I know `vbscript:` exists, however, it is not registered with IANA: https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml",
       "createdAt": "2025-09-29T18:44:46Z",
-      "updatedAt": "2026-03-02T02:57:13Z",
+      "updatedAt": "2026-07-01T23:42:12Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "3aafad42b6ac4b3c60af674080ddf920a9975097",
       "headRepository": "ThisIsMissEm/draft-parecki-oauth-client-id-metadata-document",
       "headRefName": "feat/prohibit-unsafe-uris",
       "headRefOid": "76daaa1f34ea5eb80f88bdc9d65b8f26069b4b22",
-      "closedAt": null,
+      "closedAt": "2026-07-01T23:42:12Z",
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
@@ -4185,6 +4188,13 @@
           "body": "I'm still not convince `logo_uri` shouldn't allow `data:` schemes - requiring `https` means more requests and more bandwidth. For a simple SVG it could be as little as a ~230 bytes:\r\n```\r\n\"logo_uri\": \"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iODAwIiB2aWV3Qm94PSIwIDAgMjAgMjAiPjxwYXRoIGQ9Ik03LjggMTBhMi4yIDIuMiAwIDAgMCA0LjQgMCAyLjIgMi4yIDAgMCAwLTQuNCAweiIvPjwvc3ZnPg==\"\r\n```",
           "createdAt": "2025-11-08T21:44:45Z",
           "updatedAt": "2025-11-08T21:44:45Z"
+        },
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "Moved this to a security consideration in https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/commit/32ac389b855c307b82a2f06eeb9aa404d45fd7ac",
+          "createdAt": "2026-07-01T23:42:12Z",
+          "updatedAt": "2026-07-01T23:42:12Z"
         }
       ],
       "reviews": [
@@ -4362,24 +4372,26 @@
       "id": "PR_kwDOL_Xevs6yDxKq",
       "title": "Clarify requirements for Client ID Metadata Document Services",
       "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/56",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "ThisIsMissEm",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "The way in which a Client ID Metadata Document Service works is up to the implementer of that service, the only requirement is that they return valid Client ID Metadata Documents for the `client_id` URIs that they provision, or return an appropriate status code for an error response.\r\n\r\nI do have a reference implementation of a Client ID Metadata Document Service which is open to the general public, but enforces the additional restrictions that Bluesky's AT Protocol has for Client ID Metadata Documents, which can be found at https://cimd-service.fly.dev \u2014 however, I want to be clear that that API isn't a standard API.",
       "createdAt": "2025-11-07T06:10:23Z",
-      "updatedAt": "2025-11-18T14:30:44Z",
+      "updatedAt": "2026-07-01T23:37:19Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "f681637fb3917027a27efd91e0a57ba1bb401167",
       "headRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "headRefName": "requirements-for-cimd-services",
       "headRefOid": "3a96221803b425425cc413d7ce1fad1b1619e3f5",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2026-07-01T23:37:09Z",
+      "mergedAt": "2026-07-01T23:37:09Z",
+      "mergedBy": "aaronpk",
+      "mergeCommit": {
+        "oid": "548a2687e9d7c0b0f780f749807066804a65df5b"
+      },
       "comments": [
         {
           "author": "OllieJC",
@@ -4465,11 +4477,11 @@
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [
-        "ietf-125"
+        "ietf-126"
       ],
       "body": "Replaces #51, for #30",
       "createdAt": "2026-03-02T02:05:06Z",
-      "updatedAt": "2026-03-10T18:37:45Z",
+      "updatedAt": "2026-07-01T23:54:54Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "b5cf62d9abf63fa11f6465a6b670356c85257dfb",
@@ -4550,6 +4562,13 @@
           "body": "sorry, i must have been reading an older version of the text, disregard that part",
           "createdAt": "2026-03-10T18:37:25Z",
           "updatedAt": "2026-03-10T18:37:25Z"
+        },
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "We didn't really have a discussion about this at IETF 125, but I would like to get to a resolution on this. I will put this on the agenda for IETF 126.",
+          "createdAt": "2026-07-01T23:54:54Z",
+          "updatedAt": "2026-07-01T23:54:54Z"
         }
       ],
       "reviews": []
@@ -4727,7 +4746,7 @@
       "id": "PR_kwDOL_Xevs7In6L8",
       "title": "Stronger recommendation for client authentication",
       "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/68",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "aaronpk",
       "authorAssociation": "MEMBER",
       "assignees": [],
@@ -4736,17 +4755,19 @@
       ],
       "body": "Clarified client credential management and authentication methods in the metadata document.",
       "createdAt": "2026-03-06T23:13:59Z",
-      "updatedAt": "2026-03-07T00:00:56Z",
+      "updatedAt": "2026-07-01T23:26:38Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "64566e8d7abae313e200903549301f9fb33a2204",
       "headRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "headRefName": "aaronpk-patch-1",
-      "headRefOid": "443dc070e822f984e023394ae9fc975fd8226c94",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "c5612e7fd7a4aa02f58504d25ec760d29bc352f2",
+      "closedAt": "2026-07-01T23:26:34Z",
+      "mergedAt": "2026-07-01T23:26:34Z",
+      "mergedBy": "aaronpk",
+      "mergeCommit": {
+        "oid": "fcc1601b763395b18bc9d202215a25a2868dd126"
+      },
       "comments": [],
       "reviews": [
         {
@@ -4888,6 +4909,46 @@
               "updatedAt": "2026-03-07T00:00:56Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABEvt9Iw",
+          "commit": {
+            "abbreviatedOid": "443dc07"
+          },
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-01T23:21:58Z",
+          "updatedAt": "2026-07-01T23:21:58Z",
+          "comments": [
+            {
+              "originalPosition": 19,
+              "body": "```suggestion\nSHOULD do so with an acceptable method, such as a method in the [OAuth Token Endpoint Authentication Methods registry](https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-endpoint-auth-method).\n```",
+              "createdAt": "2026-07-01T23:21:58Z",
+              "updatedAt": "2026-07-01T23:21:58Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABEvuEBg",
+          "commit": {
+            "abbreviatedOid": "443dc07"
+          },
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-07-01T23:22:32Z",
+          "updatedAt": "2026-07-01T23:22:32Z",
+          "comments": [
+            {
+              "originalPosition": 29,
+              "body": "```suggestion\nMUST require client authentication according to {{Section 2.2 of RFC7523}} using the corresponding key discovered from the client's metadata document.\n```",
+              "createdAt": "2026-07-01T23:22:32Z",
+              "updatedAt": "2026-07-01T23:22:32Z"
+            }
+          ]
         }
       ]
     },
@@ -4896,24 +4957,26 @@
       "id": "PR_kwDOL_Xevs7O0Z6v",
       "title": "Clarify loopback exception for SSRF checks",
       "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/74",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "josephdecock",
-      "authorAssociation": "NONE",
+      "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "This clarifies that SSRF checks for both the CIMD itself and URLs within it should be handled the same way: don't fetch special use IPs unless everything is running on loopback. \r\n\r\nThis change does normatively strengthen the requirements for URLs within the CIMD. My assumption is that the current wording of MUST NOT for the CIMD itself with an exception for running on loopback and SHOULD NOT for contained URLs is meant to accomplish the same thing, and I thought combining the two made it read more clearly.\r\n\r\nSee also #73. ",
       "createdAt": "2026-03-31T03:49:22Z",
-      "updatedAt": "2026-03-31T03:49:22Z",
+      "updatedAt": "2026-07-01T23:18:31Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "64566e8d7abae313e200903549301f9fb33a2204",
       "headRepository": "josephdecock/draft-ietf-oauth-client-id-metadata-document",
       "headRefName": "main",
       "headRefOid": "8cba2ecd3a625defdad05815e610246e4777b07d",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2026-07-01T23:18:31Z",
+      "mergedAt": "2026-07-01T23:18:31Z",
+      "mergedBy": "aaronpk",
+      "mergeCommit": {
+        "oid": "8d7d58f6d1e595af3137273e6970bc37586d9a97"
+      },
       "comments": [],
       "reviews": []
     }
