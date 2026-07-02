@@ -182,7 +182,8 @@ the OAuth Dynamic Client Registration Metadata OAuth Parameters registry
 <https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#client-metadata>.
 
 The Client ID Metadata Document MUST contain a `client_id` property whose value
-MUST match the URL that the authorization server used to fetch the document,
+MUST match the Client Identifier URL, which MUST also match the URL that the
+authorization server used to fetch the document; comparisons MUST be made
 using simple string comparison as defined in Section 6.2.1 of {{RFC3986}}. The
 authorization server is responsible for validating this match as part of
 processing the fetched document.
