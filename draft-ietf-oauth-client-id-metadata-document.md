@@ -127,105 +127,171 @@ This specification describes how an OAuth 2.0 client can publish its
 own registration information and avoid the need for pre-registering
 at each authorization server.
 
+This approach works best for clients that have an established, stable, and
+publicly accessible web presence, such as a web service, a website for a mobile app,
+or a service that controls its own domain.
+Clients that do not control a stable public URL, such as clients under active development
+on a developer's local machine, or clients that cannot guarantee the longevity
+of a URL, are less well served by this mechanism. Deployments that need to
+support such clients should consider the guidance in {{implementation_considerations}}
+and {{cimd_services}}.
+
 # Conventions and Definitions
 
 {::boilerplate bcp14-tagged}
 
-# Client Identifier
+# Client Identifier URL {#client-identifier-url}
 
-This specification defines the client identifier as a URL with the following
-restrictions. Client identifier URLs MUST have an "https" scheme, MUST contain a
-path component, MUST NOT contain single-dot or double-dot path segments, MUST
-NOT contain a fragment component and MUST NOT contain a username or password
-Client identifier URLs SHOULD NOT include a query string component, and MAY contain a port.
+This specification defines a URL format used as a client's identifier,
+referred to in this document as a Client Identifier URL.
 
-This specification places no restrictions on what URL is used as
-a client identifier. A short URL is RECOMMENDED, since the URL may
-be displayed to the end user in the authorization interface or in
-management interfaces. Usage of a stable URL that does not frequently
-change for the client is also RECOMMENDED.
+A Client Identifier URL:
 
-# Client Information Discovery
+* MUST use the `https` URL scheme
+* MUST NOT contain a userinfo component defined by {{RFC3986}}
+* MAY contain a port
+* MUST contain a path component
+* MUST NOT contain single-dot or double-dot path components
+* SHOULD NOT contain a query component
+* MUST NOT contain a fragment component
 
-One purpose of registering clients at the authorization server is so that
-the authorization server has additional information about the client that
-can be used during an OAuth flow, such as presenting information about
-the client to the user in an authorization consent screen, for example the
-client name and logo.
+Client Identifier URLs MUST be compared using simple string comparison, as
+defined in Section 6.2.1 of {{RFC3986}}. For example,
+`https://example.com/client` and `https://example.com:443/client`
+are not equivalent even though 443 is the default port for the `https` scheme.
 
-The authorization server SHOULD fetch the document indicated by the `client_id`
-to retrieve the client registration information. A successful response MUST use
-the 200 OK HTTP status code. The authorization server MUST treat all other
-HTTP status codes as an error response. The authorization server MUST NOT
-automatically follow HTTP redirects when retrieving the client registration information.
+This specification places no restrictions on the brevity or longevity of a
+Client Identifier URL beyond the requirements listed above. A short URL is
+RECOMMENDED, since the URI may be displayed to the end user in the
+authorization interface or in management interfaces. Usage of a stable URL
+that does not change frequently for the client is also RECOMMENDED, as
+changing the URL will appear to the authorization server to be an entirely
+different Client Identifier URL as described in {{client_id_url_changes}}.
+
+Note that URL shortening services are generally not suitable as Client Identifier
+URLs, since they typically operate using HTTP redirects, which conflicts
+with the requirement in {{client_information_discovery}} when fetching the
+Client ID Metadata Document. Using a path of `/` (e.g., `https://example.com/`)
+is NOT RECOMMENDED, since the Client ID Metadata Document would then be served at
+the root of the domain, conflicting with existing content that may be published there.
+
+A Client Identifier URL MUST be associated with a set of client metadata,
+in the form of a Client ID Metadata Document as described in
+{{client_metadata_document}}, available at the Client Identifier URL.
+
+# Client ID Metadata Document {#client_metadata_document}
+
+The Client ID Metadata Document is a JSON ({{RFC8259}}) document containing the metadata
+of the client. The client metadata values are the values defined in
+the OAuth Dynamic Client Registration Metadata OAuth Parameters registry
+<https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#client-metadata>
+as established by {{RFC7591}}.
+
+The Client ID Metadata Document MUST contain a `client_id` property whose value
+MUST match the Client Identifier URL, which MUST also match the URL that the
+authorization server used to fetch the document; comparisons MUST be made
+using simple string comparison as defined in Section 6.2.1 of {{RFC3986}}. The
+authorization server is responsible for validating this match as part of
+processing the fetched document.
+
+The Client ID Metadata Document MUST be served with a 200 OK HTTP status code.
+The Client ID Metadata Document MAY also be served with more specific content types
+as long as the response is JSON and conforms to `application/<AS-defined>+json`.
+
+Other specifications MAY place additional restrictions on the contents of the
+Client ID Metadata Document accepted by authorization servers implementing their
+specification. For example, requiring the `token_endpoint_auth_method` property
+be set to `"private_key_jwt"`, effectively requiring confidential clients.
+
+TBD: We may want a property such as `client_id_expires_at` for indicating that the client is ephemeral and not valid after a given timestamp, especially for documents issued by a service for development purposes.
+
+## Credential and Key Material Restrictions {#client_authentication_restrictions}
+
+As there is no way to establish a shared secret to be used with client metadata
+documents, the following restrictions apply to the contents of the
+Client ID Metadata Document:
+
+* the `token_endpoint_auth_method` property MUST NOT include `client_secret_post`,
+`client_secret_basic`, `client_secret_jwt`, or any other method based around
+a shared symmetric secret
+* the `client_secret` and `client_secret_expires_at` properties MUST NOT be used
+* private key material MUST NOT be included in the Client ID Metadata Document;
+only public keys, such as those published via the `jwks` or `jwks_uri`
+properties, are permitted
+
+See {{client_authentication}} for more details on establishing client
+authentication using public/private key pairs.
+
+## Redirect URL Registration
+
+According to {{RFC9700}}, the authorization server MUST require registration of
+redirect URLs, and MUST ensure that the redirect URL in an authorization request
+is an exact match, using simple string comparison, of a registered redirect URL.
+
+This method of client information discovery establishes
+registered redirect URL(s) when the authorization server fetches
+the contents of the Client ID Metadata Document.
+
+This specification is not limited to grant types that use a redirect URL.
+For grant types that do not involve a redirect URL, such as the Client
+Credentials Grant, or extension grants such as Token Exchange, the
+requirements of this section do not apply, since no redirect URL is
+registered or used. The other mechanisms described in this specification,
+namely client identification and client metadata discovery, apply
+regardless of which grant type is used.
+
+
+## Relationship with software_statement {#software_statement}
+
+The `software_statement` parameter defined in {{RFC7591}} MAY be used together
+with a Client Identifier URL, for example by including it as a property of the
+Client ID Metadata Document. Doing so can provide the authorization server with
+an additional, independently verifiable signal about the client's identity or
+provenance.
+
+Operators combining software statements with this specification should note
+that the software statement is no longer presented inline by the client during
+the authorization request; instead, it is retrieved by the authorization
+server as part of fetching the Client ID Metadata Document. This means the
+trustworthiness of the software statement's claims depends not only on the
+issuer's signature over the statement itself, but also on the integrity of the
+process used to retrieve the Client ID Metadata Document (including the
+protections described in {{ssrf_attacks}}), as well as the relationship between
+the client instance and the Client ID Metadata Document. Authorization servers should
+evaluate whether this combination meets their assurance requirements before
+relying on software statements delivered this way.
+
+
+# Client Information Discovery {#client_information_discovery}
+
+Authorization servers SHOULD automatically fetch the Client ID Metadata
+Document at the Client Identifier URL to retrieve the client metadata.
+Authorization servers SHOULD periodically re-fetch the Client ID Metadata Document
+as the contents may change over time. See {{metadata_caching}} and
+{{client_metadata_changes}} for additional considerations.
+
+An authorization server MAY instead associate a Client Identifier URL with
+client metadata through other means, such as by pre-registering the URL as
+described in {{prereg_cimd_urls}}.
+
+The Client ID Metadata Document MUST be served with a 200 OK HTTP status code.
+The authorization server MUST treat all other HTTP status codes as an error response, as
+described in {{metadata_discovery_errors}}. The authorization server MUST NOT
+automatically follow HTTP redirects when fetching the Client ID Metadata Document.
 
 Special care should be taken to avoid Server Side Request Forgery (SSRF) Attacks
 when fetching Client ID Metadata Documents, as described in {{ssrf_attacks}}.
 
-## Client Metadata Document
+## Metadata Discovery Errors {#metadata_discovery_errors}
 
-The client metadata document is a JSON ({{RFC8259}}) document containing the metadata
-of the client. The client metadata values are the values defined in
-the OAuth Dynamic Client Registration Metadata OAuth Parameters registry
-<https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#client-metadata>.
-
-The client metadata document MUST be served with a 200 OK HTTP status code.
-
-The client metadata document MUST contain a `client_id` property whose value
-MUST match the URL of the document using simple string comparison as
-defined in [RFC3986] Section 6.2.1.
-
-The client metadata document MAY define additional properties in the response.
-The client metadata document MAY also be served with more specific content types
-as long as the response is JSON and conforms to `application/<AS-defined>+json`.
-
-As there is no way to establish a shared secret to be used with client metadata
-documents, the following restrictions apply on the contents of the
-client metadata document:
-
-* the `token_endpoint_auth_method` property MUST NOT include `client_secret_post`,
-`client_secret_basic`, `client_secret_jwt`, or any other method based around
-a shared symmetric secret.
-* the `client_secret` and `client_secret_expires_at` properties MUST NOT be used
-
-See {{client_authentication}} for more details.
-
-Other specifications MAY place additional restrictions on the contents of the
-client metadata document accepted by authorization servers implementing their
-specification, for instance, preventing the registration of confidential clients
-by requiring the `token_endpoint_auth_method` property be set to `"none"`.
-
-TBD: We may want a property such as `client_id_expires_at` for indicating that the client is ephemeral and not valid after a given timestamp, especially for documents issued by a service for development purposes.
-
-## Client Metadata Documents for Development Purposes {#documents_for_development}
-
-An authorization server may have restrictions on what it accepts as valid `redirect_uris`, for instance, limiting them to the same-origin as the `client_id` or `client_uri` properties. However, if an authorization server does place additional restrictions on the accepted `redirect_uris` then it SHOULD provide at least one Client ID Metadata Document Service (described below) which is exempt from these restrictions.
-
-When developing applications against an authorization server which uses this specification, developers often encounter the issue of "how do I serve a Client ID Metadata Document at a publicly accessible https URL whilst developing my application on my localhost?".
-
-To enable developers to author applications on their machines, without exposing their machines to the public internet, the usage of Client ID Metadata Document Services by the authorization server is RECOMMENDED.
-
-A Client ID Metadata Document Service is a web service through which developers can acquire a stable URL to a Client ID Metadata Document. This service MAY expire clients from time to time, and MAY require developers to provide additional information about the client being developed.
-
-
-The only requirement on Client ID Metadata Document Services is that they MUST
-return valid Client ID Metadata Documents for the `client_id`s that they
-provision, or return a status code indicating an error response (e.g., 404 Not
-Found). How a Client ID Metadata Document Service creates or stores metadata
-documents is outside of the scope of this document.
-
-
-By providing at least one Client ID Metadata Document Service, an authorization server can enable developers to create applications, and still indicate to non-technical people that the client that they are about to authorize is currently under-development and may not be trustworthy or secure.
-
-## Metadata Discovery Errors
-
-If fetching the metadata document fails, the authorization server SHOULD abort the
+If the authorization server attempts to fetch the Client ID Metadata Document,
+and fetching the metadata document fails, the authorization server SHOULD abort the
 authorization request.
 
-## Metadata Caching
+## Metadata Caching {#metadata_caching}
 
 The authorization server MAY cache the client metadata it discovers at the
-client metadata document URL.
+Client ID Metadata Document URL.
 
 The authorization server SHOULD respect HTTP cache headers {{RFC9111}} when caching client metadata,
 but MAY define its own upper and/or lower bounds on an acceptable cache lifetime as well.
@@ -233,26 +299,29 @@ but MAY define its own upper and/or lower bounds on an acceptable cache lifetime
 The authorization server MUST NOT cache error responses. The authorization
 server also MUST NOT cache documents which are invalid or malformed.
 
-
-## Redirect URL Registration
-
-According to {{RFC9700}}, the authorization server
-MUST require registration of redirect URIs, and MUST ensure that the redirect URI
-in a request is an exact match of a registered redirect URI.
-
-This method of client information discovery establishes a
-registered redirect URI with the authorization server which is used when
-comparing the redirect URI in an authorization request against the registered
-redirect URIs.
-
 # Authorization Server Metadata {#as-metadata}
 
-Authorization servers that publish Authorization Server Metadata {{RFC8414}} MUST include the following property to signal support for client metadata documents as described in this specification.
+Authorization servers that publish Authorization Server Metadata {{RFC8414}} MUST include the following property to signal support for Client ID Metadata Documents as described in this specification.
 
 `client_id_metadata_document_supported`:
 : OPTIONAL. Boolean value specifying whether the authorization server supports retrieving client metadata from a `client_id` URL as described in this specification.
 
-This enables clients to avoid sending the user to a dead end, by only redirecting the user to an authorization server that supports this specification. Otherwise, the client would redirect the user and the user would be met with an error about an invalid client as described by Section 4.1.2.1 of {{RFC6749}}.
+This enables clients to avoid sending the user to a dead end, by only redirecting the user to an authorization server that supports this specification. Otherwise, the client would redirect the user and the user would be met with an error about an invalid client as described in {{Section 4.1.2.1 of RFC6749}}.
+
+
+# Implementation Considerations {#implementation_considerations}
+
+## Supporting Both Pre-Registered and Unregistered Clients
+
+If an authorization server wishes to support clients using Client ID Metadata Documents as well as clients where the authorization server generates the `client_id`, it SHOULD ensure that the `client_id` strings it generates do not start with `https://`. Given that most implementations of authorization servers generate random values for the `client_id`, this is not expected to be a problem in practice.
+
+The presence of the `https://` scheme in a `client_id` is not by itself a reliable signal of whether a client was registered using this specification, such as if an authorization server issues `https://` URLs as `client_id` values for other purposes like vanity identifiers or stable developer-facing identifiers, without treating them as Client Identifier URLs to be fetched. The determining factor for whether a `client_id` is subject to this specification is whether the authorization server fetches, or otherwise associates, a Client ID Metadata Document for that `client_id`. Authorization servers that support both approaches need a reliable way, internal to their own implementation, to distinguish clients registered via this specification from those registered by other means.
+
+## Pre-Registering Client Identifier URLs {#prereg_cimd_urls}
+
+An authorization server MAY pre-register Client Identifier URLs. This is a valid deployment pattern that leverages the namespacing and key-binding properties of Client Identifier URLs described in this specification, while not relying on the authorization server automatically fetching client metadata at request time. The authorization server SHOULD fetch the Client ID Metadata Document at the URL at the time of establishing this pre-registration, although other means of registering the metadata document are also valid.
+
+This deployment pattern is expected to be common in enterprise environments where enterprise customers wish to explicitly onboard particular clients into their environment. The Client Identifier URL can be registered with the identity provider, including establishing client authentication as described in {{client_authentication}}, where it can behave the same way as a pre-registered client. There is no obligation to support dynamic client onboarding by using the mechanisms described in this document.
 
 
 # Security Considerations
@@ -261,11 +330,11 @@ In addition to the security considerations in OAuth 2.0 Core {{RFC6749}}, and OA
 
 ## Relationship between `redirect_uris` and `client_id` or `client_uri` {#redirect_uri_relationship}
 
-An authorization server MAY impose restrictions or relationships between the `redirect_uris` and the `client_id` or `client_uri` properties, for example to restrict the `redirect_uri` to the same-origin as the Client ID Metadata Document. Without restrictions like these, there are potential trust and safety issues where the client attempts to impersonate a more well-known client or otherwise act in a way which is malicious or puts the end-user at risk.
+An authorization server may impose restrictions or relationships between the `redirect_uris` and the `client_id` or `client_uri` properties, for example to restrict the `redirect_uri` to the same-origin as the Client ID Metadata Document. Without restrictions like these, there are potential trust and safety issues where the client attempts to impersonate a more well-known client or otherwise act in a way which is malicious or puts the end-user at risk.
 
 Having no restrictions on the relationship between `redirect_uris` and `client_id` or `client_uri` was a common practice with {{Solid-OIDC}}'s Client ID Documents, so this ability is preserved for backwards compatibility between {{Solid-OIDC}} and this specification.
 
-Some restrictions on `redirect_uris` can make developer usage of Client ID Metadata Documents difficult. The section {{documents_for_development}} contains recommendations for enabling development usage of Client ID Metadata Documents for authorization servers that impose restrictions on the `redirect_uri`.
+Some restrictions on `redirect_uris` can make developer usage of Client ID Metadata Documents difficult. {{cimd_services}} discusses how a service offered by the authorization server can enable development usage of Client ID Metadata Documents for authorization servers that impose restrictions on the `redirect_uri`.
 
 ## Client Authentication {#client_authentication}
 
@@ -296,61 +365,121 @@ MUST require client authentication according to {{Section 2.2 of RFC7523}} using
 The particular method of how the client manages the private key is out of scope of this specification, but may include manual provisioning or methods such as "Attestation Based Client Authentication" [I-D.draft-ietf-oauth-attestation-based-client-auth] or "OAuth SPIFFE Client Authentication" [I-D.draft-ietf-oauth-spiffe-client-auth]. For example, the client developer could run a Client Attester Backend, using a native application's platform-specific APIs to authenticate to the backend service, where the private key corresponding to the `jwks_uri` key is managed by the backend service. This would allow a mobile app to request JWTs from the backend service that the mobile app could then use as client authentication to the authorization server.
 
 
-## Changes in Client Metadata
+## Changes in Client Identifier URL {#client_id_url_changes}
 
-Authorization servers should be aware that client metadata documents can change over time since they are served from URLs under client control. Authorization servers should consider the security implications when metadata properties change, such as `redirect_uris`, `token_endpoint_auth_method`, `scope`, `grant_types`, `jwks`, `jwks_uri`, or display properties like `client_name` and `logo_uri`.
+The Client Identifier URL is the client's identity from the perspective of
+the authorization server. Because OAuth treats two different `client_id`
+values as two entirely unrelated clients, a client that changes its Client
+Identifier URL is, as far as any authorization server is concerned, a
+brand new client with no relationship to the previous one. Any grants,
+tokens, or user consent that had been associated with the old URL may not be
+transferable to the new URL, and users may be prompted to re-authorize as
+if encountering the client for the first time.
+
+Clients should therefore treat their Client Identifier URL with the same
+degree of stability as they would treat any persistent identity. Operators
+should plan for the URL to remain resolvable and under their control
+indefinitely, as loss of control over the URL — for example through domain
+expiry or reassignment — would allow a third party to assume the client's
+identity.
+
+## Changes in Client Metadata {#client_metadata_changes}
+
+Authorization servers should be aware that Client ID Metadata Documents can change over time since they are served from URLs under client control. Authorization servers should consider the security implications when metadata properties change, such as `redirect_uris`, `token_endpoint_auth_method`, `scope`, `grant_types`, `jwks`, `jwks_uri`, or display properties like `client_name` and `logo_uri`.
 
 Significant changes to client metadata may affect the trust relationship between the authorization server and the client, and could impact the validity of previously granted user consent. Authorization servers may choose to invalidate existing grants, require fresh user consent, or implement other policies when certain types of metadata changes are detected. The appropriate response will depend on the authorization server's risk tolerance and operational requirements.
 
 ### Changes in Client Keys {#client_key_changes}
 
-If the authorization server notices that the `jwks`, `jwks_uri` or the contents at the `jwks_uri` have changed compared to the last time it fetched the metadata, the authorization server MAY take actions such as revoking any tokens issued to this client, or revoking the user's consent for this client. The particular actions to take are left up to the discretion of the authorization server based on its own risk assessment. However, periodic rotation of keys can also be expected as good security hygiene by the client.
+If the authorization server notices that the `jwks`, `jwks_uri` or the contents at the `jwks_uri` have changed compared to the last time it fetched the metadata, the authorization server may take actions such as revoking any tokens issued to this client, or revoking the user's consent for this client. The particular actions to take are left up to the discretion of the authorization server based on its own risk assessment. However, periodic rotation of keys can also be expected as good security hygiene by the client.
 
 
 ## OAuth Phishing Attacks
 
-Authorization servers SHOULD fetch the `client_id` metadata document provided in the authorization request in order to provide users with additional information about the request, such as the application name and logo. If the server does not fetch the client metadata document, then it SHOULD take additional measures to ensure the user is provided with as much information as possible about the request.
+Authorization servers SHOULD fetch the `client_id` metadata document provided in the authorization request in order to provide users with additional information about the request, such as the application name and logo. If the server does not fetch the Client ID Metadata Document, then it SHOULD take additional measures to ensure the user is provided with as much information as possible about the request.
 
 The authorization server SHOULD display the hostname of the `client_id` on the authorization interface, in addition to displaying the fetched client information if any. Displaying the hostname helps users know that they are authorizing the expected application.
 
-If fetching the client metadata document fails for any reason, the `client_id` URL is the only piece of information the user has as an indication of which application they are authorizing.
+If fetching the Client ID Metadata Document fails for any reason, the `client_id` URL is the only piece of information the user has as an indication of which application they are authorizing.
 
 
 ## Server Side Request Forgery (SSRF) Attacks {#ssrf_attacks}
 
-Authorization servers fetching the client metadata document and resolving URLs contained within it should be aware of possible SSRF attacks. Authorization servers MUST NOT fetch a Client ID Metadata Document URL or any URLs contained within a Client ID Metadata Document that resolve to special-use IP addresses as defined in {{RFC6890}}, except when the authorization server itself is running on a loopback address and the resolved address matches the same loopback interface.
+Authorization servers fetching the Client ID Metadata Document and resolving URLs contained within it should be aware of possible SSRF attacks. Authorization servers MUST NOT fetch a Client ID Metadata Document URL or any URLs contained within a Client ID Metadata Document that resolve to special-use IP addresses as defined in {{RFC6890}}.
+
+Authorization servers deployed for development or testing purposes MAY relax this restriction to allow fetching from loopback addresses when the authorization server itself is also running on a loopback address and the resolved address matches the same loopback interface. Authorization servers MUST NOT apply this exception in production deployments, since doing so would allow an attacker-controlled Client Identifier URL to cause the authorization server to make requests against itself or other services on the loopback interface or special-use IP addresses.
 
 Authorization servers SHOULD consider network policies or other measures to prevent making requests to special-use addresses. Authorization servers which support non-http-based URI schemes are at additional risk of SSRF attacks.
 
 Authorization servers SHOULD ensure they only fetch or parse URLs with known and supported URI schemes. This can help avoid leading to compromises if a client uses a URI scheme such as `javascript:` in a metadata property.
 
-## Maximum Response Size for Client Metadata Documents
+## Maximum Response Size for Client ID Metadata Documents
 
-Authorization servers SHOULD limit the response size when fetching the client metadata document, as to avoid denial of service attacks against the authorization server by consuming excessive resources (memory, disk, database). The recommended maximum response size for client metadata documents is 5 kilobytes.
+Since the authorization server does not control the size of the Client ID Metadata Document served by the client, it cannot limit the size of the response itself. Instead, authorization servers SHOULD limit the amount of data they read and process when fetching a Client ID Metadata Document, for example by stopping after a maximum number of bytes and treating the response as an error if that limit is reached before the document has been fully read. The recommended maximum size to read is 5 kilobytes.
 
 
-## Displaying Logos to End-Users
+## Displaying Logos to End-Users {#displaying_logos}
 
-Authorization servers that wish to make use of the `logo_uri` property within client metadata document SHOULD prefetch the file at `logo_uri` and cache it for the cache duration of the client metadata document. This allows for moderation tools to verify the file contents (e.g., preventing usage of logos that look like other logos), as well as preventing the logo from being dynamically changed to confuse an end-user.
+Authorization servers that wish to make use of the `logo_uri` property within Client ID Metadata Document SHOULD prefetch the file at `logo_uri` and cache it for the cache duration of the Client ID Metadata Document. This allows for moderation tools to verify the file contents (e.g., preventing usage of logos that look like other logos), as well as preventing the logo from being dynamically changed to confuse an end-user.
 
 Caching of the `logo_uri` response can additionally prevent cross-domain tracking through the `logo_uri` being requested by the client, since the cached file would be served not from the remote URI but instead from a URI that the Authorization server trusts.
 
 ## Client ID Domain Trust
 
-The authorization server MAY choose to have its own heuristics and policies around the trust of domain names used as client IDs.
+The authorization server may choose to have its own heuristics and policies around the trust of domain names used as client IDs.
 
-For example, the authorization server could require that the first 100 users to authorize a `client_id` see an additional warning screen before the OAuth consent screen. The authorization server could check attributes of the domain reputation, such as how recently the domain was registered, and put up extra warnings for new domains.
+For example, the authorization server could require that the first 100 users to authorize a `client_id` see an additional warning screen before the OAuth consent screen. The authorization server could check attributes of the domain reputation, such as how recently the domain was registered, and put up extra warnings for new domains. An authorization server may also maintain allowlists of trusted domain patterns, such as treating any Client Identifier URL under `*.example.com` as belonging to a known and trusted operator, and apply reduced friction for clients matching such patterns.
 
-## Supporting Both Pre-Registered and Unregistered Clients
+## CIMD Services {#cimd_services}
 
-If an Authorization Server wishes to support clients using Client ID Metadata Documents as well as clients where the Authorization Server generates the `client_id`, it SHOULD ensure that the `client_id` strings it generates do not start with `https://`. Given that most implementations of Authorization Servers generate random values for the `client_id`, this is not expected to be a problem in practice.
+This section describes a pattern, referred to as a CIMD Service, through
+which an authorization server can offer developers a way to obtain Client
+Identifier URIs for use during development, without requiring the developer
+to host a publicly accessible document themselves.
 
-## Pre-Registering Client ID Metadata Document URLs
+Operating a CIMD Service has security and reputation implications, since it
+is effectively acting as a proxy for static client registration for any
+client it provisions. An authorization server operating a CIMD Service
+should ensure that clients provisioned this way are clearly distinguished
+from other clients when presented to end users, and should consider the
+implications on the trust model described in this specification, since a
+CIMD Service intermediates the relationship between the client and the
+authorization server rather than the client publishing its own metadata
+directly.
 
-An Authorization Server MAY pre-register Client ID Metadata Document URLs. While this effectively defeats the purpose of enabling the dynamic relationship between clients and authorization servers, it can be a good way to support clients that define their own client IDs as Client ID Metadata Document URLs while not wanting to enable unknown clients to access the authorization server.
+# Privacy Considerations
 
-This deployment pattern is expected to be common in enterprise environments where the enterprise customers wish to explicitly onboard particular clients into their environment. The Client ID Metadata Document URL can be registered with the identity provider, including establishing client authentication as described in {{client_authentication}}, where it can behave the same way as a pre-registered client. There is no obligation to support dynamic client onboarding by using the mechanisms described in this document.
+## Authorization Server Fetch Side Channel
 
+When the authorization server fetches a Client Identifier URL or other URLs
+referenced within a Client ID Metadata Document, the act of fetching may reveal
+information about end-user activity to the operator of the server hosting
+those URLs. For example, the timing and frequency of requests to a Client
+Identifier URI can indicate when, and how often, users are attempting to
+authorize with a particular authorization server.
+
+Authorization servers that fetch client metadata on every authorization
+request, rather than relying on cached data, are more susceptible to this
+side channel. Authorization servers SHOULD respect cache headers as
+described in {{metadata_caching}} to reduce the frequency of unnecessary
+fetches.
+
+## URLs Referenced in Client ID Metadata Documents
+
+Client ID Metadata Documents may contain URLs, such as `logo_uri`, `jwks_uri`,
+`policy_uri`, or `tos_uri`, that the authorization server fetches directly
+or exposes to the end user, for example by rendering them or linking to them
+in the authorization interface. When these URLs are fetched by the
+authorization server, or their content is served to the end user's browser,
+they may create cross-domain tracking opportunities for the operator of the
+referenced URL.
+
+As described in {{displaying_logos}}, authorization servers that fetch and
+cache the content of `logo_uri` rather than linking to it directly mitigate
+the risk of cross-domain tracking through logo requests initiated by the
+end user's browser. Authorization servers should consider similar
+precautions for other URLs contained in the Client ID Metadata Document before
+exposing them to end users.
 
 # IANA Considerations
 
@@ -367,12 +496,61 @@ The following authorization server metadata value is defined by this specificati
 
 --- back
 
+# CIMD Services for Development Purposes {#cimd-service-appendix}
+{:numbered="true"}
+
+This appendix describes a non-normative pattern, referred to as a CIMD
+Service, that an authorization server MAY offer to make development against
+this specification easier.
+
+An authorization server may have restrictions on what it accepts as valid
+`redirect_uris`, for instance, limiting them to the same-origin as the
+`client_id` or `client_uri` properties, as discussed in
+{{redirect_uri_relationship}}. However, if an authorization server does
+place additional restrictions on the accepted `redirect_uris` then it is
+RECOMMENDED that it provide at least one CIMD Service which is exempt from
+these restrictions, to support developers as described below.
+
+When developing applications against an authorization server which uses
+this specification, developers often encounter the issue of "how do I serve
+a Client ID Metadata Document at a publicly accessible https URL whilst
+developing my application on my localhost?".
+
+To enable developers to author applications on their machines, without
+exposing their machines to the public internet, an authorization server MAY
+offer a CIMD Service.
+
+A CIMD Service is a web service through which developers can acquire a
+stable Client Identifier URL that resolves to a Client ID Metadata Document.
+This service MAY expire clients from time to time, and MAY require
+developers to provide additional information about the client being
+developed.
+
+The only requirement on a CIMD Service is that it MUST return valid Client
+ID Metadata Documents for the `client_id`s that it provisions, or return a
+status code indicating an error response (e.g., 404 Not Found). How a CIMD
+Service creates or stores metadata documents is outside of the scope of
+this document.
+
+By providing at least one CIMD Service, an authorization server can enable
+developers to create applications, and still indicate to non-technical
+people that the client that they are about to authorize is currently
+under-development and may not be trustworthy or secure.
+
+Operating a CIMD Service effectively means the authorization server is
+performing a form of static client registration on behalf of the developer,
+mediated through a URL rather than a direct registration API. Authorization
+servers offering a CIMD Service should consider the security and reputation
+implications discussed in {{cimd_services}}, and should ensure that clients
+provisioned through a CIMD Service are not afforded the same level of trust
+as clients that publish their own Client ID Metadata Document.
+
 # Acknowledgments
 {:numbered="false"}
 
 The idea of using URIs as the `client_id` in OAuth based authorization requests is not new, and has previously been specified in varying ways by [IndieAuth], [Solid-OIDC], and [OpenID.Federation]. This specification is largely inspired by the work of Aaron Coburn, elf Pavlik, and Dmitri Zagidulin in their [Solid-OIDC] specification which defined dereferenceable Client Identifier Documents.
 
-The authors would like to thank the following people for their contributions and reviews of this specification: Bobby Tiernay, Brian Campbell, Bryan Newbold, Dick Hardt, Filip Skokan, Jeff Lombardo, Joe DeCock, Leif Johansson, Matthieu Sieben, Meghna Dubey, Orie Steele, Pieter Kasselman, and Takahiko Kawasaki.
+The authors would like to thank the following people for their contributions and reviews of this specification: Bobby Tiernay, Brian Campbell, Bryan Newbold, Dick Hardt, Filip Skokan, Jeff Lombardo, Joe DeCock, Justin Richer, Leif Johansson, Matthieu Sieben, Meghna Dubey, Orie Steele, Pieter Kasselman, and Takahiko Kawasaki.
 
 
 # Document History
@@ -384,6 +562,23 @@ The authors would like to thank the following people for their contributions and
 
 * Clarified loopback exception for SSRF checks
 * More strongly recommend doing client authentication
+* Clarified scope of applicability in the Introduction
+* Renamed "client identifier" to "Client Identifier URL" to avoid implying all OAuth client identifiers are URLs
+* Reformatted Client Identifier URL requirements as a list, and aligned terminology with RFC3986 (userinfo, authority)
+* Clarified that Client Identifier URL comparison uses simple string comparison without default port normalization
+* Clarified that URL shorteners are incompatible with the no-redirect requirement
+* Clarified the relationship between associating and fetching client metadata
+* Split "what is in the document" and "how to fetch the document" into separate top-level sections
+* Moved the 200 OK requirement to the fetching process rather than the document definition
+* Split client credential/key restrictions into their own subsection, and added a discussion of software_statement
+* Moved Client ID Metadata Documents for Development Purposes to a non-normative appendix, and added discussion of its security and reputation implications
+* Clarified applicability of redirect URI registration requirements to non-redirect-based grant types
+* Moved Supporting Both Pre-Registered and Unregistered Clients and Pre-Registering Client ID Metadata Document URLs to a new Implementation Considerations section
+* Removed normative language from Security Considerations where it was purely explanatory
+* Clarified the SSRF loopback exception applies only to development and testing deployments
+* Clarified the maximum response size guidance applies to how much data the authorization server reads, not the size of the file itself
+* Added discussion of domain allowlists to Client ID Domain Trust
+* Added a Privacy Considerations section
 
 -01
 
@@ -395,4 +590,3 @@ The authors would like to thank the following people for their contributions and
 -00
 
 * Initial draft
-
