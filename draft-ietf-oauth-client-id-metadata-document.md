@@ -168,7 +168,9 @@ that does not change frequently for the client is also RECOMMENDED. Note
 that URL shortening services are generally not suitable as Client Identifier
 URLs, since they typically operate using HTTP redirects, which conflicts
 with the requirement in {{client_information_discovery}} when fetching the
-Client ID Metadata Document.
+Client ID Metadata Document. Using a path of `/` (e.g., `https://example.com/`)
+is NOT RECOMMENDED, since the Client ID Metadata Document would then be served at
+the root of the domain, conflicting with existing content that may be published there.
 
 A Client Identifier URL MUST be associated with a set of client metadata,
 in the form of a Client ID Metadata Document as described in
