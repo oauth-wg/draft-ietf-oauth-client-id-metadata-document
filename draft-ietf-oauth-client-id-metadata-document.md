@@ -184,7 +184,8 @@ in the form of a Client ID Metadata Document as described in
 The Client ID Metadata Document is a JSON ({{RFC8259}}) document containing the metadata
 of the client. The client metadata values are the values defined in
 the OAuth Dynamic Client Registration Metadata OAuth Parameters registry
-<https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#client-metadata>.
+<https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#client-metadata>
+as established by {{RFC7591}}.
 
 The Client ID Metadata Document MUST contain a `client_id` property whose value
 MUST match the Client Identifier URL, which MUST also match the URL that the
