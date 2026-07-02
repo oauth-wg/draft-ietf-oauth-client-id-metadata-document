@@ -1444,10 +1444,9 @@ authentication using public/private key pairs.<a href="#section-4.1-3" class="pi
 <p id="section-4.2-1">According to <span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span>, the authorization server <span class="bcp14">MUST</span> require registration of
 redirect URLs, and <span class="bcp14">MUST</span> ensure that the redirect URL in an authorization request
 is an exact match, using simple string comparison, of a registered redirect URL.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
-<p id="section-4.2-2">This method of client information discovery establishes a
-registered redirect URL with the authorization server which is used when
-comparing the redirect URL in an authorization request against the registered
-redirect URLs.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
+<p id="section-4.2-2">This method of client information discovery establishes
+registered redirect URL(s) when the authorization server fetches
+the contents of the Client ID Metadata Document.<a href="#section-4.2-2" class="pilcrow">¶</a></p>
 <p id="section-4.2-3">This specification is not limited to grant types that use a redirect URL.
 For grant types that do not involve a redirect URL, such as the Client
 Credentials Grant, or extension grants such as Token Exchange, the
