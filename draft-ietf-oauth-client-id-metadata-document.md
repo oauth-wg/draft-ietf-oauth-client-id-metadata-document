@@ -193,8 +193,6 @@ using simple string comparison as defined in Section 6.2.1 of {{RFC3986}}. The
 authorization server is responsible for validating this match as part of
 processing the fetched document.
 
-The Client ID Metadata Document MAY define additional properties in the response.
-
 The Client ID Metadata Document MUST be served with a 200 OK HTTP status code.
 The Client ID Metadata Document MAY also be served with more specific content types
 as long as the response is JSON and conforms to `application/<AS-defined>+json`.
