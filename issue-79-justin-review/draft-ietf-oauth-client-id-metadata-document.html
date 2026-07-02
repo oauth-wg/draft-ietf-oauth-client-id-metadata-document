@@ -1361,12 +1361,10 @@ referred to in this document as a Client Identifier URL.<a href="#section-3-1" c
           <p id="section-3-3.7.1"><span class="bcp14">MUST NOT</span> contain a fragment component<a href="#section-3-3.7.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-3-4">Client Identifier URLs are compared using simple string comparison, as
-defined in Section 6.2.1 of <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>. Implementations <span class="bcp14">MUST NOT</span> apply
-default port normalization when comparing Client Identifier URLs; for
-example, <code>https://example.com/client</code> and <code>https://example.com:443/client</code>
-are not equivalent even though 443 is the default port for the <code>https</code>
-scheme.<a href="#section-3-4" class="pilcrow">¶</a></p>
+<p id="section-3-4">Client Identifier URLs <span class="bcp14">MUST</span> be compared using simple string comparison, as
+defined in Section 6.2.1 of <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>. For example,
+<code>https://example.com/client</code> and <code>https://example.com:443/client</code>
+are not equivalent even though 443 is the default port for the <code>https</code> scheme.<a href="#section-3-4" class="pilcrow">¶</a></p>
 <p id="section-3-5">This specification places no restrictions on the brevity or longevity of a
 Client Identifier URL beyond the requirements listed above. A short URL is
 <span class="bcp14">RECOMMENDED</span>, since the URI may be displayed to the end user in the
