@@ -263,13 +263,15 @@ relying on software statements delivered this way.
 
 # Client Information Discovery {#client_information_discovery}
 
-The authorization server SHOULD automatically fetch the Client ID Metadata
-Document at the Client Identifier URL to retrieve the client metadata. An
-authorization server MAY instead associate a Client Identifier URL with
+Authorization servers SHOULD automatically fetch the Client ID Metadata
+Document at the Client Identifier URL to retrieve the client metadata.
+Authorization servers SHOULD periodically re-fetch the Client ID Metadata Document
+as the contents may change over time. See {{metadata_caching}} and
+{{client_metadata_changes}} for additional considerations.
+
+An authorization server MAY instead associate a Client Identifier URL with
 client metadata through other means, such as by pre-registering the URL as
-described in {{prereg_cimd_urls}}; in that case the authorization server is
-not required to automatically fetch the document, but instead could be fetched
-when triggered by a manual action.
+described in {{prereg_cimd_urls}}.
 
 The Client ID Metadata Document MUST be served with a 200 OK HTTP status code.
 The authorization server MUST treat all other HTTP status codes as an error response, as
@@ -314,11 +316,11 @@ If an authorization server wishes to support clients using Client ID Metadata Do
 
 The presence of the `https://` scheme in a `client_id` is not by itself a reliable signal of whether a client was registered using this specification, such as if an authorization server issues `https://` URLs as `client_id` values for other purposes like vanity identifiers or stable developer-facing identifiers, without treating them as Client Identifier URLs to be fetched. The determining factor for whether a `client_id` is subject to this specification is whether the authorization server fetches, or otherwise associates, a Client ID Metadata Document for that `client_id`. Authorization servers that support both approaches need a reliable way, internal to their own implementation, to distinguish clients registered via this specification from those registered by other means.
 
-## Pre-Registering Client ID Metadata Document URLs {#prereg_cimd_urls}
+## Pre-Registering Client Identifier URLs {#prereg_cimd_urls}
 
-An authorization server MAY pre-register Client ID Metadata Document URLs. This is a valid deployment pattern that leverages the namespacing and key-binding properties of Client Identifier URLs described in this specification, while not relying on the authorization server automatically fetching client metadata at request time.
+An authorization server MAY pre-register Client Identifier URLs. This is a valid deployment pattern that leverages the namespacing and key-binding properties of Client Identifier URLs described in this specification, while not relying on the authorization server automatically fetching client metadata at request time. The authorization server SHOULD fetch the Client ID Metadata Document at the URL at the time of establishing this pre-registration, although other means of registering the metadata document are also valid.
 
-This deployment pattern is expected to be common in enterprise environments where enterprise customers wish to explicitly onboard particular clients into their environment. The Client ID Metadata Document URL can be registered with the identity provider, including establishing client authentication as described in {{client_authentication}}, where it can behave the same way as a pre-registered client. There is no obligation to support dynamic client onboarding by using the mechanisms described in this document.
+This deployment pattern is expected to be common in enterprise environments where enterprise customers wish to explicitly onboard particular clients into their environment. The Client Identifier URL can be registered with the identity provider, including establishing client authentication as described in {{client_authentication}}, where it can behave the same way as a pre-registered client. There is no obligation to support dynamic client onboarding by using the mechanisms described in this document.
 
 
 # Security Considerations
@@ -380,7 +382,7 @@ indefinitely, as loss of control over the URL — for example through domain
 expiry or reassignment — would allow a third party to assume the client's
 identity.
 
-## Changes in Client Metadata
+## Changes in Client Metadata {#client_metadata_changes}
 
 Authorization servers should be aware that Client ID Metadata Documents can change over time since they are served from URLs under client control. Authorization servers should consider the security implications when metadata properties change, such as `redirect_uris`, `token_endpoint_auth_method`, `scope`, `grant_types`, `jwks`, `jwks_uri`, or display properties like `client_name` and `logo_uri`.
 
