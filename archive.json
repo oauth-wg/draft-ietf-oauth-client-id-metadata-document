@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-07-05T00:17:04.537655+00:00",
+  "timestamp": "2026-07-07T00:20:22.369565+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2583,10 +2583,12 @@
       "author": "aaronpk",
       "authorAssociation": "MEMBER",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "ietf-126"
+      ],
       "body": "The AS is supposed to return an error if the CIMD is invalid for some reason, in particular if the `client_id` URL doesn't match.\n\nThis could happen in a token request (client credentials grant), a PAR request, or an authorization request. In an authorization request it is important to not redirect back to the client since the client is invalid. But for a token request or PAR request we should define the specific error to return in JSON.",
       "createdAt": "2026-07-02T22:17:04Z",
-      "updatedAt": "2026-07-02T22:59:47Z",
+      "updatedAt": "2026-07-06T20:01:03Z",
       "closedAt": null,
       "comments": [
         {
@@ -5082,7 +5084,7 @@
       "labels": [],
       "body": "closes #79",
       "createdAt": "2026-07-02T02:51:40Z",
-      "updatedAt": "2026-07-02T23:32:47Z",
+      "updatedAt": "2026-07-06T19:34:54Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "32ac389b855c307b82a2f06eeb9aa404d45fd7ac",
