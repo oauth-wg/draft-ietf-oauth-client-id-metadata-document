@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-07-09T00:20:11.328182+00:00",
+  "timestamp": "2026-07-12T00:14:55.342195+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2655,6 +2655,103 @@
           "body": "well great, problem solved. Let's get these into the registry.\n\nIn that case it sounds like it would be worth an update or new section in security considerations calling out this property and the expected behavior, but no new normative behavior is needed.",
           "createdAt": "2026-07-08T22:17:22Z",
           "updatedAt": "2026-07-08T22:17:22Z"
+        }
+      ]
+    },
+    {
+      "number": 88,
+      "id": "I_kwDOL_Xevs8AAAABIRhaVQ",
+      "title": "Requiring ASes to return the `iss` parameter for mix-up prevention",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/88",
+      "state": "OPEN",
+      "author": "itsvs",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "Pulling out an idea from #78 into a separate thread as there are some competing thoughts there. One of the reasons mentioned for clients using per-issuer CIMD documents is in order to enable mix-up prevention by providing distinct redirect URLs per AS ([comment](https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/78#issuecomment-4502302325)). The tradeoff is that clients no longer have a single document to represent them, which somewhat goes against the static nature of CIMDs.\n\nAs an easier way to enable mix-up prevention, we could require that ASes that build CIMD support also include the `iss` parameter in the response redirect, as suggested in [[WG Draft] OAuth 2.1 Section 7.14.1](https://www.ietf.org/archive/id/draft-ietf-oauth-v2-1-15.html#section-7.14.1). Pulling this requirement into the CIMD draft would ensure that ASes don't have to implement all of 2.1 just to enable mix-up prevention, and clients could use this method rather than per-AS CIMD documents.",
+      "createdAt": "2026-07-09T22:00:28Z",
+      "updatedAt": "2026-07-10T21:49:01Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "That 2.1 iss identification on redirect is already a separate RFC & included in RFC9700: \n* https://www.rfc-editor.org/rfc/rfc9700.html\n* https://www.rfc-editor.org/rfc/rfc9207.html\n\nTherefore it definitely doesn't need to be in CIMDs, right?",
+          "createdAt": "2026-07-10T01:25:29Z",
+          "updatedAt": "2026-07-10T01:25:29Z"
+        },
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "It's one of two options in RFC9700. The other option doesn't play well with CIMD. So the suggestion is to require the iss option for CIMD",
+          "createdAt": "2026-07-10T03:11:36Z",
+          "updatedAt": "2026-07-10T03:11:36Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Feels like this would be a non-normative security consideration at best?",
+          "createdAt": "2026-07-10T03:37:02Z",
+          "updatedAt": "2026-07-10T03:37:02Z"
+        },
+        {
+          "author": "itsvs",
+          "authorAssociation": "NONE",
+          "body": "Level of severity is up to y'all. My opinion is that it should be a requirement rather than a consideration because if it's not required, then clients that care about mix-up prevention will necessarily have to implement separate documents for separate redirect URLs per AS (since they don't know if the AS will pass the `iss` param).",
+          "createdAt": "2026-07-10T19:19:03Z",
+          "updatedAt": "2026-07-10T19:19:03Z"
+        },
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "Worth noting that MCP is making `iss` mandatory for the same reasons. It feels like it should be mandatory here because most if not all uses of CIMD have the same property that makes `iss` the better solution for the mixup attack.\n\nIt is also likely that `iss` will be mandatory for the AS in OAuth 2.1, so is not that much of a stretch then here either.",
+          "createdAt": "2026-07-10T19:43:57Z",
+          "updatedAt": "2026-07-10T19:43:57Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "I'd probably say it should be a security consideration \"to prevent mix-up attacks clients and ASs are strongly recommended to implement RFC 9207 for issuer identification\" but I don't think it's our place here to make it a MUST",
+          "createdAt": "2026-07-10T21:49:01Z",
+          "updatedAt": "2026-07-10T21:49:01Z"
+        }
+      ]
+    },
+    {
+      "number": 89,
+      "id": "I_kwDOL_Xevs8AAAABIY-rFA",
+      "title": "Security Consideration: discourage clients from using dynamic CIMD documents",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/89",
+      "state": "OPEN",
+      "author": "itsvs",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "As noted in #82, some implementations of CIMD involve dynamic client paths being used to render CIMD documents. The specific scenario in that issue is probably fine, but currently there is not much preventing an implementation from allowing something like a dynamic/unvalidated (e.g.) `?redirect_uri=[...]` parameter, and it could be pretty bad if a client's CIMD could be dynamically configured to include a custom redirect URI, custom JWKS URI, etc.\n\nThe draft states that document URLs \"**SHOULD NOT** contain a query component,\" but since this is not a \"**MUST**\", implementers may well ignore the recommendation. It may be prudent to include a security consideration to discourage use of unvalidated query parameters to configure a document at runtime.\n\nAcknowledging that clients may implement multiple CIMD documents for a variety of valid reasons, this mainly boils down to ensuring that the documents that a client exposes are _intentional_ -- e.g. if a client _must_ expose different documents with different JWKS URIs, the client should intentionally specify paths for the documents rather than use a dynamic path like `example.com/<jwks-uri>/client.json`.",
+      "createdAt": "2026-07-10T19:27:24Z",
+      "updatedAt": "2026-07-10T21:23:43Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "This is why we have language that CIMDs should be stable documents not automatically generated.",
+          "createdAt": "2026-07-10T19:33:54Z",
+          "updatedAt": "2026-07-10T19:33:54Z"
+        },
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "I was thinking about language along the lines of MUST NOT allow external input to influence parts of the CIMD. I'm struggling with the language tho. Basically do not allow things like `https://example.com/<redirect-uri>/client.json` because then anyone can make up new CIMD URLs with arbitrary redirect URIs in them.",
+          "createdAt": "2026-07-10T19:41:34Z",
+          "updatedAt": "2026-07-10T19:41:34Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Just: CIMDs MUST NOT be dynamically generated based on user input, with the exception of those used for development or testing (cimd-service & similar)\n\nWould probably cover it, though even in those cases you post the data once, and no matter how many times you post the same data you get the same CIMD because they're content addressed via CBOR CIDs in the reference implementation I built. ",
+          "createdAt": "2026-07-10T21:23:43Z",
+          "updatedAt": "2026-07-10T21:23:43Z"
         }
       ]
     }
