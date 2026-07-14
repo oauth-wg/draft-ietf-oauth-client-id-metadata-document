@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-07-12T00:14:55.342195+00:00",
+  "timestamp": "2026-07-14T00:14:00.610015+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2667,10 +2667,12 @@
       "author": "itsvs",
       "authorAssociation": "NONE",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "ietf-126"
+      ],
       "body": "Pulling out an idea from #78 into a separate thread as there are some competing thoughts there. One of the reasons mentioned for clients using per-issuer CIMD documents is in order to enable mix-up prevention by providing distinct redirect URLs per AS ([comment](https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/78#issuecomment-4502302325)). The tradeoff is that clients no longer have a single document to represent them, which somewhat goes against the static nature of CIMDs.\n\nAs an easier way to enable mix-up prevention, we could require that ASes that build CIMD support also include the `iss` parameter in the response redirect, as suggested in [[WG Draft] OAuth 2.1 Section 7.14.1](https://www.ietf.org/archive/id/draft-ietf-oauth-v2-1-15.html#section-7.14.1). Pulling this requirement into the CIMD draft would ensure that ASes don't have to implement all of 2.1 just to enable mix-up prevention, and clients could use this method rather than per-AS CIMD documents.",
       "createdAt": "2026-07-09T22:00:28Z",
-      "updatedAt": "2026-07-10T21:49:01Z",
+      "updatedAt": "2026-07-13T19:03:36Z",
       "closedAt": null,
       "comments": [
         {
