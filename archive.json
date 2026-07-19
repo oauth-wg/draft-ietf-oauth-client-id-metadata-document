@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-07-14T00:14:00.610015+00:00",
+  "timestamp": "2026-07-19T00:14:16.037265+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2731,7 +2731,7 @@
       "labels": [],
       "body": "As noted in #82, some implementations of CIMD involve dynamic client paths being used to render CIMD documents. The specific scenario in that issue is probably fine, but currently there is not much preventing an implementation from allowing something like a dynamic/unvalidated (e.g.) `?redirect_uri=[...]` parameter, and it could be pretty bad if a client's CIMD could be dynamically configured to include a custom redirect URI, custom JWKS URI, etc.\n\nThe draft states that document URLs \"**SHOULD NOT** contain a query component,\" but since this is not a \"**MUST**\", implementers may well ignore the recommendation. It may be prudent to include a security consideration to discourage use of unvalidated query parameters to configure a document at runtime.\n\nAcknowledging that clients may implement multiple CIMD documents for a variety of valid reasons, this mainly boils down to ensuring that the documents that a client exposes are _intentional_ -- e.g. if a client _must_ expose different documents with different JWKS URIs, the client should intentionally specify paths for the documents rather than use a dynamic path like `example.com/<jwks-uri>/client.json`.",
       "createdAt": "2026-07-10T19:27:24Z",
-      "updatedAt": "2026-07-10T21:23:43Z",
+      "updatedAt": "2026-07-16T21:04:04Z",
       "closedAt": null,
       "comments": [
         {
@@ -2754,6 +2754,13 @@
           "body": "Just: CIMDs MUST NOT be dynamically generated based on user input, with the exception of those used for development or testing (cimd-service & similar)\n\nWould probably cover it, though even in those cases you post the data once, and no matter how many times you post the same data you get the same CIMD because they're content addressed via CBOR CIDs in the reference implementation I built. ",
           "createdAt": "2026-07-10T21:23:43Z",
           "updatedAt": "2026-07-10T21:23:43Z"
+        },
+        {
+          "author": "itsvs",
+          "authorAssociation": "NONE",
+          "body": "Exact working up to you all -- I think a short statement would at least be a good addition if not entirely sufficient.",
+          "createdAt": "2026-07-16T21:03:40Z",
+          "updatedAt": "2026-07-16T21:04:04Z"
         }
       ]
     }
