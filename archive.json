@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-07-19T00:14:16.037265+00:00",
+  "timestamp": "2026-07-21T00:16:08.482304+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2588,7 +2588,7 @@
       ],
       "body": "The AS is supposed to return an error if the CIMD is invalid for some reason, in particular if the `client_id` URL doesn't match.\n\nThis could happen in a token request (client credentials grant), a PAR request, or an authorization request. In an authorization request it is important to not redirect back to the client since the client is invalid. But for a token request or PAR request we should define the specific error to return in JSON.",
       "createdAt": "2026-07-02T22:17:04Z",
-      "updatedAt": "2026-07-06T20:01:03Z",
+      "updatedAt": "2026-07-20T22:02:47Z",
       "closedAt": null,
       "comments": [
         {
@@ -2597,6 +2597,20 @@
           "body": "There's also cases like the `client_id` value failed to fetch, or wasn't valid JSON, or exceeded the size limit or similar such things ",
           "createdAt": "2026-07-02T22:59:47Z",
           "updatedAt": "2026-07-02T22:59:47Z"
+        },
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "are there any error codes beyond what are in the current list that are needed?\n\nhttps://www.rfc-editor.org/rfc/rfc6749.html#section-5.2\n\nI'm not sure this is actually necessary since returning too much detail is also a risk. `invalid_request` and `invalid_client` already cover a lot of bases. Are there any actually new error conditions created by this spec that would justify a new error code?",
+          "createdAt": "2026-07-20T20:51:49Z",
+          "updatedAt": "2026-07-20T20:51:49Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "we could use those, but maybe there's things like the CIMD was well formed but just not supported by the AS?",
+          "createdAt": "2026-07-20T22:02:47Z",
+          "updatedAt": "2026-07-20T22:02:47Z"
         }
       ]
     },
