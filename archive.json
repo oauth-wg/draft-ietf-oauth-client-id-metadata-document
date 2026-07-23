@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-07-21T00:16:08.482304+00:00",
+  "timestamp": "2026-07-23T00:16:17.924055+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2775,6 +2775,32 @@
           "body": "Exact working up to you all -- I think a short statement would at least be a good addition if not entirely sufficient.",
           "createdAt": "2026-07-16T21:03:40Z",
           "updatedAt": "2026-07-16T21:04:04Z"
+        }
+      ]
+    },
+    {
+      "number": 90,
+      "id": "I_kwDOL_Xevs8AAAABJm2Vwg",
+      "title": "Clarification on client_id_metadata_document_supported for AS' that have only limited support for CIMD",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/90",
+      "state": "CLOSED",
+      "author": "njwatson32",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [
+        "question"
+      ],
+      "body": "Some motivating use cases:\n\n* Only supported for enterprise use cases where the domain admin has explicitly allowed the given CIMD prefix\n* Only supported for prefixes explicitly allowed by AS policy (based on some out of band agreement)\n\nWould it be correct to declare `client_id_metadata_document_supported: true` in the metadata? Or is that reserved only for cases where the AS is happy to fetch _any_ presented CIMD? I think it'd be worth a clarification in \u00a76.",
+      "createdAt": "2026-07-21T13:59:48Z",
+      "updatedAt": "2026-07-21T17:29:19Z",
+      "closedAt": "2026-07-21T17:29:08Z",
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "The answer is \"yes\" \u2014 AS's are welcome to apply their own security policies on top of Client ID Metadata Documents, and are not forced necessarily to accept any arbitrary CIMD.",
+          "createdAt": "2026-07-21T17:29:08Z",
+          "updatedAt": "2026-07-21T17:29:08Z"
         }
       ]
     }
