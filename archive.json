@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-07-23T00:16:17.924055+00:00",
+  "timestamp": "2026-07-26T00:17:06.191016+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2801,6 +2801,30 @@
           "body": "The answer is \"yes\" \u2014 AS's are welcome to apply their own security policies on top of Client ID Metadata Documents, and are not forced necessarily to accept any arbitrary CIMD.",
           "createdAt": "2026-07-21T17:29:08Z",
           "updatedAt": "2026-07-21T17:29:08Z"
+        }
+      ]
+    },
+    {
+      "number": 91,
+      "id": "I_kwDOL_Xevs8AAAABJ5SjPg",
+      "title": "privacy and security risks of inconsistent client metadata",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/91",
+      "state": "OPEN",
+      "author": "npdoty",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "Dynamic modification of the metadata seems like a new capability to attack users, by customizing metadata per user in order to mislead them, and not reveal the misinformation to other parties.\n\nIt seems like this is intended for publishing public documents at stable URLs, which would be beneficial for users trying to protect themselves -- they can access that metadata through a proxy; a researcher can check the contents of that data and try to detect abuse. But if the metadata is provided dynamically, like dynamically generated customized per user or per authorization server, then it's easier to track users who are interested in an oauth client's metadata and it's easier to mislead users by providing them different, misleading metadata.\n\nIt would be useful for privacy and security if we at least identified whether the metadata document was intended to be consistent (and if so, we could work on technical mechanisms for that). And if it's not intended to be consistent, then I think we should document the threats as a result, and what users need to do to protect themselves.\n\n(The use cases where I'm thinking about this in particular are when a relying party is requesting verifiable digital credential presentations from a user's wallet. Some have suggested that client metadata would be the way to indicate privacy-relevant details, like privacy policies or usage commitments. But if that data is inconsistent, then it's more of a way to mislead users than a way for users to obtain reliable metadata.)",
+      "createdAt": "2026-07-23T12:56:22Z",
+      "updatedAt": "2026-07-23T22:46:03Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "That's why we try to have language to explicitly discourage dynamic CIMDs",
+          "createdAt": "2026-07-23T22:46:03Z",
+          "updatedAt": "2026-07-23T22:46:03Z"
         }
       ]
     }
