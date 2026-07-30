@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-07-26T00:17:06.191016+00:00",
+  "timestamp": "2026-07-30T00:15:57.334297+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2827,6 +2827,22 @@
           "updatedAt": "2026-07-23T22:46:03Z"
         }
       ]
+    },
+    {
+      "number": 92,
+      "id": "I_kwDOL_Xevs8AAAABKgfNQg",
+      "title": "Provide guidance on omission of `token_endpoint_auth_method` field",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/92",
+      "state": "OPEN",
+      "author": "max-stytch",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "Related to #87 as well as https://github.com/modelcontextprotocol/modelcontextprotocol/pull/3149 -\n\nThe draft doesn't say anything about what an AS should do when `token_endpoint_auth_method` or `token_endpoint_auth_methods_supported` is not present in the CIMD.\n\nUnder DCR, the AS is empowered to pick a suitable token endpoint auth method for the client to use:\n> Additionally, the authorization server MUST return all registered\n   metadata about this client, including any fields provisioned by the\n   authorization server itself.  The authorization server MAY reject or\n   replace any of the client's requested metadata values submitted\n   during the registration and substitute them with suitable values.\n\nSo we probably want some language explaining how to handle the same situation under CIMD, even if that language is \"it's up to the ecosystem to define this\".",
+      "createdAt": "2026-07-28T15:13:19Z",
+      "updatedAt": "2026-07-28T15:13:19Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": [
