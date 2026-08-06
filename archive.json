@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-08-02T00:16:53.363612+00:00",
+  "timestamp": "2026-08-06T00:14:44.105285+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2646,7 +2646,7 @@
       ],
       "body": "Currently, RFC8414 defines `token_endpoint_auth_methods_supported` as \"JSON array containing a list of client authentication methods supported by this token endpoint\". (Even though this is referred to as token endpoint, this actually applies to client authentication at other endpoints such as the PAR endpoint.) This enables an AS to declare which client authentication methods are supported, so a client can choose which to use.\n\nDCR defines `token_endpoint_auth_method` as a single string, \"the requested authentication method for the token endpoint\". So a client can request a particular auth method when it registers, presumably from the list of supported methods at the AS.\n\nNow in the world of CIMD, clients no longer register with an individual AS. Instead the AS discovers metadata about the client. This means `token_endpoint_auth_method` doesn't really work, because the client metadata document is not aware of the AS.\n\nIf we add `token_endpoint_auth_methods_supported` to the CIMD, the client can also advertise its supported auth methods. This would enable the negotiation to work both ways. The various combinations of client and AS support of `none` and `private_key_jwt` are below:\n\n* Client supports both, AS supports both:\n  * The client advertises support for both `none` and `private_key_jwt`. The AS advertises support for both `none` and `private_key_jwt`. When the AS fetches the client metadata, it sees the client supports both, and can reject requests with no auth.\n* Client supports `none`, AS supports both:\n  * The client advertises support for only `none`. The AS fetches the client metadata and sees only `none`, so accepts no auth.\n* Client supports `private_key_jwt`, AS supports both:\n  * The client advertises support for only `none`. The AS fetches the client metadata and can see that the client supports `private_key_jwt`, so can require auth and block other clients from using the CIMD URL without authentication\n* Client supports both, AS supports `none`\n  * The client would not send any client auth, and the AS accepts it because it can see the client also supports `none`\n* Client supports both, AS supports `private_key_jwt`\n  * The client would see the AS requires auth, the AS accepts it because it can see the client supports `private_key_jwt`\n\nWithout this ability to negotiate, you can end up in these not-desirable situations:\n\n* The client advertises `token_endpoint_auth_method: \"private_key_jwt\"` but an AS that only supports `none` rejects that CIMD URL because it doesn't see `none` as the value.\n* The client doesn't advertise any `token_endpoint_auth_method`, so the AS is forced to accept both `none` and `private_key_jwt` for that CIMD URL\n* The AS is unable to enforce `private_key_jwt` for clients that support it\n\nFor these reasons I believe we should add `token_endpoint_auth_methods_supported` to the client registration vocabulary established by DCR.\n\n",
       "createdAt": "2026-07-08T22:00:09Z",
-      "updatedAt": "2026-07-08T22:17:22Z",
+      "updatedAt": "2026-08-04T20:17:31Z",
       "closedAt": null,
       "comments": [
         {
@@ -2669,6 +2669,13 @@
           "body": "well great, problem solved. Let's get these into the registry.\n\nIn that case it sounds like it would be worth an update or new section in security considerations calling out this property and the expected behavior, but no new normative behavior is needed.",
           "createdAt": "2026-07-08T22:17:22Z",
           "updatedAt": "2026-07-08T22:17:22Z"
+        },
+        {
+          "author": "adeinega",
+          "authorAssociation": "NONE",
+          "body": "Along with `token_endpoint_auth_methods_supported`, RFC 8414 mentions `token_endpoint_auth_signing_alg_values_supported`.\n\nFurthermore,  there are also\n1. `introspection_endpoint_auth_methods_supported`, and\n2. `revocation_endpoint_auth_methods_supported`\n\nas it makes sense to support them for clients (allowed values are `none` and `private_key_jwt`).",
+          "createdAt": "2026-08-04T20:17:31Z",
+          "updatedAt": "2026-08-04T20:17:31Z"
         }
       ]
     },
