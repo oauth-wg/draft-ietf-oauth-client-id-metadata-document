@@ -75,7 +75,7 @@ informative:
   OpenID.Federation:
     title: "OpenID Federation 1.1"
     date: 2026-05-05
-    target: https://openid.net/specs/openid-federation-1_1.html
+    target: https://openid.net/specs/openid-federation-1_1-final.html
     author:
       - name: R. Hedberg
         org: independent
