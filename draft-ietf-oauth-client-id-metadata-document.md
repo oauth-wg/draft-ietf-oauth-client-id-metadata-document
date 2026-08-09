@@ -73,9 +73,9 @@ informative:
       - name: C. Mortimore
         org: Disney
   OpenID.Federation:
-    title: "OpenID Federation 1.0"
-    date: 2024-05-17
-    target: https://openid.net/specs/openid-federation-1_0.html
+    title: "OpenID Federation 1.1"
+    date: 2024-05-05
+    target: https://openid.net/specs/openid-federation-1_1.html
     author:
       - name: R. Hedberg
         org: independent
