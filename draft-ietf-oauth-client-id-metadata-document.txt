@@ -5,7 +5,7 @@
 Web Authorization Protocol                                    A. Parecki
 Internet-Draft                                                      Okta
 Intended status: Standards Track                                E. Smith
-Expires: 3 January 2027                                      2 July 2026
+Expires: 11 February 2027                                 10 August 2026
 
 
                    OAuth Client ID Metadata Document
@@ -56,7 +56,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 3 January 2027.
+   This Internet-Draft will expire on 11 February 2027.
 
 Copyright Notice
 
@@ -736,9 +736,9 @@ Table of Contents
               Looker, T., Bastian, P., and C. Bormann, "OAuth 2.0
               Attestation-Based Client Authentication", Work in
               Progress, Internet-Draft, draft-ietf-oauth-attestation-
-              based-client-auth-09, 25 May 2026,
+              based-client-auth-10, 6 July 2026,
               <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
-              attestation-based-client-auth-09>.
+              attestation-based-client-auth-10>.
 
    [I-D.draft-ietf-oauth-spiffe-client-auth]
               Schwenkschuster, A., Kasselman, P., Rose, S., Thorgersen,
@@ -759,9 +759,9 @@ Table of Contents
 
    [OpenID.Federation]
               Hedberg, R., Jones, M.B., Solberg, A.Å., Bradley, J.,
-              Marco, G. D., and V. Dzhuvinov, "OpenID Federation 1.0",
-              17 May 2024,
-              <https://openid.net/specs/openid-federation-1_0.html>.
+              Marco, G. D., and V. Dzhuvinov, "OpenID Federation 1.1", 5
+              May 2026, <https://openid.net/specs/openid-federation-
+              1_1-final.html>.
 
    [RFC7523]  Jones, M., Campbell, B., and C. Mortimore, "JSON Web Token
               (JWT) Profile for OAuth 2.0 Client Authentication and
