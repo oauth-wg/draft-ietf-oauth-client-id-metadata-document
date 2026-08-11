@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-08-06T00:14:44.105285+00:00",
+  "timestamp": "2026-08-11T00:05:53.881133+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2646,7 +2646,7 @@
       ],
       "body": "Currently, RFC8414 defines `token_endpoint_auth_methods_supported` as \"JSON array containing a list of client authentication methods supported by this token endpoint\". (Even though this is referred to as token endpoint, this actually applies to client authentication at other endpoints such as the PAR endpoint.) This enables an AS to declare which client authentication methods are supported, so a client can choose which to use.\n\nDCR defines `token_endpoint_auth_method` as a single string, \"the requested authentication method for the token endpoint\". So a client can request a particular auth method when it registers, presumably from the list of supported methods at the AS.\n\nNow in the world of CIMD, clients no longer register with an individual AS. Instead the AS discovers metadata about the client. This means `token_endpoint_auth_method` doesn't really work, because the client metadata document is not aware of the AS.\n\nIf we add `token_endpoint_auth_methods_supported` to the CIMD, the client can also advertise its supported auth methods. This would enable the negotiation to work both ways. The various combinations of client and AS support of `none` and `private_key_jwt` are below:\n\n* Client supports both, AS supports both:\n  * The client advertises support for both `none` and `private_key_jwt`. The AS advertises support for both `none` and `private_key_jwt`. When the AS fetches the client metadata, it sees the client supports both, and can reject requests with no auth.\n* Client supports `none`, AS supports both:\n  * The client advertises support for only `none`. The AS fetches the client metadata and sees only `none`, so accepts no auth.\n* Client supports `private_key_jwt`, AS supports both:\n  * The client advertises support for only `none`. The AS fetches the client metadata and can see that the client supports `private_key_jwt`, so can require auth and block other clients from using the CIMD URL without authentication\n* Client supports both, AS supports `none`\n  * The client would not send any client auth, and the AS accepts it because it can see the client also supports `none`\n* Client supports both, AS supports `private_key_jwt`\n  * The client would see the AS requires auth, the AS accepts it because it can see the client supports `private_key_jwt`\n\nWithout this ability to negotiate, you can end up in these not-desirable situations:\n\n* The client advertises `token_endpoint_auth_method: \"private_key_jwt\"` but an AS that only supports `none` rejects that CIMD URL because it doesn't see `none` as the value.\n* The client doesn't advertise any `token_endpoint_auth_method`, so the AS is forced to accept both `none` and `private_key_jwt` for that CIMD URL\n* The AS is unable to enforce `private_key_jwt` for clients that support it\n\nFor these reasons I believe we should add `token_endpoint_auth_methods_supported` to the client registration vocabulary established by DCR.\n\n",
       "createdAt": "2026-07-08T22:00:09Z",
-      "updatedAt": "2026-08-04T20:17:31Z",
+      "updatedAt": "2026-08-10T13:27:59Z",
       "closedAt": null,
       "comments": [
         {
@@ -2672,10 +2672,17 @@
         },
         {
           "author": "adeinega",
-          "authorAssociation": "NONE",
+          "authorAssociation": "CONTRIBUTOR",
           "body": "Along with `token_endpoint_auth_methods_supported`, RFC 8414 mentions `token_endpoint_auth_signing_alg_values_supported`.\n\nFurthermore,  there are also\n1. `introspection_endpoint_auth_methods_supported`, and\n2. `revocation_endpoint_auth_methods_supported`\n\nas it makes sense to support them for clients (allowed values are `none` and `private_key_jwt`).",
           "createdAt": "2026-08-04T20:17:31Z",
           "updatedAt": "2026-08-04T20:17:31Z"
+        },
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "There's nothing normative needed in this spec to begin using values in the DCR registry.\n\nThe next best action is to ensure the OpenID specs that define new properties get actually registered with IANA.",
+          "createdAt": "2026-08-10T13:27:58Z",
+          "updatedAt": "2026-08-10T13:27:58Z"
         }
       ]
     },
@@ -2858,6 +2865,83 @@
           "updatedAt": "2026-08-01T01:53:05Z"
         }
       ]
+    },
+    {
+      "number": 93,
+      "id": "I_kwDOL_Xevs8AAAABMEVnzQ",
+      "title": "jwks vs jwks_uri properties",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/93",
+      "state": "OPEN",
+      "author": "adeinega",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Aren\u2019t these two properties mutually exclusive? I couldn\u2019t find any text related to that. My guess is they are. If not... keys in them should be the same. Note, the OpenID Federation spec gives some recommendations on this matter in https://openid.net/specs/openid-federation-1_1-final.html#name-usage-of-jwks-jwks_uri-and- .\n\nFurthermore, a URL in jwks_uri implies an additional HTTP request from an AS, which incurs some additional cost, and provides additional room for errors (these typically become more visible at scale).\n\nSince the jwks_uri can point to a different hostname (in a URL) than a client\u2019s metadata itself, there\u2019s also a risk of abuse / misuse when a client provides a link to the JWKS endpoint that doesn\u2019t belong to it.",
+      "createdAt": "2026-08-09T21:29:23Z",
+      "updatedAt": "2026-08-09T21:29:23Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 95,
+      "id": "I_kwDOL_Xevs8AAAABME0ZiQ",
+      "title": "Section \"4.5 Redirect URL Registration\"",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/95",
+      "state": "OPEN",
+      "author": "adeinega",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Says that\n\n> According to [RFC9700](https://www.rfc-editor.org/rfc/rfc9700), the authorization server MUST require registration of redirect URIs, and MUST ensure that the redirect URI in a request is an exact match of a registered redirect URI.\n\nThis approach won't work for native clients that use \"localhost redirection URIs\", so that \"MUST ensure that the redirect URI in a request is an exact match of a registered redirect URI\" should be clarified or, simply refer to https://datatracker.ietf.org/doc/html/rfc9700#section-2.1.",
+      "createdAt": "2026-08-09T23:47:33Z",
+      "updatedAt": "2026-08-10T18:31:13Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "adeinega",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "After giving it more thought, I tend to think the right thing for native clients with their redirect URLs to stay (far) away from CIMD. If required, DCR is there for them... unless there are other, new and better options come up.",
+          "createdAt": "2026-08-10T04:25:13Z",
+          "updatedAt": "2026-08-10T04:25:13Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "This does actually work for native apps:\n- for desktop apps, localhost redirection does work, e.g., `http://localhost/callback`\n- for mobile apps, use a custom scheme redirect uri, e.g., `app.example:/callback`\n\nWe should probably change our text to include the localhost exception.",
+          "createdAt": "2026-08-10T05:49:27Z",
+          "updatedAt": "2026-08-10T05:49:27Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "I think this is a dupe of #81 ",
+          "createdAt": "2026-08-10T05:52:56Z",
+          "updatedAt": "2026-08-10T05:52:56Z"
+        },
+        {
+          "author": "adeinega",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "@ThisIsMissEm, regarding\n\n> This does actually work for native apps:\n\nYes, technically this works if you want to, but I don't see how it could work well at scale\n\n1. a native client should start a web server with a proper X509 certificate that services its metadata (where does it get this cert? Plus, firewalls & endpoint protectors generally do not like to see this happening)\n2. an AS should always be able to reach this service (network, firewalls, etc.).\n\nIf a native client decides to \"expose\" its metadata somewhere else (say using an external service), we increase the complexity of a solution. I think we all saw enough examples when this happens in the world of OAuth 2 (when clients run handlers of callback URLs somewhere else).\n\nTo avoid these issues and as an alternative option to think about... native clients could push their metadata as part of the authorization requests (PAR). Note, this isn't the same as DCR as everything happens in one go / request, and that's an important nuance, that makes a difference, at scale.",
+          "createdAt": "2026-08-10T18:31:13Z",
+          "updatedAt": "2026-08-10T18:31:13Z"
+        }
+      ]
+    },
+    {
+      "number": 96,
+      "id": "I_kwDOL_Xevs8AAAABMGDd5Q",
+      "title": "token_endpoint_auth_methods_supported  and revocation_endpoint_auth_methods_supported",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/96",
+      "state": "OPEN",
+      "author": "adeinega",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "I left https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/87#issuecomment-5184144682 saying\n\n> Along with `token_endpoint_auth_methods_supported`, RFC 8414 mentions `token_endpoint_auth_signing_alg_values_supported`.\n> \n> Furthermore,  there are also\n> 1. `introspection_endpoint_auth_methods_supported`, and\n> 2. `revocation_endpoint_auth_methods_supported`\n> \n> as it makes sense to support them for clients (allowed values are `none` and `private_key_jwt`).\n\nand suggest it be tracked as a separate issue.",
+      "createdAt": "2026-08-10T04:30:01Z",
+      "updatedAt": "2026-08-10T04:30:01Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": [
@@ -4773,7 +4857,7 @@
       ],
       "body": "Replaces #51, for #30",
       "createdAt": "2026-03-02T02:05:06Z",
-      "updatedAt": "2026-07-02T13:06:54Z",
+      "updatedAt": "2026-08-10T05:51:32Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "b5cf62d9abf63fa11f6465a6b670356c85257dfb",
@@ -4861,6 +4945,13 @@
           "body": "We didn't really have a discussion about this at IETF 125, but I would like to get to a resolution on this. I will put this on the agenda for IETF 126.",
           "createdAt": "2026-07-01T23:54:54Z",
           "updatedAt": "2026-07-01T23:54:54Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "@aaronpk I can't recall if we reached consensus on this at IETF 126?",
+          "createdAt": "2026-08-10T05:51:32Z",
+          "updatedAt": "2026-08-10T05:51:32Z"
         }
       ],
       "reviews": [
@@ -6193,6 +6284,48 @@
               "updatedAt": "2026-07-02T23:31:54Z"
             }
           ]
+        }
+      ]
+    },
+    {
+      "number": 94,
+      "id": "PR_kwDOL_Xevs78vrys",
+      "title": "Update OpenID Federation version and date",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/94",
+      "state": "MERGED",
+      "author": "adeinega",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Alternatively, it can point to [OpenID Federation for OpenID Connect 1.1](https://openid.net/specs/openid-federation-connect-1_1-final.html).",
+      "createdAt": "2026-08-09T21:56:24Z",
+      "updatedAt": "2026-08-10T00:40:58Z",
+      "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "75efcf144bbf0683dfe444c89c08c6c057e8ad01",
+      "headRepository": "adeinega/draft-ietf-oauth-client-id-metadata-document",
+      "headRefName": "main",
+      "headRefOid": "ec2eb468ebe9d49561fe53f6f2e23beae1eca895",
+      "closedAt": "2026-08-10T00:40:58Z",
+      "mergedAt": "2026-08-10T00:40:58Z",
+      "mergedBy": "ThisIsMissEm",
+      "mergeCommit": {
+        "oid": "8f53aecfaa820023f0f71fe5f0c299db725374d3"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABI6TVRQ",
+          "commit": {
+            "abbreviatedOid": "ec2eb46"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2026-08-10T00:36:37Z",
+          "updatedAt": "2026-08-10T00:36:37Z",
+          "comments": []
         }
       ]
     }
