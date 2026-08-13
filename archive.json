@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-08-11T00:05:53.881133+00:00",
+  "timestamp": "2026-08-13T00:09:56.981474+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2637,7 +2637,7 @@
       "id": "I_kwDOL_Xevs8AAAABIJJv_g",
       "title": "Add `token_endpoint_auth_methods_supported` to client metadata",
       "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/87",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "aaronpk",
       "authorAssociation": "MEMBER",
       "assignees": [],
@@ -2646,8 +2646,8 @@
       ],
       "body": "Currently, RFC8414 defines `token_endpoint_auth_methods_supported` as \"JSON array containing a list of client authentication methods supported by this token endpoint\". (Even though this is referred to as token endpoint, this actually applies to client authentication at other endpoints such as the PAR endpoint.) This enables an AS to declare which client authentication methods are supported, so a client can choose which to use.\n\nDCR defines `token_endpoint_auth_method` as a single string, \"the requested authentication method for the token endpoint\". So a client can request a particular auth method when it registers, presumably from the list of supported methods at the AS.\n\nNow in the world of CIMD, clients no longer register with an individual AS. Instead the AS discovers metadata about the client. This means `token_endpoint_auth_method` doesn't really work, because the client metadata document is not aware of the AS.\n\nIf we add `token_endpoint_auth_methods_supported` to the CIMD, the client can also advertise its supported auth methods. This would enable the negotiation to work both ways. The various combinations of client and AS support of `none` and `private_key_jwt` are below:\n\n* Client supports both, AS supports both:\n  * The client advertises support for both `none` and `private_key_jwt`. The AS advertises support for both `none` and `private_key_jwt`. When the AS fetches the client metadata, it sees the client supports both, and can reject requests with no auth.\n* Client supports `none`, AS supports both:\n  * The client advertises support for only `none`. The AS fetches the client metadata and sees only `none`, so accepts no auth.\n* Client supports `private_key_jwt`, AS supports both:\n  * The client advertises support for only `none`. The AS fetches the client metadata and can see that the client supports `private_key_jwt`, so can require auth and block other clients from using the CIMD URL without authentication\n* Client supports both, AS supports `none`\n  * The client would not send any client auth, and the AS accepts it because it can see the client also supports `none`\n* Client supports both, AS supports `private_key_jwt`\n  * The client would see the AS requires auth, the AS accepts it because it can see the client supports `private_key_jwt`\n\nWithout this ability to negotiate, you can end up in these not-desirable situations:\n\n* The client advertises `token_endpoint_auth_method: \"private_key_jwt\"` but an AS that only supports `none` rejects that CIMD URL because it doesn't see `none` as the value.\n* The client doesn't advertise any `token_endpoint_auth_method`, so the AS is forced to accept both `none` and `private_key_jwt` for that CIMD URL\n* The AS is unable to enforce `private_key_jwt` for clients that support it\n\nFor these reasons I believe we should add `token_endpoint_auth_methods_supported` to the client registration vocabulary established by DCR.\n\n",
       "createdAt": "2026-07-08T22:00:09Z",
-      "updatedAt": "2026-08-10T13:27:59Z",
-      "closedAt": null,
+      "updatedAt": "2026-08-12T04:17:39Z",
+      "closedAt": "2026-08-12T04:16:51Z",
       "comments": [
         {
           "author": "panva",
@@ -2683,6 +2683,20 @@
           "body": "There's nothing normative needed in this spec to begin using values in the DCR registry.\n\nThe next best action is to ensure the OpenID specs that define new properties get actually registered with IANA.",
           "createdAt": "2026-08-10T13:27:58Z",
           "updatedAt": "2026-08-10T13:27:58Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "This has been resolved with IANA and is now present in the registry.",
+          "createdAt": "2026-08-12T04:16:51Z",
+          "updatedAt": "2026-08-12T04:16:51Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "@aaronpk it may be worth splitting \n\n> The various combinations of client and AS support of none and private_key_jwt are below:\n\nand the nested list below that into a separate issue?",
+          "createdAt": "2026-08-12T04:17:39Z",
+          "updatedAt": "2026-08-12T04:17:39Z"
         }
       ]
     },
