@@ -389,6 +389,23 @@ Authorization servers should be aware that Client ID Metadata Documents can chan
 
 Significant changes to client metadata may affect the trust relationship between the authorization server and the client, and could impact the validity of previously granted user consent. Authorization servers may choose to invalidate existing grants, require fresh user consent, or implement other policies when certain types of metadata changes are detected. The appropriate response will depend on the authorization server's risk tolerance and operational requirements.
 
+### Consistency of Client Metadata {#client_metadata_consistency}
+
+A Client ID Metadata Document is intended to consistently describe one client.
+Clients MUST NOT derive the contents of a Client ID Metadata Document from
+untrusted external input. This includes input embedded in path or query
+components of a Client Identifier URL, as well as request headers, cookies, or
+information about the requesting user or authorization server. In particular,
+untrusted external input MUST NOT influence security-sensitive or user-visible
+metadata such as `redirect_uris`, `jwks`, `jwks_uri`, `client_name`, `logo_uri`,
+`policy_uri`, or `tos_uri`.
+
+This requirement does not prevent an operator from intentionally updating a
+Client ID Metadata Document, including performing key rotation, or from
+publishing intentionally configured documents at distinct Client Identifier
+URLs. Each such document needs to be independently configured rather than
+constructed from untrusted external input.
+
 ### Changes in Client Keys {#client_key_changes}
 
 If the authorization server notices that the `jwks`, `jwks_uri` or the contents at the `jwks_uri` have changed compared to the last time it fetched the metadata, the authorization server may take actions such as revoking any tokens issued to this client, or revoking the user's consent for this client. The particular actions to take are left up to the discretion of the authorization server based on its own risk assessment. However, periodic rotation of keys can also be expected as good security hygiene by the client.
@@ -463,6 +480,15 @@ request, rather than relying on cached data, are more susceptible to this
 side channel. Authorization servers SHOULD respect cache headers as
 described in {{metadata_caching}} to reduce the frequency of unnecessary
 fetches.
+
+Varying a Client ID Metadata Document based on the requesting user,
+authorization server, or other request context can amplify this side channel.
+It can enable a client to track requesters or selectively present misleading
+metadata that is difficult for users and independent reviewers to detect.
+Clients MUST follow the consistency requirements in
+{{client_metadata_consistency}}. Authorization servers SHOULD avoid sending
+cookies, user-specific information, or unnecessary request headers when
+fetching Client ID Metadata Documents.
 
 ## URLs Referenced in Client ID Metadata Documents
 
