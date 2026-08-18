@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-08-13T00:09:56.981474+00:00",
+  "timestamp": "2026-08-18T00:01:50.551321+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2773,7 +2773,7 @@
       "labels": [],
       "body": "As noted in #82, some implementations of CIMD involve dynamic client paths being used to render CIMD documents. The specific scenario in that issue is probably fine, but currently there is not much preventing an implementation from allowing something like a dynamic/unvalidated (e.g.) `?redirect_uri=[...]` parameter, and it could be pretty bad if a client's CIMD could be dynamically configured to include a custom redirect URI, custom JWKS URI, etc.\n\nThe draft states that document URLs \"**SHOULD NOT** contain a query component,\" but since this is not a \"**MUST**\", implementers may well ignore the recommendation. It may be prudent to include a security consideration to discourage use of unvalidated query parameters to configure a document at runtime.\n\nAcknowledging that clients may implement multiple CIMD documents for a variety of valid reasons, this mainly boils down to ensuring that the documents that a client exposes are _intentional_ -- e.g. if a client _must_ expose different documents with different JWKS URIs, the client should intentionally specify paths for the documents rather than use a dynamic path like `example.com/<jwks-uri>/client.json`.",
       "createdAt": "2026-07-10T19:27:24Z",
-      "updatedAt": "2026-07-16T21:04:04Z",
+      "updatedAt": "2026-08-16T19:27:23Z",
       "closedAt": null,
       "comments": [
         {
@@ -2803,6 +2803,13 @@
           "body": "Exact working up to you all -- I think a short statement would at least be a good addition if not entirely sufficient.",
           "createdAt": "2026-07-16T21:03:40Z",
           "updatedAt": "2026-07-16T21:04:04Z"
+        },
+        {
+          "author": "goutamadwant",
+          "authorAssociation": "NONE",
+          "body": "@itsvs @ThisIsMissEm The proposed change in #97 addresses #89 and #91 together.\n\nIt adds a normative requirement that a Client ID Metadata Document must not derive its contents from untrusted external input, including URL components, request headers, cookies, or requester-specific context. It also documents how requester-specific metadata can enable tracking and selective presentation of misleading information.\n\nIntentional operator updates, key rotation, and independently configured documents at distinct Client Identifier URLs remain explicitly permitted. The draft builds and passes the repository lint checks with the change. Pls review and let me know if you have any suggestions. thanks! \n",
+          "createdAt": "2026-08-16T19:27:23Z",
+          "updatedAt": "2026-08-16T19:27:23Z"
         }
       ]
     },
@@ -6342,6 +6349,32 @@
           "comments": []
         }
       ]
+    },
+    {
+      "number": 97,
+      "id": "PR_kwDOL_Xevs7_yVsU",
+      "title": "Clarify consistency requirements for client metadata",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/97",
+      "state": "OPEN",
+      "author": "goutamadwant",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "## Summary\r\n\r\n- Require Client ID Metadata Documents not to derive their contents from untrusted external input, including URL components and request context.\r\n- Preserve intentional operator updates, key rotation, and independently configured documents at distinct Client Identifier URLs.\r\n- Document the tracking and selective-deception risks of requester-specific metadata, and recommend minimizing identifying information in metadata fetches.\r\n\r\n## Rationale\r\n\r\nA request-driven Client ID Metadata Document can allow an attacker to construct arbitrary security-sensitive metadata, or allow a client to present different identity or policy information to selected users and authorization servers. This makes independent review and moderation unreliable.\r\n\r\nThe change follows the direction discussed in #89 and addresses the related privacy and security concerns raised in #91 without preventing legitimate operator-managed updates.\r\n\r\n## Validation\r\n\r\n- `make`\r\n- `make lint`\r\n\r\nCloses #89\r\nCloses #91\r\n",
+      "createdAt": "2026-08-16T19:25:11Z",
+      "updatedAt": "2026-08-16T19:25:11Z",
+      "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "8f53aecfaa820023f0f71fe5f0c299db725374d3",
+      "headRepository": "goutamadwant/draft-ietf-oauth-client-id-metadata-document",
+      "headRefName": "standards-radar/consistent-client-metadata",
+      "headRefOid": "67b05966373562f03a3430a4bc64106bb94c2cac",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
