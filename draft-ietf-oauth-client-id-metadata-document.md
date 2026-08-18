@@ -37,6 +37,7 @@ normative:
   RFC7591:
   RFC8259:
   RFC8414:
+  RFC9110:
   RFC9700:
 
 informative:
@@ -155,10 +156,12 @@ A Client Identifier URL:
 * SHOULD NOT contain a query component
 * MUST NOT contain a fragment component
 
-Client Identifier URLs MUST be compared using simple string comparison, as
-defined in Section 6.2.1 of {{RFC3986}}. For example,
-`https://example.com/client` and `https://example.com:443/client`
-are not equivalent even though 443 is the default port for the `https` scheme.
+Client Identifier URLs are normalized and compared as described in Section 4.2.3
+of {{RFC9110}}. For example, `https://example.com:443/client` and
+`https://example.com/client` are equivalent, since 443 is the default port for
+the `https` scheme. An authorization server SHOULD NOT rewrite a Client
+Identifier URL, and SHOULD use the value provided by the client when storing or
+displaying it.
 
 This specification places no restrictions on the brevity or longevity of a
 Client Identifier URL beyond the requirements listed above. A short URL is
@@ -189,10 +192,10 @@ as established by {{RFC7591}}.
 
 The Client ID Metadata Document MUST contain a `client_id` property whose value
 MUST match the Client Identifier URL, which MUST also match the URL that the
-authorization server used to fetch the document; comparisons MUST be made
-using simple string comparison as defined in Section 6.2.1 of {{RFC3986}}. The
-authorization server is responsible for validating this match as part of
-processing the fetched document.
+authorization server used to fetch the document; comparisons MUST be made as
+described in Section 4.2.3 of {{RFC9110}}. The authorization server is
+responsible for validating this match as part of processing the fetched
+document.
 
 The Client ID Metadata Document MUST be served with a 200 OK HTTP status code.
 The Client ID Metadata Document MAY also be served with more specific content types
@@ -327,6 +330,24 @@ This deployment pattern is expected to be common in enterprise environments wher
 # Security Considerations
 
 In addition to the security considerations in OAuth 2.0 Core {{RFC6749}}, and OAuth 2.0 Threat Model and Security Considerations {{RFC6819}}, and {{RFC9700}} the additional considerations apply.
+
+## Client Identifier URL Comparison {#client_id_url_comparison}
+
+Authorization servers should be aware that comparing Client Identifier URLs more
+aggressively than described in {{Section 4.2.3 of RFC9110}} can cause two
+different clients to be treated as the same client.
+
+Percent-encoding normalization applies only to unreserved characters, as
+described in {{Section 6.2.2.2 of RFC3986}}. Decoding a percent-encoded reserved
+character changes the resource that the URL identifies, so
+`https://example.com/a%2Fb` and `https://example.com/a/b` are two different
+Client Identifier URLs.
+
+Protocol-based normalization, described in {{Section 6.2.4 of RFC3986}}, infers
+equivalence from the behavior of the server hosting the URL, such as observing
+that one URL redirects to another. Authorization servers MUST NOT apply it to
+Client Identifier URLs, since a client controls that behavior for its own URL
+and could use it to claim the identity of another client.
 
 ## Relationship between `redirect_uris` and `client_id` or `client_uri` {#redirect_uri_relationship}
 
@@ -557,6 +578,13 @@ The authors would like to thank the following people for their contributions and
 {:numbered="false"}
 
 (This appendix to be deleted by the RFC editor in the final specification.)
+
+-03
+
+* Specified that Client Identifier URLs are normalized and compared as described in Section 4.2.3 of RFC9110, rather than treating `https://example.com/client` and `https://example.com:443/client` as different clients
+* Aligned the `client_id` property comparison with Section 4.2.3 of RFC9110
+* Added a security consideration for normalizing Client Identifier URLs more aggressively than RFC9110 describes
+* Added RFC9110 as a normative reference for `https` URL normalization and comparison
 
 -02
 
