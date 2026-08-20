@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-08-18T00:01:50.551321+00:00",
+  "timestamp": "2026-08-20T00:02:12.075213+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2637,7 +2637,7 @@
       "id": "I_kwDOL_Xevs8AAAABIJJv_g",
       "title": "Add `token_endpoint_auth_methods_supported` to client metadata",
       "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/87",
-      "state": "CLOSED",
+      "state": "OPEN",
       "author": "aaronpk",
       "authorAssociation": "MEMBER",
       "assignees": [],
@@ -2646,8 +2646,8 @@
       ],
       "body": "Currently, RFC8414 defines `token_endpoint_auth_methods_supported` as \"JSON array containing a list of client authentication methods supported by this token endpoint\". (Even though this is referred to as token endpoint, this actually applies to client authentication at other endpoints such as the PAR endpoint.) This enables an AS to declare which client authentication methods are supported, so a client can choose which to use.\n\nDCR defines `token_endpoint_auth_method` as a single string, \"the requested authentication method for the token endpoint\". So a client can request a particular auth method when it registers, presumably from the list of supported methods at the AS.\n\nNow in the world of CIMD, clients no longer register with an individual AS. Instead the AS discovers metadata about the client. This means `token_endpoint_auth_method` doesn't really work, because the client metadata document is not aware of the AS.\n\nIf we add `token_endpoint_auth_methods_supported` to the CIMD, the client can also advertise its supported auth methods. This would enable the negotiation to work both ways. The various combinations of client and AS support of `none` and `private_key_jwt` are below:\n\n* Client supports both, AS supports both:\n  * The client advertises support for both `none` and `private_key_jwt`. The AS advertises support for both `none` and `private_key_jwt`. When the AS fetches the client metadata, it sees the client supports both, and can reject requests with no auth.\n* Client supports `none`, AS supports both:\n  * The client advertises support for only `none`. The AS fetches the client metadata and sees only `none`, so accepts no auth.\n* Client supports `private_key_jwt`, AS supports both:\n  * The client advertises support for only `none`. The AS fetches the client metadata and can see that the client supports `private_key_jwt`, so can require auth and block other clients from using the CIMD URL without authentication\n* Client supports both, AS supports `none`\n  * The client would not send any client auth, and the AS accepts it because it can see the client also supports `none`\n* Client supports both, AS supports `private_key_jwt`\n  * The client would see the AS requires auth, the AS accepts it because it can see the client supports `private_key_jwt`\n\nWithout this ability to negotiate, you can end up in these not-desirable situations:\n\n* The client advertises `token_endpoint_auth_method: \"private_key_jwt\"` but an AS that only supports `none` rejects that CIMD URL because it doesn't see `none` as the value.\n* The client doesn't advertise any `token_endpoint_auth_method`, so the AS is forced to accept both `none` and `private_key_jwt` for that CIMD URL\n* The AS is unable to enforce `private_key_jwt` for clients that support it\n\nFor these reasons I believe we should add `token_endpoint_auth_methods_supported` to the client registration vocabulary established by DCR.\n\n",
       "createdAt": "2026-07-08T22:00:09Z",
-      "updatedAt": "2026-08-12T04:17:39Z",
-      "closedAt": "2026-08-12T04:16:51Z",
+      "updatedAt": "2026-08-19T14:19:38Z",
+      "closedAt": null,
       "comments": [
         {
           "author": "panva",
@@ -2697,6 +2697,13 @@
           "body": "@aaronpk it may be worth splitting \n\n> The various combinations of client and AS support of none and private_key_jwt are below:\n\nand the nested list below that into a separate issue?",
           "createdAt": "2026-08-12T04:17:39Z",
           "updatedAt": "2026-08-12T04:17:39Z"
+        },
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "Reopening so I don't forget to add an example of this property to the CIMD spec.",
+          "createdAt": "2026-08-19T14:19:38Z",
+          "updatedAt": "2026-08-19T14:19:38Z"
         }
       ]
     },
@@ -6374,6 +6381,75 @@
       "mergedBy": null,
       "mergeCommit": null,
       "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 98,
+      "id": "PR_kwDOL_Xevs8AAAABAKzL-w",
+      "title": "normalize and compare Client Identifier URLs per Section 4.2.3 of RFC9110",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/98",
+      "state": "OPEN",
+      "author": "kamronbatman",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "The Client Identifier URL section states that `https://example.com/client` and `https://example.com:443/client` are not equivalent even though 443 is the default port for the `https` scheme. They are equivalent.\n\nSection 3.2.3 of RFC 3986 directs URI producers to omit a port that is the same as the scheme's default, and Section 4.2.3 of RFC 9110 states that distinct resources SHOULD NOT be identified by HTTP URIs that are equivalent after normalization, and that any HTTP component may perform that normalization. The two forms are also indistinguishable on the wire, since the default port is omitted from the Host header.\n\nThis defers to Section 4.2.3 of RFC 9110 for normalization and comparison rather than constraining the form a Client Identifier URL may take, so the requirements list is unchanged. The `client_id` property comparison is aligned with the same section, since leaving it as simple string comparison would have contradicted the above. A security consideration is added for normalizing more aggressively than RFC 9110 describes.\n\nAddresses the port question raised in Justin Richer's review, #79.\n\nThis PR was built with AI Assistance and has been thoroughly reviewed and authorized by Kamron Batman\n",
+      "createdAt": "2026-08-18T15:59:52Z",
+      "updatedAt": "2026-08-19T23:01:27Z",
+      "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "8f53aecfaa820023f0f71fe5f0c299db725374d3",
+      "headRepository": "kamronbatman/draft-ietf-oauth-client-id-metadata-document",
+      "headRefName": "client-id-url-normal-form",
+      "headRefOid": "fa0d9a296e71d4fa82754ec7ba2d98351163315f",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "This is a deliberate decision not to actually normalise, since a `client_id` of `https://app.example:443/client-metadata.json` and `https://app.example/client-metadata.json` would indeed be different Client Identifiers.\r\n\r\nThis also also stated pretty clearly in:\r\n> Two HTTP URIs that are equivalent after normalization (using any method) can be assumed to identify the same resource, and any HTTP component MAY perform normalization. As a result, distinct resources SHOULD NOT be identified by HTTP URIs that are equivalent after normalization (using any method defined in [Section 6.2](https://www.rfc-editor.org/rfc/rfc3986#section-6.2) of [[URI](https://www.rfc-editor.org/rfc/rfc9110.html#URI)]).\r\n\r\nThat is, we require simple string comparison between the `client_id` in the authorization request, the `client_id` within the JSON document containing the client metadata, and we've already adjusted the text based on Justin's feedback, https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-02.html#section-3-4\r\n\r\nI'll leave this open for @aaronpk or others to provide input, but I don't think this is a change we want to accept.",
+          "createdAt": "2026-08-18T16:39:20Z",
+          "updatedAt": "2026-08-18T16:39:20Z"
+        },
+        {
+          "author": "kamronbatman",
+          "authorAssociation": "NONE",
+          "body": "> This is a deliberate decision not to actually normalise, since a `client_id` of `https://app.example:443/client-metadata.json` and `https://app.example/client-metadata.json` would indeed be different Client Identifiers.\r\n> \r\n> This also also stated pretty clearly in:\r\n> \r\n> > Two HTTP URIs that are equivalent after normalization (using any method) can be assumed to identify the same resource, and any HTTP component MAY perform normalization. As a result, distinct resources SHOULD NOT be identified by HTTP URIs that are equivalent after normalization (using any method defined in [Section 6.2](https://www.rfc-editor.org/rfc/rfc3986#section-6.2) of [[URI](https://www.rfc-editor.org/rfc/rfc9110.html#URI)]).\r\n> \r\n> That is, we require simple string comparison between the `client_id` in the authorization request, the `client_id` within the JSON document containing the client metadata, and we've already adjusted the text based on Justin's feedback, https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-02.html#section-3-4\r\n> \r\n> I'll leave this open for @aaronpk or others to provide input, but I don't think this is a change we want to accept.\r\n\r\nMy concern is that it doesn't follow http URL semantics. This means existing frameworks that handle URLs internally and attempt to validate/normalize URLs will have to carve-out for CIMD internally to their authorization server implementation. Maybe we want to specifically call out that we do NOT conform to 4.2.3 of 9110 instead? I don't necessarily agree regardless because the web servers and clients handling the URL lookup themselves already conform to the URL semantics, so we are calling out an explicit and necessary divergence that now needs to be handled by webservers that conform to RFC3864 for 20 years. Definitely will defer to @aaronpk on this and would love more details on the reasoning to diverge.",
+          "createdAt": "2026-08-18T17:05:47Z",
+          "updatedAt": "2026-08-18T17:12:49Z"
+        },
+        {
+          "author": "adeinega",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "The draft simply follows a line like\r\n\r\n> the authorization server MUST compare the two URIs using simple string comparison as defined in [RFC3986 Section 6.2.1](https://datatracker.ietf.org/doc/html/rfc3986#section-6.2.1).\r\n\r\nfrom RFC 6749 and its BCPs such as RFC 9700.\r\n\r\n> This means the authorization server MUST ensure that the two URIs are equal; see [Section 6.2.1](https://rfc-editor.org/rfc/rfc3986#section-6.2.1) of [RFC3986], Simple String Comparison, for details. The only exception is native apps using a localhost URI: In this case, the authorization server MUST allow variable port numbers as described in [Section 7.3](https://rfc-editor.org/rfc/rfc8252#section-7.3) of [RFC8252].\r\n\r\nURLs can also contain non-ASCII characters, such as internationalized Domain Names, which makes normalization quickly become overly complex (and without well-defined boundaries).\r\n\r\nThe most simple solution is to avoid adding `:443` to the URL for an app that already listens to this (default) port.",
+          "createdAt": "2026-08-18T17:26:54Z",
+          "updatedAt": "2026-08-18T17:26:54Z"
+        },
+        {
+          "author": "kamronbatman",
+          "authorAssociation": "NONE",
+          "body": "> The draft simply follows a line like\r\n> \r\n> > the authorization server MUST compare the two URIs using simple string comparison as defined in [RFC3986 Section 6.2.1](https://datatracker.ietf.org/doc/html/rfc3986#section-6.2.1).\r\n> \r\n> from RFC 6749 and its BCPs such as RFC 9700.\r\n> \r\n> > This means the authorization server MUST ensure that the two URIs are equal; see [Section 6.2.1](https://rfc-editor.org/rfc/rfc3986#section-6.2.1) of [RFC3986], Simple String Comparison, for details. The only exception is native apps using a localhost URI: In this case, the authorization server MUST allow variable port numbers as described in [Section 7.3](https://rfc-editor.org/rfc/rfc8252#section-7.3) of [RFC8252].\r\n> \r\n> URLs can also contain non-ASCII characters, such as internationalized Domain Names, which makes normalization quickly become overly complex (and without well-defined boundaries).\r\n> \r\n> The most simple solution is to avoid adding `:443` to the URL for an app that already listens to this (default) port.\r\n\r\nIf I am understanding correctly, this means if we want to enforce simple string comparison then we should be more prescriptive of how the URL is written. For example, we enforce https scheme, and should always omit 443 for the default port, and should always represent the hostname in lowercase. Or if we want to enforce explicit ports, then we change it to MUST include a port and omitting a port is an invalid URL (I don't recommend this over the normative representation)\r\n\r\nif this is the case then I fully agree and I'll be happy to change the PR accordingly. I would also ask for others to help me out by mentioning specific cases we should call out that I haven't mentioned above.\r\n\r\nThanks for the feedback!",
+          "createdAt": "2026-08-18T17:38:11Z",
+          "updatedAt": "2026-08-18T17:38:11Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "> from RFC 6749 and its BCPs such as RFC 9700.\r\n> \r\n> > This means the authorization server MUST ensure that the two URIs are equal; see [Section 6.2.1](https://rfc-editor.org/rfc/rfc3986#section-6.2.1) of [RFC3986], Simple String Comparison, for details. The only exception is native apps using a localhost URI: In this case, the authorization server MUST allow variable port numbers as described in [Section 7.3](https://rfc-editor.org/rfc/rfc8252#section-7.3) of [RFC8252].\r\n\r\nThis exception is for redirect URIs, not for Client Identifiers.",
+          "createdAt": "2026-08-18T23:19:06Z",
+          "updatedAt": "2026-08-18T23:19:06Z"
+        },
+        {
+          "author": "adeinega",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "> This exception is for redirect URIs, not for Client Identifiers.\r\n\r\nThat's correct. I've shared it for one reason - show that Simple String Comparison is almost always in use (otherwise there are security implications). On a side note, RFC 8252 could definitely handled better this situation with variable port numbers for native apps (by omitting them).\r\n\r\nInterestingly enough, the OpenID Connect Core spec has a dedicated section on that at https://openid.net/specs/openid-connect-core-1_0.html#StringOps.",
+          "createdAt": "2026-08-19T22:08:15Z",
+          "updatedAt": "2026-08-19T22:08:15Z"
+        }
+      ],
       "reviews": []
     }
   ]
