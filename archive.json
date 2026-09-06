@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-08-20T00:02:12.075213+00:00",
+  "timestamp": "2026-09-06T00:00:24.433626+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -1300,7 +1300,7 @@
       "labels": [],
       "body": "> This establishes this client as a confidential client, \n\nMight be worth nothing this is only possible for clients that support credentials in the first place?",
       "createdAt": "2025-05-29T20:11:27Z",
-      "updatedAt": "2025-10-14T20:20:52Z",
+      "updatedAt": "2026-09-05T04:45:01Z",
       "closedAt": null,
       "comments": [
         {
@@ -1344,6 +1344,13 @@
           "body": "> Native apps can pass a generated public key as part of the Client ID such as https://example.com/[encoded key]/client_id.json which then enables authentication as a confidential client.\n\nThis is basically getting you the same security properties as DPoP, so just use DPoP.\n",
           "createdAt": "2025-10-14T20:20:52Z",
           "updatedAt": "2025-10-14T20:20:52Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "@aaronpk I think we can mark this as \"closed as not planned\"?",
+          "createdAt": "2026-09-05T04:45:01Z",
+          "updatedAt": "2026-09-05T04:45:01Z"
         }
       ]
     },
@@ -4425,7 +4432,7 @@
       "labels": [],
       "body": "This applies the recommendation in https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/issues/42",
       "createdAt": "2025-09-29T17:59:56Z",
-      "updatedAt": "2026-07-01T23:35:59Z",
+      "updatedAt": "2026-09-05T04:46:38Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "3aafad42b6ac4b3c60af674080ddf920a9975097",
@@ -4443,6 +4450,13 @@
           "body": "I wouldn't stress about getting this one in just yet\r\n\r\n1) JWT BCP is due for an [update](https://datatracker.ietf.org/doc/draft-ietf-oauth-rfc8725bis/)\r\n2) RFC7523 is [too](https://datatracker.ietf.org/doc/draft-ietf-oauth-rfc7523bis/) and it does specify a typ value for client auth assertions but intentionally doesn't make their use a MUST (that change isn't reflected in the latest tracker version yet)\r\n",
           "createdAt": "2025-09-29T21:38:35Z",
           "updatedAt": "2025-09-29T21:38:35Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "@aaronpk should we do this before the next IETF meeting? It's been a year since the last comment here.",
+          "createdAt": "2026-09-05T04:46:38Z",
+          "updatedAt": "2026-09-05T04:46:38Z"
         }
       ],
       "reviews": []
