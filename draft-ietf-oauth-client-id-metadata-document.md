@@ -317,13 +317,15 @@ Client authentication methods based around a shared symmetric secret cannot be u
 
 The default token endpoint authentication method as defined by {{Section 2 of RFC7591}} MUST be ignored. When a Client ID Metadata Document contains neither the `token_endpoint_auth_method` property ({{RFC7591}}) nor the `token_endpoint_auth_methods_supported` property (defined in Section 2 of {{OpenID.RPMetadataChoices}}), the authorization server MUST assume the default token endpoint authentication method of `none`. An authorization server MUST NOT treat a missing `token_endpoint_auth_method` property as the default of `none` if the `token_endpoint_auth_methods_supported` property is present, even if the authorization server does not support {{OpenID.RPMetadataChoices}}, as the client has advertised token endpoint authentication methods.
 
-Clients MAY support multiple client authentication methods by using `token_endpoint_auth_methods_supported` per {{OpenID.RPMetadataChoices}}. The authorization server SHOULD NOT consider it an error when it does not support one of the `token_endpoint_auth_methods_supported` values, if it supports any of the other values, per Section 4 of {{OpenID.RPMetadataChoices}}.
-
 A client MAY include either or both of the `token_endpoint_auth_method` and `token_endpoint_auth_methods_supported` properties in its metadata document.
+
+Clients MAY support multiple client authentication methods by using `token_endpoint_auth_methods_supported` per {{OpenID.RPMetadataChoices}}.
 
 A Client ID Metadata Document that includes only `token_endpoint_auth_methods_supported` decreases interoperability, as an authorization server that does not support {{OpenID.RPMetadataChoices}} will not recognise the property and will be unable to determine the client authentication methods the client supports. Clients are therefore RECOMMENDED to include both properties.
 
 Where both properties are present, the `token_endpoint_auth_method` value MUST be included within `token_endpoint_auth_methods_supported` per Section 2 of {{OpenID.RPMetadataChoices}}.
+
+The authorization server SHOULD NOT consider it an error when it does not support one of the `token_endpoint_auth_methods_supported` values, if it supports any of the other values, per Section 4 of {{OpenID.RPMetadataChoices}}.
 
 When the authorization server does not support any of the token endpoint authentication methods declared by the client, the authorization server MUST abort the authorization request with `unauthorized_client`.
 
