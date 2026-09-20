@@ -5,7 +5,8 @@
 Web Authorization Protocol                                    A. Parecki
 Internet-Draft                                                      Okta
 Intended status: Standards Track                                E. Smith
-Expires: 24 March 2027                                 20 September 2026
+Expires: 24 March 2027                                       independent
+                                                       20 September 2026
 
 
                    OAuth Client ID Metadata Document
@@ -407,6 +408,13 @@ Table of Contents
    An authorization server MAY restrict the acceptable methods of client
    authentication based on its own policies.
 
+   When using JWT-based client authentication methods such as
+   private_key_jwt, authorization servers and clients MUST follow
+   [RFC8725].  In particular, client authentication JWTs MUST include an
+   explicit typ header parameter (recommended value: oauth-client-
+   auth+jwt) to prevent cross-JWT confusion attacks, and authorization
+   servers MUST validate JWT types and implement algorithm allowlists.
+
    Clients that are capable of maintaining private key material and
    performing client authentication SHOULD do so with an acceptable
    method, such as a method in the OAuth Token Endpoint Authentication
@@ -757,8 +765,8 @@ Table of Contents
 
    The following authorization server metadata value is defined by this
    specification and registered in the IANA "OAuth Authorization Server
-   Metadata" registry established in OAuth 2.0 Authorization Server
-   Metadata [RFC8414].
+   Metadata" registry established in [RFC8414] (OAuth 2.0 Authorization
+   Server Metadata).
 
    *  Metadata Name: client_id_metadata_document_supported:
 
@@ -823,6 +831,11 @@ Table of Contents
               Authorization Server Metadata", RFC 8414,
               DOI 10.17487/RFC8414, June 2018,
               <https://www.rfc-editor.org/rfc/rfc8414>.
+
+   [RFC8725]  Sheffer, Y., Hardt, D., and M. Jones, "JSON Web Token Best
+              Current Practices", BCP 225, RFC 8725,
+              DOI 10.17487/RFC8725, February 2020,
+              <https://www.rfc-editor.org/rfc/rfc8725>.
 
    [RFC9700]  Lodderstedt, T., Bradley, J., Labunets, A., and D. Fett,
               "Best Current Practice for OAuth 2.0 Security", BCP 240,
@@ -967,6 +980,9 @@ Document History
    *  Clarified that the credential and key material restrictions also
       apply to metadata conveyed via software_statement
 
+   *  Add language to strengthen security of JWT based client
+      authentication.
+
    -02
 
    *  Clarified loopback exception for SSRF checks
@@ -1048,5 +1064,6 @@ Authors' Addresses
 
 
    Emelia Smith
+   independent
    Email: emelia@brandedcode.com
    URI:   https://thisismissem.social

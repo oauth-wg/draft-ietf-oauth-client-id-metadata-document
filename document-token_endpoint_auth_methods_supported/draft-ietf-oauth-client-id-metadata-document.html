@@ -1078,6 +1078,7 @@ svg {
 </div>
 <div class="author">
       <div class="author-name">E. Smith</div>
+<div class="org">independent</div>
 </div>
 </dd>
 </dl>
@@ -1539,11 +1540,12 @@ server also <span class="bcp14">MUST NOT</span> cache documents which are invali
 <p id="section-6-8">When the authorization server does not support any of the token endpoint authentication methods declared by the client, the authorization server <span class="bcp14">MUST</span> abort the authorization request with <code>unauthorized_client</code>.<a href="#section-6-8" class="pilcrow">¶</a></p>
 <p id="section-6-9">TBD: Should we actually use <code>invalid_client_metadata</code> or <code>invalid_client</code> errors instead? <code>invalid_client_metadata</code> (<span><a href="https://rfc-editor.org/rfc/rfc7591#section-3.2.2" class="relref">Section 3.2.2</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>) is a registration endpoint error and <code>invalid_client</code> (<span><a href="https://rfc-editor.org/rfc/rfc6749#section-5.2" class="relref">Section 5.2</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>) is a token endpoint error, so neither is currently available when aborting an authorization request, leaving <code>unauthorized_client</code> as the closest of the authorization endpoint error codes defined in <span><a href="https://rfc-editor.org/rfc/rfc6749#section-4.1.2.1" class="relref">Section 4.1.2.1</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. This is unsatisfying, as <code>invalid_client</code> is defined as "Client authentication failed (e.g., unknown client, no client authentication included, or unsupported authentication method)", which describes this situation precisely. This specification could expand the usage locations of the other error codes to provide a more precise error response.<a href="#section-6-9" class="pilcrow">¶</a></p>
 <p id="section-6-10">An authorization server <span class="bcp14">MAY</span> restrict the acceptable methods of client authentication based on its own policies.<a href="#section-6-10" class="pilcrow">¶</a></p>
-<p id="section-6-11">Clients that are capable of maintaining private key material and performing client authentication
-<span class="bcp14">SHOULD</span> do so with an acceptable method, such as a method in the <a href="https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-endpoint-auth-method">OAuth Token Endpoint Authentication Methods registry</a>.<a href="#section-6-11" class="pilcrow">¶</a></p>
-<p id="section-6-12">For example, the client <span class="bcp14">MAY</span> include the following properties in its metadata document
-to establish a public key and advertise the <code>private_key_jwt</code> authentication method defined in <span>[<a href="#OpenID" class="cite xref">OpenID</a>]</span>:<a href="#section-6-12" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-6-13">
+<p id="section-6-11">When using JWT-based client authentication methods such as <code>private_key_jwt</code>, authorization servers and clients <span class="bcp14">MUST</span> follow <span>[<a href="#RFC8725" class="cite xref">RFC8725</a>]</span>. In particular, client authentication JWTs <span class="bcp14">MUST</span> include an explicit <code>typ</code> header parameter (recommended value: <code>oauth-client-auth+jwt</code>) to prevent cross-JWT confusion attacks, and authorization servers <span class="bcp14">MUST</span> validate JWT types and implement algorithm allowlists.<a href="#section-6-11" class="pilcrow">¶</a></p>
+<p id="section-6-12">Clients that are capable of maintaining private key material and performing client authentication
+<span class="bcp14">SHOULD</span> do so with an acceptable method, such as a method in the <a href="https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-endpoint-auth-method">OAuth Token Endpoint Authentication Methods registry</a>.<a href="#section-6-12" class="pilcrow">¶</a></p>
+<p id="section-6-13">For example, the client <span class="bcp14">MAY</span> include the following properties in its metadata document
+to establish a public key and advertise the <code>private_key_jwt</code> authentication method defined in <span>[<a href="#OpenID" class="cite xref">OpenID</a>]</span>:<a href="#section-6-13" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-6-14">
 <pre>
 {
   ...
@@ -1551,12 +1553,12 @@ to establish a public key and advertise the <code>private_key_jwt</code> authent
   "jwks_uri": "https://client.example.com/jwks.json"
   ...
 }
-</pre><a href="#section-6-13" class="pilcrow">¶</a>
+</pre><a href="#section-6-14" class="pilcrow">¶</a>
 </div>
-<p id="section-6-14">This establishes this client as a confidential client, and any communication with
-the authorization server <span class="bcp14">MUST</span> include client authentication of the registered type.<a href="#section-6-14" class="pilcrow">¶</a></p>
-<p id="section-6-15">In this example, a client is facilitating interoperability with authorization servers that do support <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span> and authorization servers that do not support it:<a href="#section-6-15" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-6-16">
+<p id="section-6-15">This establishes this client as a confidential client, and any communication with
+the authorization server <span class="bcp14">MUST</span> include client authentication of the registered type.<a href="#section-6-15" class="pilcrow">¶</a></p>
+<p id="section-6-16">In this example, a client is facilitating interoperability with authorization servers that do support <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span> and authorization servers that do not support it:<a href="#section-6-16" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-6-17">
 <pre>
 {
   ...
@@ -1565,11 +1567,11 @@ the authorization server <span class="bcp14">MUST</span> include client authenti
   "jwks_uri": "https://client.example.com/jwks.json"
   ...
 }
-</pre><a href="#section-6-16" class="pilcrow">¶</a>
+</pre><a href="#section-6-17" class="pilcrow">¶</a>
 </div>
-<p id="section-6-17">If the authorization server does not support <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span>, then the token endpoint authentication method is <code>none</code> and the client is a public client.<a href="#section-6-17" class="pilcrow">¶</a></p>
-<p id="section-6-18">If the authorization server does support <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span> then the client <span class="bcp14">MAY</span> use either of the token endpoint authentication methods that the authorization server also supports. This means the client <span class="bcp14">MAY</span> either be a public client or confidential client, dependent on the token endpoint authentication method selected for use.<a href="#section-6-18" class="pilcrow">¶</a></p>
-<p id="section-6-19">See <a href="#client_authentication_key_material" class="auto internal xref">Section 9.2</a> for security details on managing Client Authentication Key Material.<a href="#section-6-19" class="pilcrow">¶</a></p>
+<p id="section-6-18">If the authorization server does not support <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span>, then the token endpoint authentication method is <code>none</code> and the client is a public client.<a href="#section-6-18" class="pilcrow">¶</a></p>
+<p id="section-6-19">If the authorization server does support <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span> then the client <span class="bcp14">MAY</span> use either of the token endpoint authentication methods that the authorization server also supports. This means the client <span class="bcp14">MAY</span> either be a public client or confidential client, dependent on the token endpoint authentication method selected for use.<a href="#section-6-19" class="pilcrow">¶</a></p>
+<p id="section-6-20">See <a href="#client_authentication_key_material" class="auto internal xref">Section 9.2</a> for security details on managing Client Authentication Key Material.<a href="#section-6-20" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="as-metadata">
@@ -1802,7 +1804,7 @@ exposing them to end users.<a href="#section-10.2-2" class="pilcrow">¶</a></p>
         <h3 id="name-oauth-authorization-server-">
 <a href="#section-11.1" class="section-number selfRef">11.1. </a><a href="#name-oauth-authorization-server-" class="section-name selfRef">OAuth Authorization Server Metadata Registry</a>
         </h3>
-<p id="section-11.1-1">The following authorization server metadata value is defined by this specification and registered in the IANA "OAuth Authorization Server Metadata" registry established in OAuth 2.0 Authorization Server Metadata <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>.<a href="#section-11.1-1" class="pilcrow">¶</a></p>
+<p id="section-11.1-1">The following authorization server metadata value is defined by this specification and registered in the IANA "OAuth Authorization Server Metadata" registry established in <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span> (OAuth 2.0 Authorization Server Metadata).<a href="#section-11.1-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-11.1-2.1">
             <p id="section-11.1-2.1.1">Metadata Name: <code>client_id_metadata_document_supported</code>:<a href="#section-11.1-2.1.1" class="pilcrow">¶</a></p>
@@ -1871,6 +1873,10 @@ exposing them to end users.<a href="#section-10.2-2" class="pilcrow">¶</a></p>
 <dt id="RFC8414">[RFC8414]</dt>
         <dd>
 <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Sakimura, N.</span>, and <span class="refAuthor">J. Bradley</span>, <span class="refTitle">"OAuth 2.0 Authorization Server Metadata"</span>, <span class="seriesInfo">RFC 8414</span>, <span class="seriesInfo">DOI 10.17487/RFC8414</span>, <time datetime="2018-06" class="refDate">June 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8414">https://www.rfc-editor.org/rfc/rfc8414</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8725">[RFC8725]</dt>
+        <dd>
+<span class="refAuthor">Sheffer, Y.</span>, <span class="refAuthor">Hardt, D.</span>, and <span class="refAuthor">M. Jones</span>, <span class="refTitle">"JSON Web Token Best Current Practices"</span>, <span class="seriesInfo">BCP 225</span>, <span class="seriesInfo">RFC 8725</span>, <span class="seriesInfo">DOI 10.17487/RFC8725</span>, <time datetime="2020-02" class="refDate">February 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8725">https://www.rfc-editor.org/rfc/rfc8725</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC9700">[RFC9700]</dt>
       <dd>
@@ -1999,6 +2005,9 @@ as clients that publish their own Client ID Metadata Document.<a href="#appendix
         <li class="normal" id="appendix-C-3.5">
           <p id="appendix-C-3.5.1">Clarified that the credential and key material restrictions also apply to metadata conveyed via <code>software_statement</code><a href="#appendix-C-3.5.1" class="pilcrow">¶</a></p>
 </li>
+        <li class="normal" id="appendix-C-3.6">
+          <p id="appendix-C-3.6.1">Add language to strengthen security of JWT based client authentication.<a href="#appendix-C-3.6.1" class="pilcrow">¶</a></p>
+</li>
       </ul>
 <p id="appendix-C-4">-02<a href="#appendix-C-4" class="pilcrow">¶</a></p>
 <ul class="normal">
@@ -2102,6 +2111,7 @@ as clients that publish their own Client ID Metadata Document.<a href="#appendix
 </address>
 <address class="vcard">
         <div dir="auto" class="left"><span class="fn nameRole">Emelia Smith</span></div>
+<div dir="auto" class="left"><span class="org">independent</span></div>
 <div class="email">
 <span>Email:</span>
 <a href="mailto:emelia@brandedcode.com" class="email">emelia@brandedcode.com</a>
