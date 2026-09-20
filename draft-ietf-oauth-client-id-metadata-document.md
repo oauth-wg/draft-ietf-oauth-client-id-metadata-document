@@ -38,6 +38,7 @@ normative:
   RFC7591:
   RFC8259:
   RFC8414:
+  RFC8725:
   RFC9700:
   OpenID.RPMetadataChoices:
     title: "OpenID Connect Relying Party Metadata Choices 1.0"
@@ -334,6 +335,8 @@ TBD: Should we actually use `invalid_client_metadata` or `invalid_client` errors
 
 An authorization server MAY restrict the acceptable methods of client authentication based on its own policies.
 
+When using JWT-based client authentication methods such as `private_key_jwt`, authorization servers and clients MUST follow {{RFC8725}}. In particular, client authentication JWTs MUST include an explicit `typ` header parameter (recommended value: `oauth-client-auth+jwt`) to prevent cross-JWT confusion attacks, and authorization servers MUST validate JWT types and implement algorithm allowlists.
+
 Clients that are capable of maintaining private key material and performing client authentication
 SHOULD do so with an acceptable method, such as a method in the [OAuth Token Endpoint Authentication Methods registry](https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-endpoint-auth-method).
 
@@ -611,6 +614,7 @@ The authors would like to thank the following people for their contributions and
 * Added `token_endpoint_auth_methods_supported` to the credential and key material restrictions, and added guidance and an example for using it alongside `token_endpoint_auth_method`
 * Specified authorization server behaviour when it supports none of the token endpoint authentication methods declared by the client
 * Clarified that the credential and key material restrictions also apply to metadata conveyed via `software_statement`
+* Add language to strengthen security of JWT based client authentication.
 
 -02
 
