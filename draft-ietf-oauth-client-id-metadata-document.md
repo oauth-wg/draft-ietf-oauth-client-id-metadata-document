@@ -26,6 +26,7 @@ author:
     email: aaron@parecki.com
     uri: https://aaronparecki.com
   - fullname: Emelia Smith
+    organization: independent
     email: emelia@brandedcode.com
     uri: https://thisismissem.social
 
