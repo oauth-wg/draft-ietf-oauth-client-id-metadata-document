@@ -534,7 +534,7 @@ exposing them to end users.
 
 ## OAuth Authorization Server Metadata Registry
 
-The following authorization server metadata value is defined by this specification and registered in the IANA "OAuth Authorization Server Metadata" registry established in OAuth 2.0 Authorization Server Metadata [RFC8414].
+The following authorization server metadata value is defined by this specification and registered in the IANA "OAuth Authorization Server Metadata" registry established in {{RFC8414}} (OAuth 2.0 Authorization Server Metadata).
 
 * Metadata Name: `client_id_metadata_document_supported`:
 * Metadata Description: JSON boolean value specifying whether the authorization server supports retrieving client metadata from a `client_id` URL.
