@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-09-10T00:00:33.299148+00:00",
+  "timestamp": "2026-09-22T00:00:40.468245+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -62,6 +62,11 @@
       "name": "ietf-126",
       "description": "",
       "color": "07eadf"
+    },
+    {
+      "name": "pull request exists",
+      "description": "",
+      "color": "b48100"
     }
   ],
   "issues": [
@@ -1520,11 +1525,12 @@
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [
-        "ietf-125"
+        "ietf-125",
+        "pull request exists"
       ],
       "body": "# Strengthen JWT Security References in Client Authentication Section\n\n**Summary**: [Section 6.2 Client Authentication](https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-client-authentication) mentions `private_key_jwt` but could benefit from additional security guidance to help prevent cross-JWT confusion and weak algorithm usage.\n\n## Current Specification Language\n\nFrom [Section 6.2 Client Authentication](https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-client-authentication):\n\n> For example, the client MAY include the following properties in its metadata document to establish a public key and advertise the `private_key_jwt` authentication method defined in [OpenID]:\n>\n> ```jsonc\n> {\n>   //...\n>   \"token_endpoint_auth_method\": \"private_key_jwt\",\n>   \"jwks_uri\": \"https://client.example.com/jwks.json\"\n>   //...\n> }\n> ```\n\nThe section references [OpenID Connect Core](https://openid.net/specs/openid-connect-core-1_0.html) but doesn't include specific security guidance around JWT usage in the CIMD context (though [Aaron mentioned](https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/issues/7#issuecomment-2166734831) having \"a note in the draft about using this\" that doesn't appear in the current published version).\n\n## Rationale\n\nThe current language could benefit from additional security guidance for authorization servers implementing CIMD. In real deployments, you often end up with multiple JWT types floating around - client authentication JWTs, access tokens, maybe attestation JWTs from [draft-ietf-oauth-attestation-based-client-auth](https://datatracker.ietf.org/doc/draft-ietf-oauth-attestation-based-client-auth/), and others. Without explicit typing and validation requirements, these JWTs might get confused or reused in the wrong context.\n\nThis builds on [Aaron's feedback](https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/issues/7#issuecomment-2166734831) about referencing established mechanisms rather than defining new ones. [RFC 7523](https://www.rfc-editor.org/rfc/rfc7523.html) provides the JWT Profile for OAuth 2.0 Client Authentication foundation, and [RFC 8725](https://www.rfc-editor.org/rfc/rfc8725.html) contains helpful security guidance that could be referenced for production implementations.\n\n## Recommendation\n\nAdding one paragraph to the end of [Section 6.2 Client Authentication](https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-client-authentication):\n\n> When using JWT-based client authentication methods such as `private_key_jwt`, authorization servers and clients MUST follow [RFC8725] (JSON Web Token Best Current Practices). In particular, client authentication JWTs MUST include an explicit `typ` header parameter (recommended value: `oauth-client-auth+jwt`) to prevent cross-JWT confusion attacks, and authorization servers MUST validate JWT types and implement algorithm allowlists.\n\nAnd adding RFC8725 to normative references:\n\n```\nRFC8725:\n  title: \"JSON Web Token Best Current Practices\"\n  date: 2020-02\n  target: https://www.rfc-editor.org/rfc/rfc8725.html\n```\n\n## Related Work\n\n- Complements [Section 6.3 Changes in Client Keys](https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-changes-in-client-keys) which already covers key rotation scenarios, and proper JWT typing helps ensure security during key changes\n- Builds on existing symmetric secret restrictions where the spec already prohibits `client_secret_*` methods in [Section 4.1 Client Metadata](https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-client-metadata) and this extends that security thinking to JWT-based authentication\n- Aligns with attestation work since the current draft already mentions [draft-ietf-oauth-attestation-based-client-auth](https://datatracker.ietf.org/doc/draft-ietf-oauth-attestation-based-client-auth/) as a potential extension, and proper JWT typing becomes helpful when multiple authentication mechanisms are in play\n\n## Implementation Impact\n\nThis change would provide clearer security guidance for authorization server implementers without requiring protocol modifications. The requirements could be implemented as authorization server policy decisions and would complement the existing security considerations in [Section 6](https://drafts.aaronpk.com/draft-parecki-oauth-client-id-metadata-document/draft-parecki-oauth-client-id-metadata-document.html#name-security-considerations).",
       "createdAt": "2025-09-22T16:58:14Z",
-      "updatedAt": "2026-03-02T02:29:26Z",
+      "updatedAt": "2026-09-20T20:55:54Z",
       "closedAt": null,
       "comments": [
         {
@@ -1533,6 +1539,13 @@
           "body": "This recommendation sounds good to me.",
           "createdAt": "2025-09-22T17:16:25Z",
           "updatedAt": "2025-09-22T17:16:25Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Have incorporated this in #99, superseding #48.",
+          "createdAt": "2026-09-20T20:53:26Z",
+          "updatedAt": "2026-09-20T20:53:26Z"
         }
       ]
     },
@@ -2974,7 +2987,33 @@
       "labels": [],
       "body": "I left https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/87#issuecomment-5184144682 saying\n\n> Along with `token_endpoint_auth_methods_supported`, RFC 8414 mentions `token_endpoint_auth_signing_alg_values_supported`.\n> \n> Furthermore,  there are also\n> 1. `introspection_endpoint_auth_methods_supported`, and\n> 2. `revocation_endpoint_auth_methods_supported`\n> \n> as it makes sense to support them for clients (allowed values are `none` and `private_key_jwt`).\n\nand suggest it be tracked as a separate issue.",
       "createdAt": "2026-08-10T04:30:01Z",
-      "updatedAt": "2026-08-10T04:30:01Z",
+      "updatedAt": "2026-09-20T20:30:03Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "I'd be inclined to say that we shouldn't suggesting different values between `token_endpoint_auth_methods_supported`, `introspection_endpoint_auth_methods_supported`, and `revocation_endpoint_auth_methods_supported`, I agree with:\n\n> It is a consensus position within the OpenID Connect working group that it was a mistake to create separate revocation_endpoint_auth_methods_supported and introspection_endpoint_auth_methods_supported Authorization Server Metadata parameters in [[RFC8414](https://openid.net/specs/openid-connect-rp-metadata-choices-1_0.html#RFC8414)]. This aligns with the decision by the OAuth Working group to use the token_endpoint_auth_methods_supported and token_endpoint_auth_method metadata parameters to describe the capabilities of the Pushed Authorization Request (PAR) Endpoint [[RFC9126](https://openid.net/specs/openid-connect-rp-metadata-choices-1_0.html#RFC9126)], rather than creating new parameters that were PAR-specific.\n\nFrom Section 4 of OpenID Connect Relying Party Metadata Choices 1.0.",
+          "createdAt": "2026-09-20T20:30:03Z",
+          "updatedAt": "2026-09-20T20:30:03Z"
+        }
+      ]
+    },
+    {
+      "number": 100,
+      "id": "I_kwDOL_Xevs8AAAABSQtUcg",
+      "title": "Clarify behaviour of `token_endpoint_auth_method` of `\"private_key_jwt\"` when `jwks` and `jwks_uri` are missing",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/100",
+      "state": "OPEN",
+      "author": "ThisIsMissEm",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [
+        "help wanted"
+      ],
+      "body": "I haven't been able to find normative language for what should happen if client metadata uses `token_endpoint_auth_method` of `\"private_key_jwt\"` but does not declare a `jwks` nor `jwks_uri` property. Though it's entirely possible that I've missed a specification that does define this.\n\nI suspect that this should cause an `unauthorized_client` error during the authorization request or pushed authorization request.",
+      "createdAt": "2026-09-20T21:00:35Z",
+      "updatedAt": "2026-09-20T21:00:35Z",
       "closedAt": null,
       "comments": []
     }
@@ -4425,21 +4464,21 @@
       "id": "PR_kwDOL_Xevs6rKDuq",
       "title": "Reference JSON Web Token Best Current Practices for JWT-based client authentication methods",
       "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/48",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "ThisIsMissEm",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "This applies the recommendation in https://github.com/aaronpk/draft-parecki-oauth-client-id-metadata-document/issues/42",
       "createdAt": "2025-09-29T17:59:56Z",
-      "updatedAt": "2026-09-05T04:46:38Z",
+      "updatedAt": "2026-09-20T20:53:52Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "3aafad42b6ac4b3c60af674080ddf920a9975097",
       "headRepository": "ThisIsMissEm/draft-parecki-oauth-client-id-metadata-document",
       "headRefName": "feat/strengthen-jwt-security-references",
       "headRefOid": "19a9a1d0f82599baf8649374a4e6207822ba117d",
-      "closedAt": null,
+      "closedAt": "2026-09-20T20:53:52Z",
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
@@ -4457,6 +4496,13 @@
           "body": "@aaronpk should we do this before the next IETF meeting? It's been a year since the last comment here.",
           "createdAt": "2026-09-05T04:46:38Z",
           "updatedAt": "2026-09-05T04:46:38Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Superseded by #99 which established a new top-level Client Authentication section.",
+          "createdAt": "2026-09-20T20:53:48Z",
+          "updatedAt": "2026-09-20T20:53:48Z"
         }
       ],
       "reviews": []
@@ -6530,6 +6576,73 @@
               "body": "I don't see equivalents, but you are right that we should be more explicit.\r\n\r\nEDIT:\r\nI opted for a description block below that makes it more explicit. Let me know if that works!",
               "createdAt": "2026-09-09T04:59:53Z",
               "updatedAt": "2026-09-09T05:02:17Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 99,
+      "id": "PR_kwDOL_Xevs8AAAABEVfs_w",
+      "title": "Document token endpoint auth methods supported",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/99",
+      "state": "OPEN",
+      "author": "ThisIsMissEm",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This should address all concerns in #87 and #92, by creating a new normative section \"Client Authentication\"",
+      "createdAt": "2026-09-20T20:31:22Z",
+      "updatedAt": "2026-09-20T20:52:33Z",
+      "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "8f53aecfaa820023f0f71fe5f0c299db725374d3",
+      "headRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "headRefName": "document-token_endpoint_auth_methods_supported",
+      "headRefOid": "f204697d71ac895559d60ea0e549d160eb004f5c",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABOZ6nCQ",
+          "commit": {
+            "abbreviatedOid": "459e4c8"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-09-20T20:32:44Z",
+          "updatedAt": "2026-09-20T20:32:44Z",
+          "comments": [
+            {
+              "originalPosition": 130,
+              "body": "I debate whether I should lift this up into Client Authentication or leave it under Security Considerations. It could maybe be merged into the first paragraph of that section?",
+              "createdAt": "2026-09-20T20:32:44Z",
+              "updatedAt": "2026-09-20T20:32:44Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABOZ6xEg",
+          "commit": {
+            "abbreviatedOid": "459e4c8"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-09-20T20:33:51Z",
+          "updatedAt": "2026-09-20T20:33:51Z",
+          "comments": [
+            {
+              "originalPosition": 78,
+              "body": "This TBD may also cover #85, so we probably need a section on error handling.",
+              "createdAt": "2026-09-20T20:33:51Z",
+              "updatedAt": "2026-09-20T20:33:51Z"
             }
           ]
         }
