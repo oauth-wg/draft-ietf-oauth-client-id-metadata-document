@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-09-27T00:00:53.261414+00:00",
+  "timestamp": "2026-09-29T00:00:53.296151+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -3013,9 +3013,24 @@
       ],
       "body": "I haven't been able to find normative language for what should happen if client metadata uses `token_endpoint_auth_method` of `\"private_key_jwt\"` but does not declare a `jwks` nor `jwks_uri` property. Though it's entirely possible that I've missed a specification that does define this.\n\nI suspect that this should cause an `unauthorized_client` error during the authorization request or pushed authorization request.",
       "createdAt": "2026-09-20T21:00:35Z",
-      "updatedAt": "2026-09-20T21:00:35Z",
+      "updatedAt": "2026-09-28T18:10:34Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "dk5488",
+          "authorAssociation": "NONE",
+          "body": "I'd love to dive into this and help clarify the behavior\u2014could you please assign the issue to me? Thanks!",
+          "createdAt": "2026-09-28T18:07:43Z",
+          "updatedAt": "2026-09-28T18:07:43Z"
+        },
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "@dk5488 you can just submit a PR if you have a suggestion",
+          "createdAt": "2026-09-28T18:10:34Z",
+          "updatedAt": "2026-09-28T18:10:34Z"
+        }
+      ]
     },
     {
       "number": 101,
