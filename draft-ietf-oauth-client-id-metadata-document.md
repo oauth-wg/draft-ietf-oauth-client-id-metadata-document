@@ -61,7 +61,6 @@ informative:
     date: 2022-02-12
     author:
       - name: Aaron Parecki
-        uri: https://aaronparecki.com
   Solid-OIDC:
     title: "Solid-OIDC"
     date: 2022-03-28
@@ -83,7 +82,7 @@ informative:
         org: Yubico
       - name: M. Jones
         org: Self-Issued Consulting
-      - name: B. de Medeiros
+      - name: B. | de Medeiros
         org: Google
       - name: C. Mortimore
         org: Disney
@@ -100,7 +99,7 @@ informative:
         org: Sikt
       - name: J. Bradley
         org: Yubico
-      - name: G. De Marco
+      - name: G. | De Marco
         org: independent
       - name: V. Dzhuvinov
         org: Connect2id
