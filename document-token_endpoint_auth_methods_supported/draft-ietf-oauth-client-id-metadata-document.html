@@ -20,18 +20,18 @@ metadata about the client as needed.
 <meta content="draft-ietf-oauth-client-id-metadata-document-latest" name="ietf.draft">
 <!-- Generator version information:
   xml2rfc 3.34.1
-    Python 3.14.7
-    ConfigArgParse 1.7.7
+    Python 3.14.8
+    ConfigArgParse 1.8.0
     google-i18n-address 3.1.1
     intervaltree 3.2.1
     Jinja2 3.1.6
     lxml 6.1.1
     natsort 8.4.0
-    platformdirs 4.11.10
+    platformdirs 4.13.4
     pycountry 24.6.1
     PyYAML 6.0.3
     requests 2.33.1
-    wcwidth 0.8.4
+    wcwidth 0.9.2
 -->
 <link href="draft-ietf-oauth-client-id-metadata-document.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
@@ -1047,11 +1047,11 @@ svg {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">CIMD</td>
-<td class="right">September 2026</td>
+<td class="right">October 2026</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Parecki &amp; Smith</td>
-<td class="center">Expires 24 March 2027</td>
+<td class="center">Expires 27 April 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1064,12 +1064,12 @@ svg {
 <dd class="internet-draft">draft-ietf-oauth-client-id-metadata-document-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-09-20" class="published">20 September 2026</time>
+<time datetime="2026-10-24" class="published">24 October 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2027-03-24">24 March 2027</time></dd>
+<dd class="expires"><time datetime="2027-04-27">27 April 2027</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1128,7 +1128,7 @@ metadata about the client as needed.<a href="#section-abstract-1" class="pilcrow
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 24 March 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 27 April 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1193,6 +1193,11 @@ metadata about the client as needed.<a href="#section-abstract-1" class="pilcrow
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
             <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-client-authentication" class="internal xref">Client Authentication</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1">
+                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-examples-of-client-authenti" class="internal xref">Examples of Client Authentication</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
             <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-authorization-server-metada" class="internal xref">Authorization Server Metadata</a></p>
@@ -1531,34 +1536,41 @@ server also <span class="bcp14">MUST NOT</span> cache documents which are invali
 <a href="#section-6" class="section-number selfRef">6. </a><a href="#name-client-authentication" class="section-name selfRef">Client Authentication</a>
       </h2>
 <p id="section-6-1">Client authentication methods based around a shared symmetric secret cannot be used, as there is no way to securely establish a shared symmetric secret in a Client ID Metadata Document; see <a href="#client_metadata_restrictions" class="auto internal xref">Section 4.1</a>. Client Authentication is possible using authentication methods that use public/private key pairs by having the client publish the public key in its metadata document, for example via the <code>jwks</code> or <code>jwks_uri</code> properties.<a href="#section-6-1" class="pilcrow">¶</a></p>
-<p id="section-6-2">The default token endpoint authentication method as defined by <span><a href="https://rfc-editor.org/rfc/rfc7591#section-2" class="relref">Section 2</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> <span class="bcp14">MUST</span> be ignored. When a Client ID Metadata Document contains neither the <code>token_endpoint_auth_method</code> property (<span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>) nor the <code>token_endpoint_auth_methods_supported</code> property (defined in Section 2 of <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span>), the authorization server <span class="bcp14">MUST</span> assume the default token endpoint authentication method of <code>none</code>. An authorization server <span class="bcp14">MUST NOT</span> treat a missing <code>token_endpoint_auth_method</code> property as the default of <code>none</code> if the <code>token_endpoint_auth_methods_supported</code> property is present, even if the authorization server does not support <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span>, as the client has advertised token endpoint authentication methods.<a href="#section-6-2" class="pilcrow">¶</a></p>
-<p id="section-6-3">A client <span class="bcp14">MAY</span> include either or both of the <code>token_endpoint_auth_method</code> and <code>token_endpoint_auth_methods_supported</code> properties in its metadata document.<a href="#section-6-3" class="pilcrow">¶</a></p>
-<p id="section-6-4">Clients <span class="bcp14">MAY</span> support multiple client authentication methods by using <code>token_endpoint_auth_methods_supported</code> per <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span>.<a href="#section-6-4" class="pilcrow">¶</a></p>
-<p id="section-6-5">A Client ID Metadata Document that includes only <code>token_endpoint_auth_methods_supported</code> decreases interoperability, as an authorization server that does not support <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span> will not recognise the property and will be unable to determine the client authentication methods the client supports. Clients are therefore <span class="bcp14">RECOMMENDED</span> to include both properties.<a href="#section-6-5" class="pilcrow">¶</a></p>
-<p id="section-6-6">Where both properties are present, the <code>token_endpoint_auth_method</code> value <span class="bcp14">MUST</span> be included within <code>token_endpoint_auth_methods_supported</code> per Section 2 of <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span>.<a href="#section-6-6" class="pilcrow">¶</a></p>
-<p id="section-6-7">The authorization server <span class="bcp14">SHOULD NOT</span> consider it an error when it does not support one of the <code>token_endpoint_auth_methods_supported</code> values, if it supports any of the other values, per Section 4 of <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span>.<a href="#section-6-7" class="pilcrow">¶</a></p>
-<p id="section-6-8">When the authorization server does not support any of the token endpoint authentication methods declared by the client, the authorization server <span class="bcp14">MUST</span> abort the authorization request with <code>unauthorized_client</code>.<a href="#section-6-8" class="pilcrow">¶</a></p>
-<p id="section-6-9">TBD: Should we actually use <code>invalid_client_metadata</code> or <code>invalid_client</code> errors instead? <code>invalid_client_metadata</code> (<span><a href="https://rfc-editor.org/rfc/rfc7591#section-3.2.2" class="relref">Section 3.2.2</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>) is a registration endpoint error and <code>invalid_client</code> (<span><a href="https://rfc-editor.org/rfc/rfc6749#section-5.2" class="relref">Section 5.2</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>) is a token endpoint error, so neither is currently available when aborting an authorization request, leaving <code>unauthorized_client</code> as the closest of the authorization endpoint error codes defined in <span><a href="https://rfc-editor.org/rfc/rfc6749#section-4.1.2.1" class="relref">Section 4.1.2.1</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. This is unsatisfying, as <code>invalid_client</code> is defined as "Client authentication failed (e.g., unknown client, no client authentication included, or unsupported authentication method)", which describes this situation precisely. This specification could expand the usage locations of the other error codes to provide a more precise error response.<a href="#section-6-9" class="pilcrow">¶</a></p>
-<p id="section-6-10">An authorization server <span class="bcp14">MAY</span> restrict the acceptable methods of client authentication based on its own policies.<a href="#section-6-10" class="pilcrow">¶</a></p>
-<p id="section-6-11">When using JWT-based client authentication methods such as <code>private_key_jwt</code>, authorization servers and clients <span class="bcp14">MUST</span> follow <span>[<a href="#RFC8725" class="cite xref">RFC8725</a>]</span>. In particular, client authentication JWTs <span class="bcp14">MUST</span> include an explicit <code>typ</code> header parameter (recommended value: <code>oauth-client-auth+jwt</code>) to prevent cross-JWT confusion attacks, and authorization servers <span class="bcp14">MUST</span> validate JWT types and implement algorithm allowlists.<a href="#section-6-11" class="pilcrow">¶</a></p>
-<p id="section-6-12">Clients that are capable of maintaining private key material and performing client authentication
-<span class="bcp14">SHOULD</span> do so with an acceptable method, such as a method in the <a href="https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-endpoint-auth-method">OAuth Token Endpoint Authentication Methods registry</a>.<a href="#section-6-12" class="pilcrow">¶</a></p>
-<p id="section-6-13">For example, the client <span class="bcp14">MAY</span> include the following properties in its metadata document
-to establish a public key and advertise the <code>private_key_jwt</code> authentication method defined in <span>[<a href="#OpenID" class="cite xref">OpenID</a>]</span>:<a href="#section-6-13" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-6-14">
+<p id="section-6-2">A client <span class="bcp14">MAY</span> include either or both of the <code>token_endpoint_auth_method</code> (<span><a href="https://rfc-editor.org/rfc/rfc7591#section-2" class="relref">Section 2</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>) and <code>token_endpoint_auth_methods_supported</code> (<span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span>) properties in its metadata document. Clients are <span class="bcp14">RECOMMENDED</span> to use the <code>token_endpoint_auth_methods_supported</code> property, with <code>token_endpoint_auth_method</code> present for backwards compatibility with authorization servers not supporting <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span>, as recommended by Section 4 of that specification.<a href="#section-6-2" class="pilcrow">¶</a></p>
+<p id="section-6-3">The <code>token_endpoint_auth_method</code> value for a client <span class="bcp14">MUST</span> be included within <code>token_endpoint_auth_methods_supported</code> per Section 2 of <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span>, if the <code>token_endpoint_auth_methods_supported</code> property is present.<a href="#section-6-3" class="pilcrow">¶</a></p>
+<p id="section-6-4">A Client ID Metadata Document that includes only <code>token_endpoint_auth_methods_supported</code> decreases interoperability, as an authorization server that does not support <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span> will not recognise the property and will be unable to determine the client authentication method the client supports.<a href="#section-6-4" class="pilcrow">¶</a></p>
+<p id="section-6-5">Authorization servers <span class="bcp14">MUST NOT</span> apply the default value of <code>token_endpoint_auth_method</code> defined in <span><a href="https://rfc-editor.org/rfc/rfc7591#section-2" class="relref">Section 2</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>, as that default is <code>client_secret_basic</code>, which cannot be used with Client ID Metadata Documents, see <a href="#client_metadata_restrictions" class="auto internal xref">Section 4.1</a>.<a href="#section-6-5" class="pilcrow">¶</a></p>
+<p id="section-6-6">When a Client ID Metadata Document contains neither the <code>token_endpoint_auth_method</code> property (<span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span>) nor the <code>token_endpoint_auth_methods_supported</code> property (defined in Section 2 of <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span>), the authorization server <span class="bcp14">MUST</span> assume the default token endpoint authentication method of <code>none</code>.<a href="#section-6-6" class="pilcrow">¶</a></p>
+<p id="section-6-7">An authorization server <span class="bcp14">MUST NOT</span> treat a missing <code>token_endpoint_auth_method</code> property as the default of <code>none</code> if the <code>token_endpoint_auth_methods_supported</code> property is present, even if the authorization server does not support <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span>, as the client has advertised token endpoint authentication methods, just not in a way that the authorization server understands. Authorization servers implementing this specification <span class="bcp14">MUST</span> therefore recognise the presence of the <code>token_endpoint_auth_methods_supported</code> property, even where they do not otherwise implement <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span>.<a href="#section-6-7" class="pilcrow">¶</a></p>
+<p id="section-6-8">An authorization server that supports <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span> <span class="bcp14">SHOULD</span> select one of the values in <code>token_endpoint_auth_methods_supported</code> that it supports, and <span class="bcp14">SHOULD NOT</span> consider it an error that it does not support the remaining values, per Section 4 of <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span>.<a href="#section-6-8" class="pilcrow">¶</a></p>
+<p id="section-6-9">When an authorization server does not support any of the token endpoint authentication methods declared by the client, the authorization server <span class="bcp14">MUST</span> abort the authorization request with <code>invalid_request</code> and abort the token request with <code>invalid_client</code>, rather than treating the client as a public client.<span class="cref" id="cimd-error-codes">The error codes used for this condition are subject to change. No registered authorization endpoint error code precisely describes a Client ID Metadata Document whose declared client authentication methods are unusable at a given authorization server. See <a href="https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/85">issue #85</a>.</span><a href="#section-6-9" class="pilcrow">¶</a></p>
+<p id="section-6-10">Treating such a client as a public client would silently downgrade a client that intended to authenticate, permitting tokens to be issued without the client authentication the client advertised.<a href="#section-6-10" class="pilcrow">¶</a></p>
+<p id="section-6-11">An authorization server <span class="bcp14">MAY</span> restrict the supported methods of client authentication based on its own policies, and <span class="bcp14">SHOULD</span> advertise the supported methods of client authentication in the authorization server metadata by using the property <code>token_endpoint_auth_methods_supported</code> as defined in <span>[<a href="#RFC8414" class="cite xref">RFC8414</a>]</span>.<a href="#section-6-11" class="pilcrow">¶</a></p>
+<p id="section-6-12">When using JWT-based client authentication methods such as <code>private_key_jwt</code>, authorization servers and clients <span class="bcp14">MUST</span> follow <span>[<a href="#RFC8725" class="cite xref">RFC8725</a>]</span>. In particular, client authentication JWTs <span class="bcp14">MUST</span> include an explicit <code>typ</code> header parameter (recommended value: <code>oauth-client-auth+jwt</code>) to prevent cross-JWT confusion attacks, and authorization servers <span class="bcp14">MUST</span> validate JWT types and implement algorithm allowlists.<a href="#section-6-12" class="pilcrow">¶</a></p>
+<p id="section-6-13">Clients that are capable of maintaining private key material and performing client authentication <span class="bcp14">SHOULD</span> do so using a client authentication method that uses public/private key pairs, such as <code>private_key_jwt</code> from the <a href="https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-endpoint-auth-method">OAuth Token Endpoint Authentication Methods registry</a>.<a href="#section-6-13" class="pilcrow">¶</a></p>
+<p id="section-6-14">See <a href="#client_authentication_key_material" class="auto internal xref">Section 9.2</a> for security details on managing Client Authentication Key Material.<a href="#section-6-14" class="pilcrow">¶</a></p>
+<div id="examples-of-client-authentication">
+<section id="section-6.1">
+        <h3 id="name-examples-of-client-authenti">
+<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-examples-of-client-authenti" class="section-name selfRef">Examples of Client Authentication</a>
+        </h3>
+<p id="section-6.1-1">This section is non-normative.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+<p id="section-6.1-2">To establish client authentication using a public key with the <code>private_key_jwt</code> authentication method defined in <span>[<a href="#OpenID" class="cite xref">OpenID</a>]</span>, the client metadata document would look like the following:<a href="#section-6.1-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-6.1-3">
 <pre>
 {
   ...
   "token_endpoint_auth_method": "private_key_jwt",
+  "token_endpoint_auth_methods_supported": ["private_key_jwt"],
   "jwks_uri": "https://client.example.com/jwks.json"
   ...
 }
-</pre><a href="#section-6-14" class="pilcrow">¶</a>
+</pre><a href="#section-6.1-3" class="pilcrow">¶</a>
 </div>
-<p id="section-6-15">This establishes this client as a confidential client, and any communication with
-the authorization server <span class="bcp14">MUST</span> include client authentication of the registered type.<a href="#section-6-15" class="pilcrow">¶</a></p>
-<p id="section-6-16">In this example, a client is facilitating interoperability with authorization servers that do support <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span> and authorization servers that do not support it:<a href="#section-6-16" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-6-17">
+<p id="section-6.1-4">This establishes this client as a confidential client, and any communication with
+the authorization server must include client authentication using <code>private_key_jwt</code>.<a href="#section-6.1-4" class="pilcrow">¶</a></p>
+<p id="section-6.1-5">A client can advertise more than one client authentication method to interoperate with authorization servers that support different methods. In the following example, the client offers <code>private_key_jwt</code> to authorization servers that support it, while remaining usable as a public client for those that do not:<a href="#section-6.1-5" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-6.1-6">
 <pre>
 {
   ...
@@ -1567,11 +1579,12 @@ the authorization server <span class="bcp14">MUST</span> include client authenti
   "jwks_uri": "https://client.example.com/jwks.json"
   ...
 }
-</pre><a href="#section-6-17" class="pilcrow">¶</a>
+</pre><a href="#section-6.1-6" class="pilcrow">¶</a>
 </div>
-<p id="section-6-18">If the authorization server does not support <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span>, then the token endpoint authentication method is <code>none</code> and the client is a public client.<a href="#section-6-18" class="pilcrow">¶</a></p>
-<p id="section-6-19">If the authorization server does support <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span> then the client <span class="bcp14">MAY</span> use either of the token endpoint authentication methods that the authorization server also supports. This means the client <span class="bcp14">MAY</span> either be a public client or confidential client, dependent on the token endpoint authentication method selected for use.<a href="#section-6-19" class="pilcrow">¶</a></p>
-<p id="section-6-20">See <a href="#client_authentication_key_material" class="auto internal xref">Section 9.2</a> for security details on managing Client Authentication Key Material.<a href="#section-6-20" class="pilcrow">¶</a></p>
+<p id="section-6.1-7">If the authorization server does not support <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span> or the authorization server does not support <code>private_key_jwt</code>, then the token endpoint authentication method to be used by the client must be <code>none</code> and the client will be a public client.<a href="#section-6.1-7" class="pilcrow">¶</a></p>
+<p id="section-6.1-8">If the authorization server does support <span>[<a href="#OpenID.RPMetadataChoices" class="cite xref">OpenID.RPMetadataChoices</a>]</span> and <code>private_key_jwt</code> client authentication, then the client may use either of the token endpoint authentication methods that the authorization server also supports. This means the client may either be a public client or confidential client, dependent on the token endpoint authentication method selected for use.<a href="#section-6.1-8" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 <div id="as-metadata">
@@ -1893,7 +1906,7 @@ exposing them to end users.<a href="#section-10.2-2" class="pilcrow">¶</a></p>
 <dl class="references">
 <dt id="I-D.draft-ietf-oauth-attestation-based-client-auth">[I-D.draft-ietf-oauth-attestation-based-client-auth]</dt>
         <dd>
-<span class="refAuthor">Looker, T.</span>, <span class="refAuthor">Bastian, P.</span>, and <span class="refAuthor">C. Bormann</span>, <span class="refTitle">"OAuth 2.0 Attestation-Based Client Authentication"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-attestation-based-client-auth-11</span>, <time datetime="2026-09-03" class="refDate">3 September 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-11</a>&gt;</span>. </dd>
+<span class="refAuthor">Looker, T.</span>, <span class="refAuthor">Bastian, P.</span>, and <span class="refAuthor">C. Bormann</span>, <span class="refTitle">"OAuth 2.0 Attestation-Based Client Authentication"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-oauth-attestation-based-client-auth-12</span>, <time datetime="2026-10-12" class="refDate">12 October 2026</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-attestation-based-client-auth-12</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.draft-ietf-oauth-spiffe-client-auth">[I-D.draft-ietf-oauth-spiffe-client-auth]</dt>
         <dd>
@@ -1905,11 +1918,11 @@ exposing them to end users.<a href="#section-10.2-2" class="pilcrow">¶</a></p>
 <dd class="break"></dd>
 <dt id="OpenID">[OpenID]</dt>
         <dd>
-<span class="refAuthor">Sakimura, N.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Medeiros, B. de.</span>, and <span class="refAuthor">C. Mortimore</span>, <span class="refTitle">"OpenID Connect Core 1.0"</span>, <time datetime="2023-12-15" class="refDate">15 December 2023</time>, <span>&lt;<a href="https://openid.net/specs/openid-connect-core-1_0.html">https://openid.net/specs/openid-connect-core-1_0.html</a>&gt;</span>. </dd>
+<span class="refAuthor">Sakimura, N.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">de Medeiros, B.</span>, and <span class="refAuthor">C. Mortimore</span>, <span class="refTitle">"OpenID Connect Core 1.0"</span>, <time datetime="2023-12-15" class="refDate">15 December 2023</time>, <span>&lt;<a href="https://openid.net/specs/openid-connect-core-1_0.html">https://openid.net/specs/openid-connect-core-1_0.html</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="OpenID.Federation">[OpenID.Federation]</dt>
         <dd>
-<span class="refAuthor">Hedberg, R.</span>, <span class="refAuthor">Jones, M.B.</span>, <span class="refAuthor">Solberg, A.Å.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Marco, G. D.</span>, and <span class="refAuthor">V. Dzhuvinov</span>, <span class="refTitle">"OpenID Federation 1.1"</span>, <time datetime="2026-05-05" class="refDate">5 May 2026</time>, <span>&lt;<a href="https://openid.net/specs/openid-federation-1_1-final.html">https://openid.net/specs/openid-federation-1_1-final.html</a>&gt;</span>. </dd>
+<span class="refAuthor">Hedberg, R.</span>, <span class="refAuthor">Jones, M.B.</span>, <span class="refAuthor">Solberg, A.Å.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">De Marco, G.</span>, and <span class="refAuthor">V. Dzhuvinov</span>, <span class="refTitle">"OpenID Federation 1.1"</span>, <time datetime="2026-05-05" class="refDate">5 May 2026</time>, <span>&lt;<a href="https://openid.net/specs/openid-federation-1_1-final.html">https://openid.net/specs/openid-federation-1_1-final.html</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC7523">[RFC7523]</dt>
         <dd>

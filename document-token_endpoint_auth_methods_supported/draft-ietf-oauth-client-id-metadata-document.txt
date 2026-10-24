@@ -5,8 +5,8 @@
 Web Authorization Protocol                                    A. Parecki
 Internet-Draft                                                      Okta
 Intended status: Standards Track                                E. Smith
-Expires: 24 March 2027                                       independent
-                                                       20 September 2026
+Expires: 27 April 2027                                       independent
+                                                         24 October 2026
 
 
                    OAuth Client ID Metadata Document
@@ -57,7 +57,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 24 March 2027.
+   This Internet-Draft will expire on 27 April 2027.
 
 Copyright Notice
 
@@ -86,6 +86,7 @@ Table of Contents
      5.1.  Metadata Discovery Errors
      5.2.  Metadata Caching
    6.  Client Authentication
+     6.1.  Examples of Client Authentication
    7.  Authorization Server Metadata
    8.  Implementation Considerations
      8.1.  Supporting Both Pre-Registered and Unregistered Clients
@@ -350,63 +351,76 @@ Table of Contents
    key in its metadata document, for example via the jwks or jwks_uri
    properties.
 
-   The default token endpoint authentication method as defined by
-   Section 2 of [RFC7591] MUST be ignored.  When a Client ID Metadata
-   Document contains neither the token_endpoint_auth_method property
-   ([RFC7591]) nor the token_endpoint_auth_methods_supported property
-   (defined in Section 2 of [OpenID.RPMetadataChoices]), the
-   authorization server MUST assume the default token endpoint
-   authentication method of none.  An authorization server MUST NOT
-   treat a missing token_endpoint_auth_method property as the default of
-   none if the token_endpoint_auth_methods_supported property is
-   present, even if the authorization server does not support
-   [OpenID.RPMetadataChoices], as the client has advertised token
-   endpoint authentication methods.
-
    A client MAY include either or both of the token_endpoint_auth_method
-   and token_endpoint_auth_methods_supported properties in its metadata
-   document.
+   (Section 2 of [RFC7591]) and token_endpoint_auth_methods_supported
+   ([OpenID.RPMetadataChoices]) properties in its metadata document.
+   Clients are RECOMMENDED to use the
+   token_endpoint_auth_methods_supported property, with
+   token_endpoint_auth_method present for backwards compatibility with
+   authorization servers not supporting [OpenID.RPMetadataChoices], as
+   recommended by Section 4 of that specification.
 
-   Clients MAY support multiple client authentication methods by using
-   token_endpoint_auth_methods_supported per [OpenID.RPMetadataChoices].
+   The token_endpoint_auth_method value for a client MUST be included
+   within token_endpoint_auth_methods_supported per Section 2 of
+   [OpenID.RPMetadataChoices], if the
+   token_endpoint_auth_methods_supported property is present.
 
    A Client ID Metadata Document that includes only
    token_endpoint_auth_methods_supported decreases interoperability, as
    an authorization server that does not support
    [OpenID.RPMetadataChoices] will not recognise the property and will
-   be unable to determine the client authentication methods the client
-   supports.  Clients are therefore RECOMMENDED to include both
-   properties.
+   be unable to determine the client authentication method the client
+   supports.
 
-   Where both properties are present, the token_endpoint_auth_method
-   value MUST be included within token_endpoint_auth_methods_supported
-   per Section 2 of [OpenID.RPMetadataChoices].
+   Authorization servers MUST NOT apply the default value of
+   token_endpoint_auth_method defined in Section 2 of [RFC7591], as that
+   default is client_secret_basic, which cannot be used with Client ID
+   Metadata Documents, see Section 4.1.
 
-   The authorization server SHOULD NOT consider it an error when it does
-   not support one of the token_endpoint_auth_methods_supported values,
-   if it supports any of the other values, per Section 4 of
+   When a Client ID Metadata Document contains neither the
+   token_endpoint_auth_method property ([RFC7591]) nor the
+   token_endpoint_auth_methods_supported property (defined in Section 2
+   of [OpenID.RPMetadataChoices]), the authorization server MUST assume
+   the default token endpoint authentication method of none.
+
+   An authorization server MUST NOT treat a missing
+   token_endpoint_auth_method property as the default of none if the
+   token_endpoint_auth_methods_supported property is present, even if
+   the authorization server does not support [OpenID.RPMetadataChoices],
+   as the client has advertised token endpoint authentication methods,
+   just not in a way that the authorization server understands.
+   Authorization servers implementing this specification MUST therefore
+   recognise the presence of the token_endpoint_auth_methods_supported
+   property, even where they do not otherwise implement
    [OpenID.RPMetadataChoices].
 
-   When the authorization server does not support any of the token
+   An authorization server that supports [OpenID.RPMetadataChoices]
+   SHOULD select one of the values in
+   token_endpoint_auth_methods_supported that it supports, and SHOULD
+   NOT consider it an error that it does not support the remaining
+   values, per Section 4 of [OpenID.RPMetadataChoices].
+
+   When an authorization server does not support any of the token
    endpoint authentication methods declared by the client, the
    authorization server MUST abort the authorization request with
-   unauthorized_client.
+   invalid_request and abort the token request with invalid_client,
+   rather than treating the client as a public client.
+   // The error codes used for this condition are subject to change.  No
+   // registered authorization endpoint error code precisely describes a
+   // Client ID Metadata Document whose declared client authentication
+   // methods are unusable at a given authorization server.  See issue
+   // #85 (https://github.com/oauth-wg/draft-ietf-oauth-client-id-
+   // metadata-document/issues/85).
 
-   TBD: Should we actually use invalid_client_metadata or invalid_client
-   errors instead? invalid_client_metadata (Section 3.2.2 of [RFC7591])
-   is a registration endpoint error and invalid_client (Section 5.2 of
-   [RFC6749]) is a token endpoint error, so neither is currently
-   available when aborting an authorization request, leaving
-   unauthorized_client as the closest of the authorization endpoint
-   error codes defined in Section 4.1.2.1 of [RFC6749].  This is
-   unsatisfying, as invalid_client is defined as "Client authentication
-   failed (e.g., unknown client, no client authentication included, or
-   unsupported authentication method)", which describes this situation
-   precisely.  This specification could expand the usage locations of
-   the other error codes to provide a more precise error response.
+   Treating such a client as a public client would silently downgrade a
+   client that intended to authenticate, permitting tokens to be issued
+   without the client authentication the client advertised.
 
-   An authorization server MAY restrict the acceptable methods of client
-   authentication based on its own policies.
+   An authorization server MAY restrict the supported methods of client
+   authentication based on its own policies, and SHOULD advertise the
+   supported methods of client authentication in the authorization
+   server metadata by using the property
+   token_endpoint_auth_methods_supported as defined in [RFC8414].
 
    When using JWT-based client authentication methods such as
    private_key_jwt, authorization servers and clients MUST follow
@@ -416,29 +430,40 @@ Table of Contents
    servers MUST validate JWT types and implement algorithm allowlists.
 
    Clients that are capable of maintaining private key material and
-   performing client authentication SHOULD do so with an acceptable
-   method, such as a method in the OAuth Token Endpoint Authentication
-   Methods registry (https://www.iana.org/assignments/oauth-parameters/
-   oauth-parameters.xhtml#token-endpoint-auth-method).
+   performing client authentication SHOULD do so using a client
+   authentication method that uses public/private key pairs, such as
+   private_key_jwt from the OAuth Token Endpoint Authentication Methods
+   registry (https://www.iana.org/assignments/oauth-parameters/oauth-
+   parameters.xhtml#token-endpoint-auth-method).
 
-   For example, the client MAY include the following properties in its
-   metadata document to establish a public key and advertise the
-   private_key_jwt authentication method defined in [OpenID]:
+   See Section 9.2 for security details on managing Client
+   Authentication Key Material.
+
+6.1.  Examples of Client Authentication
+
+   This section is non-normative.
+
+   To establish client authentication using a public key with the
+   private_key_jwt authentication method defined in [OpenID], the client
+   metadata document would look like the following:
 
    {
      ...
      "token_endpoint_auth_method": "private_key_jwt",
+     "token_endpoint_auth_methods_supported": ["private_key_jwt"],
      "jwks_uri": "https://client.example.com/jwks.json"
      ...
    }
 
    This establishes this client as a confidential client, and any
-   communication with the authorization server MUST include client
-   authentication of the registered type.
+   communication with the authorization server must include client
+   authentication using private_key_jwt.
 
-   In this example, a client is facilitating interoperability with
-   authorization servers that do support [OpenID.RPMetadataChoices] and
-   authorization servers that do not support it:
+   A client can advertise more than one client authentication method to
+   interoperate with authorization servers that support different
+   methods.  In the following example, the client offers private_key_jwt
+   to authorization servers that support it, while remaining usable as a
+   public client for those that do not:
 
  {
    ...
@@ -449,18 +474,17 @@ Table of Contents
  }
 
    If the authorization server does not support
-   [OpenID.RPMetadataChoices], then the token endpoint authentication
-   method is none and the client is a public client.
+   [OpenID.RPMetadataChoices] or the authorization server does not
+   support private_key_jwt, then the token endpoint authentication
+   method to be used by the client must be none and the client will be a
+   public client.
 
    If the authorization server does support [OpenID.RPMetadataChoices]
-   then the client MAY use either of the token endpoint authentication
-   methods that the authorization server also supports.  This means the
-   client MAY either be a public client or confidential client,
-   dependent on the token endpoint authentication method selected for
-   use.
-
-   See Section 9.2 for security details on managing Client
-   Authentication Key Material.
+   and private_key_jwt client authentication, then the client may use
+   either of the token endpoint authentication methods that the
+   authorization server also supports.  This means the client may either
+   be a public client or confidential client, dependent on the token
+   endpoint authentication method selected for use.
 
 7.  Authorization Server Metadata
 
@@ -848,9 +872,9 @@ Table of Contents
               Looker, T., Bastian, P., and C. Bormann, "OAuth 2.0
               Attestation-Based Client Authentication", Work in
               Progress, Internet-Draft, draft-ietf-oauth-attestation-
-              based-client-auth-11, 3 September 2026,
+              based-client-auth-12, 12 October 2026,
               <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
-              attestation-based-client-auth-11>.
+              attestation-based-client-auth-12>.
 
    [I-D.draft-ietf-oauth-spiffe-client-auth]
               Schwenkschuster, A., Kasselman, P., Rose, S., Thorgersen,
@@ -864,14 +888,13 @@ Table of Contents
               Parecki, A., "IndieAuth", 12 February 2022,
               <https://indieauth.spec.indieweb.org/>.
 
-   [OpenID]   Sakimura, N., Bradley, J., Jones, M., Medeiros, B. de.,
-              and C. Mortimore, "OpenID Connect Core 1.0", 15 December
-              2023,
+   [OpenID]   Sakimura, N., Bradley, J., Jones, M., de Medeiros, B., and
+              C. Mortimore, "OpenID Connect Core 1.0", 15 December 2023,
               <https://openid.net/specs/openid-connect-core-1_0.html>.
 
    [OpenID.Federation]
-              Hedberg, R., Jones, M.B., Solberg, A.Å., Bradley, J.,
-              Marco, G. D., and V. Dzhuvinov, "OpenID Federation 1.1", 5
+              Hedberg, R., Jones, M.B., Solberg, A.Å., Bradley, J., De
+              Marco, G., and V. Dzhuvinov, "OpenID Federation 1.1", 5
               May 2026, <https://openid.net/specs/openid-federation-
               1_1-final.html>.
 
