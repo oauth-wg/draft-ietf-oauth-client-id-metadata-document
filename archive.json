@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-10-13T00:00:30.242623+00:00",
+  "timestamp": "2026-10-25T00:00:31.940613+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2330,7 +2330,7 @@
       "labels": [],
       "body": "The draft says:\n\n```\nThe authorization server MUST NOT cache error responses.  The\nauthorization server also MUST NOT cache documents which are invalid\nor malformed.\n```\n\nI think there need to be allowances for short-lived negative caching to avoid:\n\n1. Spamming unrelated websites with calls (#30)\n2. Exacerbating outages with repeated requests\n\nMaybe leaving it a little vague is ok, something like:\n\n```\nThe authorization server MUST NOT cache error responses or invalid documents for more than a few minutes.\n```",
       "createdAt": "2026-05-01T00:32:18Z",
-      "updatedAt": "2026-05-01T16:26:26Z",
+      "updatedAt": "2026-10-24T01:57:16Z",
       "closedAt": null,
       "comments": [
         {
@@ -2339,6 +2339,13 @@
           "body": "Another thing to maybe add to a non-normative implementation notes section is to recommend that an AS not discard a cached (valid) CIMD until it successfully retrieves a new one from the client.",
           "createdAt": "2026-05-01T16:26:26Z",
           "updatedAt": "2026-05-01T16:26:26Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "What about if we said:\n\n> The authorization server MUST NOT cache error responses.  The authorization server also MUST NOT cache documents which are invalid or malformed. **The authorization server MAY rate limiting Client Information Discovery per `client_id` to avoid repeatedly requesting an erroneous Client ID Metadata Document.**\n\nWe don't currently have an general security consideration about rate limiting or de-duplicating requests for CIMDs from the AS, that's probably worthy of it's own issue.",
+          "createdAt": "2026-10-24T01:57:16Z",
+          "updatedAt": "2026-10-24T01:57:16Z"
         }
       ]
     },
@@ -2666,7 +2673,7 @@
       ],
       "body": "Currently, RFC8414 defines `token_endpoint_auth_methods_supported` as \"JSON array containing a list of client authentication methods supported by this token endpoint\". (Even though this is referred to as token endpoint, this actually applies to client authentication at other endpoints such as the PAR endpoint.) This enables an AS to declare which client authentication methods are supported, so a client can choose which to use.\n\nDCR defines `token_endpoint_auth_method` as a single string, \"the requested authentication method for the token endpoint\". So a client can request a particular auth method when it registers, presumably from the list of supported methods at the AS.\n\nNow in the world of CIMD, clients no longer register with an individual AS. Instead the AS discovers metadata about the client. This means `token_endpoint_auth_method` doesn't really work, because the client metadata document is not aware of the AS.\n\nIf we add `token_endpoint_auth_methods_supported` to the CIMD, the client can also advertise its supported auth methods. This would enable the negotiation to work both ways. The various combinations of client and AS support of `none` and `private_key_jwt` are below:\n\n* Client supports both, AS supports both:\n  * The client advertises support for both `none` and `private_key_jwt`. The AS advertises support for both `none` and `private_key_jwt`. When the AS fetches the client metadata, it sees the client supports both, and can reject requests with no auth.\n* Client supports `none`, AS supports both:\n  * The client advertises support for only `none`. The AS fetches the client metadata and sees only `none`, so accepts no auth.\n* Client supports `private_key_jwt`, AS supports both:\n  * The client advertises support for only `none`. The AS fetches the client metadata and can see that the client supports `private_key_jwt`, so can require auth and block other clients from using the CIMD URL without authentication\n* Client supports both, AS supports `none`\n  * The client would not send any client auth, and the AS accepts it because it can see the client also supports `none`\n* Client supports both, AS supports `private_key_jwt`\n  * The client would see the AS requires auth, the AS accepts it because it can see the client supports `private_key_jwt`\n\nWithout this ability to negotiate, you can end up in these not-desirable situations:\n\n* The client advertises `token_endpoint_auth_method: \"private_key_jwt\"` but an AS that only supports `none` rejects that CIMD URL because it doesn't see `none` as the value.\n* The client doesn't advertise any `token_endpoint_auth_method`, so the AS is forced to accept both `none` and `private_key_jwt` for that CIMD URL\n* The AS is unable to enforce `private_key_jwt` for clients that support it\n\nFor these reasons I believe we should add `token_endpoint_auth_methods_supported` to the client registration vocabulary established by DCR.\n\n",
       "createdAt": "2026-07-08T22:00:09Z",
-      "updatedAt": "2026-10-12T19:52:36Z",
+      "updatedAt": "2026-10-23T20:09:31Z",
       "closedAt": null,
       "comments": [
         {
@@ -2731,6 +2738,13 @@
           "body": "Based on what I'm seeing in the wild, we should really go even further with this and recommend using this over the `token_endpoint_auth_method` property.",
           "createdAt": "2026-10-12T19:52:36Z",
           "updatedAt": "2026-10-12T19:52:36Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Cross linking the related MCP SEP-3149 for the MCP side of this feature request: https://github.com/modelcontextprotocol/modelcontextprotocol/pull/3149",
+          "createdAt": "2026-10-23T20:09:31Z",
+          "updatedAt": "2026-10-23T20:09:31Z"
         }
       ]
     },
@@ -6670,13 +6684,13 @@
       "labels": [],
       "body": "This should address all concerns in #87 and #92, by creating a new normative section \"Client Authentication\"",
       "createdAt": "2026-09-20T20:31:22Z",
-      "updatedAt": "2026-09-20T20:52:33Z",
+      "updatedAt": "2026-10-24T12:09:41Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "8f53aecfaa820023f0f71fe5f0c299db725374d3",
       "headRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "headRefName": "document-token_endpoint_auth_methods_supported",
-      "headRefOid": "f204697d71ac895559d60ea0e549d160eb004f5c",
+      "headRefOid": "e144f028205a5416e617e025ed994ac03a812047",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
