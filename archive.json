@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-10-25T00:00:31.940613+00:00",
+  "timestamp": "2026-10-27T00:00:29.887511+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2947,9 +2947,17 @@
       "labels": [],
       "body": "Aren\u2019t these two properties mutually exclusive? I couldn\u2019t find any text related to that. My guess is they are. If not... keys in them should be the same. Note, the OpenID Federation spec gives some recommendations on this matter in https://openid.net/specs/openid-federation-1_1-final.html#name-usage-of-jwks-jwks_uri-and- .\n\nFurthermore, a URL in jwks_uri implies an additional HTTP request from an AS, which incurs some additional cost, and provides additional room for errors (these typically become more visible at scale).\n\nSince the jwks_uri can point to a different hostname (in a URL) than a client\u2019s metadata itself, there\u2019s also a risk of abuse / misuse when a client provides a link to the JWKS endpoint that doesn\u2019t belong to it.",
       "createdAt": "2026-08-09T21:29:23Z",
-      "updatedAt": "2026-08-09T21:29:23Z",
+      "updatedAt": "2026-10-25T15:24:25Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "max-stytch",
+          "authorAssociation": "NONE",
+          "body": "Yes, the two properties are mutually exclusive. [RFC7591](https://www.rfc-editor.org/info/rfc7591/#section-2:~:text=The%20%22jwks_uri%22%20and%20%22jwks%22%0A%20%20%20%20%20%20parameters%20MUST%20NOT%20both%20be%20present%20in%20the%20same%20request%20or%0A%20%20%20%20%20%20response.) has normative text to that effect:\n\n```\nThe \"jwks_uri\" and \"jwks\" parameters MUST NOT both be present in the same request or response.\n```",
+          "createdAt": "2026-10-25T15:24:25Z",
+          "updatedAt": "2026-10-25T15:24:25Z"
+        }
+      ]
     },
     {
       "number": 95,
@@ -3034,7 +3042,7 @@
       ],
       "body": "I haven't been able to find normative language for what should happen if client metadata uses `token_endpoint_auth_method` of `\"private_key_jwt\"` but does not declare a `jwks` nor `jwks_uri` property. Though it's entirely possible that I've missed a specification that does define this.\n\nI suspect that this should cause an `unauthorized_client` error during the authorization request or pushed authorization request.",
       "createdAt": "2026-09-20T21:00:35Z",
-      "updatedAt": "2026-09-29T02:57:23Z",
+      "updatedAt": "2026-10-25T16:20:52Z",
       "closedAt": null,
       "comments": [
         {
@@ -3057,6 +3065,20 @@
           "body": "@aaronpk I don't think it's our issue to solve necessarily, but maybe something for other specifications to clarify the expected behaviour. I suspect it'd just be stored as a client and then the client authentication would have to fail. Just tracking it here as a gap.",
           "createdAt": "2026-09-29T02:57:23Z",
           "updatedAt": "2026-09-29T02:57:23Z"
+        },
+        {
+          "author": "max-stytch",
+          "authorAssociation": "NONE",
+          "body": "I think the following should all produce an equivalent error code (with additional details in `error_details`):\n- No `jwks` or `jwks_uri` in the CIMD when client uses `private_key_jwt`\n- Malformed `jwks` or `jwks_uri` in the CIMD\n- Unable to fetch the `jwks_uri` in the CIMD (timeout, 5xx, etc.)\n- Malformed `jwks` found at the `jwks_uri` in the CIMD\n- Missing appropriate key material (No key by that `kid`)\n\nI also cannot find anything about how the AS should behave when it cannot retrieve a JWKS URI. IMO the closest normative language for this scenario would be [RFC7523 \u00a73.2](https://www.rfc-editor.org/info/rfc7523/#section-3.2). While failure to retrieve a JWKS doesn't necessarily mean the assertion itself is invalid, I think `invalid_client` is a reasonable error code for all these cases, since the AS cannot successfully authenticate the client.\n",
+          "createdAt": "2026-10-25T15:22:23Z",
+          "updatedAt": "2026-10-25T15:22:23Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "I would agree that in the cases above, `invalid_client` on the token endpoint request would be correct.\n\nOn authorization request we don't really have an appropriate error code, despite what IANA says, I've not found a specification that would allow `invalid_client` there.\n\nOn PAR requests we could since PAR errors are the union of errors for both token endpoint and authorization endpoint.\n\nI would rather strongly limit information disclosure in any of these error scenarios, apart from maybe missing keys for JWKS in the CIMD, as others could reveal sensitive network information to a potential attacker (e.g., SSRF attacks)",
+          "createdAt": "2026-10-25T16:20:51Z",
+          "updatedAt": "2026-10-25T16:20:51Z"
         }
       ]
     },
@@ -6675,7 +6697,7 @@
     {
       "number": 99,
       "id": "PR_kwDOL_Xevs8AAAABEVfs_w",
-      "title": "Document token endpoint auth methods supported",
+      "title": "Recommend & Document token endpoint auth methods supported",
       "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/99",
       "state": "OPEN",
       "author": "ThisIsMissEm",
@@ -6684,7 +6706,7 @@
       "labels": [],
       "body": "This should address all concerns in #87 and #92, by creating a new normative section \"Client Authentication\"",
       "createdAt": "2026-09-20T20:31:22Z",
-      "updatedAt": "2026-10-24T12:09:41Z",
+      "updatedAt": "2026-10-25T16:22:14Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "8f53aecfaa820023f0f71fe5f0c299db725374d3",
