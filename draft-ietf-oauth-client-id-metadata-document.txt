@@ -103,7 +103,8 @@ Table of Contents
      9.8.  Maximum Response Size for Client ID Metadata Documents
      9.9.  Displaying Logos to End-Users
      9.10. Client ID Domain Trust
-     9.11. CIMD Services
+     9.11. Resource Indicator Scoping of Persisted Authorization State
+     9.12. CIMD Services
    10. Privacy Considerations
      10.1.  Authorization Server Fetch Side Channel
      10.2.  URLs Referenced in Client ID Metadata Documents
@@ -143,7 +144,7 @@ Table of Contents
    clients under active development on a developer's local machine, or
    clients that cannot guarantee the longevity of a URL, are less well
    served by this mechanism.  Deployments that need to support such
-   clients should consider the guidance in Section 8 and Section 9.11.
+   clients should consider the guidance in Section 8 and Section 9.12.
 
 2.  Conventions and Definitions
 
@@ -475,7 +476,7 @@ Table of Contents
    compatibility between [Solid-OIDC] and this specification.
 
    Some restrictions on redirect_uris can make developer usage of Client
-   ID Metadata Documents difficult.  Section 9.11 discusses how a
+   ID Metadata Documents difficult.  Section 9.12 discusses how a
    service offered by the authorization server can enable development
    usage of Client ID Metadata Documents for authorization servers that
    impose restrictions on the redirect_uri.
@@ -676,7 +677,15 @@ Table of Contents
    *.example.com as belonging to a known and trusted operator, and apply
    reduced friction for clients matching such patterns.
 
-9.11.  CIMD Services
+9.11.  Resource Indicator Scoping of Persisted Authorization State
+
+   Any mechanism an authorization server uses to persist or reuse a
+   prior authorization decision for a client MUST be scoped at least to
+   the pair of Client Identifier URL and resource, consistent with the
+   binding already required of refresh tokens in [RFC9700]
+   Section 4.14.2.
+
+9.12.  CIMD Services
 
    This section describes a pattern, referred to as a CIMD Service,
    through which an authorization server can offer developers a way to
@@ -908,7 +917,7 @@ Appendix A.  CIMD Services for Development Purposes
    is performing a form of static client registration on behalf of the
    developer, mediated through a URL rather than a direct registration
    API.  Authorization servers offering a CIMD Service should consider
-   the security and reputation implications discussed in Section 9.11,
+   the security and reputation implications discussed in Section 9.12,
    and should ensure that clients provisioned through a CIMD Service are
    not afforded the same level of trust as clients that publish their
    own Client ID Metadata Document.
