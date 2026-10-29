@@ -478,6 +478,14 @@ The authorization server may choose to have its own heuristics and policies arou
 
 For example, the authorization server could require that the first 100 users to authorize a `client_id` see an additional warning screen before the OAuth consent screen. The authorization server could check attributes of the domain reputation, such as how recently the domain was registered, and put up extra warnings for new domains. An authorization server may also maintain allowlists of trusted domain patterns, such as treating any Client Identifier URL under `*.example.com` as belonging to a known and trusted operator, and apply reduced friction for clients matching such patterns.
 
+## Resource Indicator Scoping of Persisted Authorization State
+
+Any mechanism an authorization server uses to persist or reuse a prior
+authorization decision for a client MUST be scoped at least to the
+pair of Client Identifier URL and `resource`, consistent with the
+binding already required of refresh tokens in {{RFC9700}} Section
+4.14.2.
+
 ## CIMD Services {#cimd_services}
 
 This section describes a pattern, referred to as a CIMD Service, through
