@@ -237,7 +237,9 @@ authentication using public/private key pairs.
 
 According to {{RFC9700}}, the authorization server MUST require registration of
 redirect URLs, and MUST ensure that the redirect URL in an authorization request
-is an exact match, using simple string comparison, of a registered redirect URL.
+is an exact match (using simple string comparison) of a registered redirect URL.
+An exception is made for redirect URIs on the loopback network interface, which
+allow for randomly assigned ports. See {{Section 4.1.3 of RFC9700}} for details.
 
 This method of client information discovery establishes
 registered redirect URL(s) when the authorization server fetches
