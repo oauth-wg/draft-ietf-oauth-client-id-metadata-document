@@ -328,6 +328,25 @@ Table of Contents
    Document, and fetching the metadata document fails, the authorization
    server SHOULD abort the authorization request.
 
+   This document distinguishes two classes of discovery failure: a
+   transient failure (e.g., a network error, timeout, or malformed
+   response comparable in spirit to the temporarily_unavailable
+   condition in Section 4.1.2.1 of [RFC6749]) and a terminal failure
+   (the document was retrieved but rejected on trust or validation
+   grounds).
+
+   A transient failure SHOULD NOT by itself invalidate a Client
+   Identifier URL's previously established trust or outstanding refresh
+   tokens.
+
+   A terminal failure caused by a client_id mismatch SHOULD invalidate
+   the client's outstanding refresh tokens immediately.
+
+   A terminal failure caused by the authorization server's own trust or
+   policy MAY invalidate the client's outstanding refresh tokens
+   immediately, at the authorization server's discretion, consistent
+   with Section 9.4.
+
 5.2.  Metadata Caching
 
    The authorization server MAY cache the client metadata it discovers

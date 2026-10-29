@@ -1698,6 +1698,18 @@ when fetching Client ID Metadata Documents, as described in <a href="#ssrf_attac
 <p id="section-5.1-1">If the authorization server attempts to fetch the Client ID Metadata Document,
 and fetching the metadata document fails, the authorization server <span class="bcp14">SHOULD</span> abort the
 authorization request.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.1-2">This document distinguishes two classes of discovery failure: a
+transient failure (e.g., a network error, timeout, or malformed
+response comparable in spirit to the <code>temporarily_unavailable</code>
+condition in <span><a href="https://rfc-editor.org/rfc/rfc6749#section-4.1.2.1" class="relref">Section 4.1.2.1</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>) and a terminal failure (the
+document was retrieved but rejected on trust or validation grounds).<a href="#section-5.1-2" class="pilcrow">¶</a></p>
+<p id="section-5.1-3">A transient failure <span class="bcp14">SHOULD NOT</span> by itself invalidate a Client Identifier
+URL's previously established trust or outstanding refresh tokens.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
+<p id="section-5.1-4">A terminal failure caused by a client_id mismatch <span class="bcp14">SHOULD</span> invalidate the
+client's outstanding refresh tokens immediately.<a href="#section-5.1-4" class="pilcrow">¶</a></p>
+<p id="section-5.1-5">A terminal failure caused by the authorization server's own trust or policy
+<span class="bcp14">MAY</span> invalidate the client's outstanding refresh tokens immediately, at the
+authorization server's discretion, consistent with <a href="#client_metadata_changes" class="auto internal xref">Section 9.4</a>.<a href="#section-5.1-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="metadata_caching">
