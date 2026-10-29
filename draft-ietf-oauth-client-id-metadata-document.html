@@ -1719,10 +1719,13 @@ authorization server's discretion, consistent with <a href="#client_metadata_cha
         </h3>
 <p id="section-5.2-1">The authorization server <span class="bcp14">MAY</span> cache the client metadata it discovers at the
 Client ID Metadata Document URL.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
-<p id="section-5.2-2">The authorization server <span class="bcp14">SHOULD</span> respect HTTP cache headers <span>[<a href="#RFC9111" class="cite xref">RFC9111</a>]</span> when caching client metadata,
-but <span class="bcp14">MAY</span> define its own upper and/or lower bounds on an acceptable cache lifetime as well.<a href="#section-5.2-2" class="pilcrow">¶</a></p>
-<p id="section-5.2-3">The authorization server <span class="bcp14">MUST NOT</span> cache error responses. The authorization
-server also <span class="bcp14">MUST NOT</span> cache documents which are invalid or malformed.<a href="#section-5.2-3" class="pilcrow">¶</a></p>
+<p id="section-5.2-2">The authorization server <span class="bcp14">SHOULD</span> respect HTTP cache headers <span>[<a href="#RFC9111" class="cite xref">RFC9111</a>]</span> when caching client metadata.
+The <code>Expires</code> HTTP header need not be honored, since <code>Cache-Control</code> takes precedence under <span>[<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>.<a href="#section-5.2-2" class="pilcrow">¶</a></p>
+<p id="section-5.2-3">The authorization server <span class="bcp14">SHOULD</span> enforce a maximum effective cache duration regardless of the cache
+directives in the response. The authorization server <span class="bcp14">SHOULD</span> also enforce a minimum effective cache
+duration when none is otherwise indicated.<a href="#section-5.2-3" class="pilcrow">¶</a></p>
+<p id="section-5.2-4">The authorization server <span class="bcp14">MUST NOT</span> cache error responses. The authorization
+server also <span class="bcp14">MUST NOT</span> cache documents which are invalid or malformed.<a href="#section-5.2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>

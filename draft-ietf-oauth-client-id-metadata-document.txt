@@ -353,8 +353,13 @@ Table of Contents
    at the Client ID Metadata Document URL.
 
    The authorization server SHOULD respect HTTP cache headers [RFC9111]
-   when caching client metadata, but MAY define its own upper and/or
-   lower bounds on an acceptable cache lifetime as well.
+   when caching client metadata.  The Expires HTTP header need not be
+   honored, since Cache-Control takes precedence under [RFC9111].
+
+   The authorization server SHOULD enforce a maximum effective cache
+   duration regardless of the cache directives in the response.  The
+   authorization server SHOULD also enforce a minimum effective cache
+   duration when none is otherwise indicated.
 
    The authorization server MUST NOT cache error responses.  The
    authorization server also MUST NOT cache documents which are invalid
