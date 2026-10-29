@@ -98,6 +98,7 @@ Table of Contents
        9.4.1.  Changes in Client Keys
      9.5.  OAuth Phishing Attacks
      9.6.  Server Side Request Forgery (SSRF) Attacks
+       9.6.1.  Accept Header
      9.7.  Maximum Response Size for Client ID Metadata Documents
      9.8.  Displaying Logos to End-Users
      9.9.  Client ID Domain Trust
@@ -297,9 +298,15 @@ Table of Contents
 
    Authorization servers SHOULD automatically fetch the Client ID
    Metadata Document at the Client Identifier URL to retrieve the client
-   metadata.  Authorization servers SHOULD periodically re-fetch the
-   Client ID Metadata Document as the contents may change over time.
-   See Section 5.2 and Section 9.4 for additional considerations.
+   metadata.
+
+   The Authorization Server SHOULD send an Accept header of application/
+   json as described in Section 12.5.1 of [RFC9110] when fetching the
+   client metadata.  See Section 9.6.1 for additional details.
+
+   Authorization servers SHOULD periodically re-fetch the Client ID
+   Metadata Document as the contents may change over time.  See
+   Section 5.2 and Section 9.4 for additional considerations.
 
    An authorization server MAY instead associate a Client Identifier URL
    with client metadata through other means, such as by pre-registering
@@ -551,6 +558,9 @@ Table of Contents
    Document that resolve to special-use IP addresses as defined in
    [RFC6890].
 
+   Authorization servers SHOULD follow the recommendations in
+   [OWASP.SSRF].
+
    Authorization servers deployed for development or testing purposes
    MAY relax this restriction to allow fetching from loopback addresses
    when the authorization server itself is also running on a loopback
@@ -570,6 +580,15 @@ Table of Contents
    with known and supported URI schemes.  This can help avoid leading to
    compromises if a client uses a URI scheme such as javascript: in a
    metadata property.
+
+9.6.1.  Accept Header
+
+   When fetching the Client ID Metadata Document, the authorization
+   server follows the recommendations described in Section 5, reducing
+   the chances that the authorization server can be used in a reflection
+   attack on unrelated resources, as the target server has the Accept
+   header to early reject the request if the request is made to a
+   resource that does not return JSON.
 
 9.7.  Maximum Response Size for Client ID Metadata Documents
 
@@ -732,6 +751,11 @@ Table of Contents
               DOI 10.17487/RFC8414, June 2018,
               <https://www.rfc-editor.org/rfc/rfc8414>.
 
+   [RFC9110]  Fielding, R., Ed., Nottingham, M., Ed., and J. Reschke,
+              Ed., "HTTP Semantics", STD 97, RFC 9110,
+              DOI 10.17487/RFC9110, June 2022,
+              <https://www.rfc-editor.org/rfc/rfc9110>.
+
    [RFC9207]  Meyer zu Selhausen, K. and D. Fett, "OAuth 2.0
               Authorization Server Issuer Identification", RFC 9207,
               DOI 10.17487/RFC9207, March 2022,
@@ -774,6 +798,11 @@ Table of Contents
               Marco, G. D., and V. Dzhuvinov, "OpenID Federation 1.1", 5
               May 2026, <https://openid.net/specs/openid-federation-
               1_1-final.html>.
+
+   [OWASP.SSRF]
+              "OWASP SSRF Cheat Sheet", n.d.,
+              <https://cheatsheetseries.owasp.org/cheatsheets/
+              Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html>.
 
    [RFC7523]  Jones, M., Campbell, B., and C. Mortimore, "JSON Web Token
               (JWT) Profile for OAuth 2.0 Client Authentication and
@@ -919,6 +948,8 @@ Document History
    -01
 
    *  Added security consideration for changes in Client Metadata
+
+   *  Recommend sending Accept header when fetching metadata
 
    *  Added guidance for an AS that supports both registered and
       unregistered clients

@@ -1232,6 +1232,11 @@ metadata about the client as needed.<a href="#section-abstract-1" class="pilcrow
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.6">
                 <p id="section-toc.1-1.9.2.6.1"><a href="#section-9.6" class="auto internal xref">9.6</a>.  <a href="#name-server-side-request-forgery" class="internal xref">Server Side Request Forgery (SSRF) Attacks</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.6.2.1">
+                    <p id="section-toc.1-1.9.2.6.2.1.1"><a href="#section-9.6.1" class="auto internal xref">9.6.1</a>.  <a href="#name-accept-header" class="internal xref">Accept Header</a></p>
+</li>
+                </ul>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.7">
                 <p id="section-toc.1-1.9.2.7.1"><a href="#section-9.7" class="auto internal xref">9.7</a>.  <a href="#name-maximum-response-size-for-c" class="internal xref">Maximum Response Size for Client ID Metadata Documents</a></p>
@@ -1488,19 +1493,22 @@ relying on software statements delivered this way.<a href="#section-4.3-2" class
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-client-information-discover" class="section-name selfRef">Client Information Discovery</a>
       </h2>
 <p id="section-5-1">Authorization servers <span class="bcp14">SHOULD</span> automatically fetch the Client ID Metadata
-Document at the Client Identifier URL to retrieve the client metadata.
-Authorization servers <span class="bcp14">SHOULD</span> periodically re-fetch the Client ID Metadata Document
+Document at the Client Identifier URL to retrieve the client metadata.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-5-2">The Authorization Server <span class="bcp14">SHOULD</span>
+send an <code>Accept</code> header of <code>application/json</code> as described in <span><a href="https://rfc-editor.org/rfc/rfc9110#section-12.5.1" class="relref">Section 12.5.1</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>
+when fetching the client metadata. See <a href="#accept-header" class="auto internal xref">Section 9.6.1</a> for additional details.<a href="#section-5-2" class="pilcrow">¶</a></p>
+<p id="section-5-3">Authorization servers <span class="bcp14">SHOULD</span> periodically re-fetch the Client ID Metadata Document
 as the contents may change over time. See <a href="#metadata_caching" class="auto internal xref">Section 5.2</a> and
-<a href="#client_metadata_changes" class="auto internal xref">Section 9.4</a> for additional considerations.<a href="#section-5-1" class="pilcrow">¶</a></p>
-<p id="section-5-2">An authorization server <span class="bcp14">MAY</span> instead associate a Client Identifier URL with
+<a href="#client_metadata_changes" class="auto internal xref">Section 9.4</a> for additional considerations.<a href="#section-5-3" class="pilcrow">¶</a></p>
+<p id="section-5-4">An authorization server <span class="bcp14">MAY</span> instead associate a Client Identifier URL with
 client metadata through other means, such as by pre-registering the URL as
-described in <a href="#prereg_cimd_urls" class="auto internal xref">Section 8.2</a>.<a href="#section-5-2" class="pilcrow">¶</a></p>
-<p id="section-5-3">The Client ID Metadata Document <span class="bcp14">MUST</span> be served with a 200 OK HTTP status code.
+described in <a href="#prereg_cimd_urls" class="auto internal xref">Section 8.2</a>.<a href="#section-5-4" class="pilcrow">¶</a></p>
+<p id="section-5-5">The Client ID Metadata Document <span class="bcp14">MUST</span> be served with a 200 OK HTTP status code.
 The authorization server <span class="bcp14">MUST</span> treat all other HTTP status codes as an error response, as
 described in <a href="#metadata_discovery_errors" class="auto internal xref">Section 5.1</a>. The authorization server <span class="bcp14">MUST NOT</span>
-automatically follow HTTP redirects when fetching the Client ID Metadata Document.<a href="#section-5-3" class="pilcrow">¶</a></p>
-<p id="section-5-4">Special care should be taken to avoid Server Side Request Forgery (SSRF) Attacks
-when fetching Client ID Metadata Documents, as described in <a href="#ssrf_attacks" class="auto internal xref">Section 9.6</a>.<a href="#section-5-4" class="pilcrow">¶</a></p>
+automatically follow HTTP redirects when fetching the Client ID Metadata Document.<a href="#section-5-5" class="pilcrow">¶</a></p>
+<p id="section-5-6">Special care should be taken to avoid Server Side Request Forgery (SSRF) Attacks
+when fetching Client ID Metadata Documents, as described in <a href="#ssrf_attacks" class="auto internal xref">Section 9.6</a>.<a href="#section-5-6" class="pilcrow">¶</a></p>
 <div id="metadata_discovery_errors">
 <section id="section-5.1">
         <h3 id="name-metadata-discovery-errors">
@@ -1676,9 +1684,18 @@ identity.<a href="#section-9.3-2" class="pilcrow">¶</a></p>
 <a href="#section-9.6" class="section-number selfRef">9.6. </a><a href="#name-server-side-request-forgery" class="section-name selfRef">Server Side Request Forgery (SSRF) Attacks</a>
         </h3>
 <p id="section-9.6-1">Authorization servers fetching the Client ID Metadata Document and resolving URLs contained within it should be aware of possible SSRF attacks. Authorization servers <span class="bcp14">MUST NOT</span> fetch a Client ID Metadata Document URL or any URLs contained within a Client ID Metadata Document that resolve to special-use IP addresses as defined in <span>[<a href="#RFC6890" class="cite xref">RFC6890</a>]</span>.<a href="#section-9.6-1" class="pilcrow">¶</a></p>
-<p id="section-9.6-2">Authorization servers deployed for development or testing purposes <span class="bcp14">MAY</span> relax this restriction to allow fetching from loopback addresses when the authorization server itself is also running on a loopback address and the resolved address matches the same loopback interface. Authorization servers <span class="bcp14">MUST NOT</span> apply this exception in production deployments, since doing so would allow an attacker-controlled Client Identifier URL to cause the authorization server to make requests against itself or other services on the loopback interface or special-use IP addresses.<a href="#section-9.6-2" class="pilcrow">¶</a></p>
-<p id="section-9.6-3">Authorization servers <span class="bcp14">SHOULD</span> consider network policies or other measures to prevent making requests to special-use addresses. Authorization servers which support non-http-based URI schemes are at additional risk of SSRF attacks.<a href="#section-9.6-3" class="pilcrow">¶</a></p>
-<p id="section-9.6-4">Authorization servers <span class="bcp14">SHOULD</span> ensure they only fetch or parse URLs with known and supported URI schemes. This can help avoid leading to compromises if a client uses a URI scheme such as <code>javascript:</code> in a metadata property.<a href="#section-9.6-4" class="pilcrow">¶</a></p>
+<p id="section-9.6-2">Authorization servers <span class="bcp14">SHOULD</span> follow the recommendations in <span>[<a href="#OWASP.SSRF" class="cite xref">OWASP.SSRF</a>]</span>.<a href="#section-9.6-2" class="pilcrow">¶</a></p>
+<p id="section-9.6-3">Authorization servers deployed for development or testing purposes <span class="bcp14">MAY</span> relax this restriction to allow fetching from loopback addresses when the authorization server itself is also running on a loopback address and the resolved address matches the same loopback interface. Authorization servers <span class="bcp14">MUST NOT</span> apply this exception in production deployments, since doing so would allow an attacker-controlled Client Identifier URL to cause the authorization server to make requests against itself or other services on the loopback interface or special-use IP addresses.<a href="#section-9.6-3" class="pilcrow">¶</a></p>
+<p id="section-9.6-4">Authorization servers <span class="bcp14">SHOULD</span> consider network policies or other measures to prevent making requests to special-use addresses. Authorization servers which support non-http-based URI schemes are at additional risk of SSRF attacks.<a href="#section-9.6-4" class="pilcrow">¶</a></p>
+<p id="section-9.6-5">Authorization servers <span class="bcp14">SHOULD</span> ensure they only fetch or parse URLs with known and supported URI schemes. This can help avoid leading to compromises if a client uses a URI scheme such as <code>javascript:</code> in a metadata property.<a href="#section-9.6-5" class="pilcrow">¶</a></p>
+<div id="accept-header">
+<section id="section-9.6.1">
+          <h4 id="name-accept-header">
+<a href="#section-9.6.1" class="section-number selfRef">9.6.1. </a><a href="#name-accept-header" class="section-name selfRef">Accept Header</a>
+          </h4>
+<p id="section-9.6.1-1">When fetching the Client ID Metadata Document, the authorization server follows the recommendations described in <a href="#client_information_discovery" class="auto internal xref">Section 5</a>, reducing the chances that the authorization server can be used in a reflection attack on unrelated resources, as the target server has the <code>Accept</code> header to early reject the request if the request is made to a resource that does not return JSON.<a href="#section-9.6.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 <div id="maximum-response-size-for-client-id-metadata-documents">
@@ -1850,6 +1867,10 @@ exposing them to end users.<a href="#section-10.2-2" class="pilcrow">¶</a></p>
         <dd>
 <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Sakimura, N.</span>, and <span class="refAuthor">J. Bradley</span>, <span class="refTitle">"OAuth 2.0 Authorization Server Metadata"</span>, <span class="seriesInfo">RFC 8414</span>, <span class="seriesInfo">DOI 10.17487/RFC8414</span>, <time datetime="2018-06" class="refDate">June 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8414">https://www.rfc-editor.org/rfc/rfc8414</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC9110">[RFC9110]</dt>
+        <dd>
+<span class="refAuthor">Fielding, R., Ed.</span>, <span class="refAuthor">Nottingham, M., Ed.</span>, and <span class="refAuthor">J. Reschke, Ed.</span>, <span class="refTitle">"HTTP Semantics"</span>, <span class="seriesInfo">STD 97</span>, <span class="seriesInfo">RFC 9110</span>, <span class="seriesInfo">DOI 10.17487/RFC9110</span>, <time datetime="2022-06" class="refDate">June 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9110">https://www.rfc-editor.org/rfc/rfc9110</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC9207">[RFC9207]</dt>
         <dd>
 <span class="refAuthor">Meyer zu Selhausen, K.</span> and <span class="refAuthor">D. Fett</span>, <span class="refTitle">"OAuth 2.0 Authorization Server Issuer Identification"</span>, <span class="seriesInfo">RFC 9207</span>, <span class="seriesInfo">DOI 10.17487/RFC9207</span>, <time datetime="2022-03" class="refDate">March 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9207">https://www.rfc-editor.org/rfc/rfc9207</a>&gt;</span>. </dd>
@@ -1886,6 +1907,10 @@ exposing them to end users.<a href="#section-10.2-2" class="pilcrow">¶</a></p>
 <dt id="OpenID.Federation">[OpenID.Federation]</dt>
         <dd>
 <span class="refAuthor">Hedberg, R.</span>, <span class="refAuthor">Jones, M.B.</span>, <span class="refAuthor">Solberg, A.Å.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Marco, G. D.</span>, and <span class="refAuthor">V. Dzhuvinov</span>, <span class="refTitle">"OpenID Federation 1.1"</span>, <time datetime="2026-05-05" class="refDate">5 May 2026</time>, <span>&lt;<a href="https://openid.net/specs/openid-federation-1_1-final.html">https://openid.net/specs/openid-federation-1_1-final.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="OWASP.SSRF">[OWASP.SSRF]</dt>
+        <dd>
+<span class="refTitle">"OWASP SSRF Cheat Sheet"</span>, <span>n.d.</span>, <span>&lt;<a href="https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html">https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC7523">[RFC7523]</dt>
         <dd>
@@ -2030,13 +2055,16 @@ as clients that publish their own Client ID Metadata Document.<a href="#appendix
           <p id="appendix-C-5.1.1">Added security consideration for changes in Client Metadata<a href="#appendix-C-5.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-C-5.2">
-          <p id="appendix-C-5.2.1">Added guidance for an AS that supports both registered and unregistered clients<a href="#appendix-C-5.2.1" class="pilcrow">¶</a></p>
+          <p id="appendix-C-5.2.1">Recommend sending Accept header when fetching metadata<a href="#appendix-C-5.2.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-C-5.3">
-          <p id="appendix-C-5.3.1">Require HTTP 200 response for fetching metadata<a href="#appendix-C-5.3.1" class="pilcrow">¶</a></p>
+          <p id="appendix-C-5.3.1">Added guidance for an AS that supports both registered and unregistered clients<a href="#appendix-C-5.3.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-C-5.4">
-          <p id="appendix-C-5.4.1">Added additional SSRF considerations<a href="#appendix-C-5.4.1" class="pilcrow">¶</a></p>
+          <p id="appendix-C-5.4.1">Require HTTP 200 response for fetching metadata<a href="#appendix-C-5.4.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-5.5">
+          <p id="appendix-C-5.5.1">Added additional SSRF considerations<a href="#appendix-C-5.5.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <p id="appendix-C-6">-00<a href="#appendix-C-6" class="pilcrow">¶</a></p>
