@@ -313,7 +313,9 @@ condition in {{Section 4.1.2.1 of RFC6749}}) and a terminal failure (the
 document was retrieved but rejected on trust or validation grounds).
 
 A transient failure SHOULD NOT by itself invalidate a Client Identifier
-URL's previously established trust or outstanding refresh tokens.
+URL's previously established trust or outstanding refresh tokens. An
+authorization server SHOULD NOT discard previously cached valid client metadata
+on transient failures.
 
 A terminal failure caused by a client_id mismatch SHOULD invalidate the
 client's outstanding refresh tokens immediately.
@@ -336,6 +338,8 @@ duration when none is otherwise indicated.
 
 The authorization server MUST NOT cache error responses. The authorization
 server also MUST NOT cache documents which are invalid or malformed.
+
+The authorization server MAY implement rate limiting or other measures to avoid repeatedly fetching a Client ID Metadata Document URL, even if that results in fetching the URL less often than requested by the cache headers.
 
 # Authorization Response
 
