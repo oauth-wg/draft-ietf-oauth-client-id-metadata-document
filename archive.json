@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-10-27T00:00:29.887511+00:00",
+  "timestamp": "2026-10-29T00:00:36.023254+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -67,6 +67,16 @@
       "name": "pull request exists",
       "description": "",
       "color": "b48100"
+    },
+    {
+      "name": "needs PR",
+      "description": "",
+      "color": "251245"
+    },
+    {
+      "name": "ietf-127",
+      "description": "",
+      "color": "b23ac4"
     }
   ],
   "issues": [
@@ -279,10 +289,12 @@
       "author": "aaronpk",
       "authorAssociation": "MEMBER",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "needs PR"
+      ],
       "body": "The `client_uri` value is meant to point to a web page about the client. The `client_id` is the JSON metadata. So it would be reasonable for someone to implement this with values such as:\r\n\r\n```json\r\n{\r\n  \"client_id\": \"https://example.com/metadata.json\",\r\n  \"client_uri\": \"https://example.com/\"\r\n}\r\n```\r\n\r\nRequiring that the `client_uri` is a prefix means we can recommend displaying that whole value to the user, rather than only the hostname (more risky in shared domain situations) or the full `client_id` (more noisy with the potential for long strings that might scare the user)",
       "createdAt": "2024-06-13T20:19:06Z",
-      "updatedAt": "2025-04-28T18:37:42Z",
+      "updatedAt": "2026-10-28T22:07:25Z",
       "closedAt": null,
       "comments": [
         {
@@ -333,6 +345,13 @@
           "body": "Actually, in the case of frontpage in particular, the whole client metadata document is behind a protected HTTP route. Relaxing restrictions on the `redirect_uris`' origin makes the \"hack\" slightly simpler by not requiring to redirect the user to some intermediary endpoint. But I think that qualifying this hack as being \"nasty insecure\" is a bit strong. It is, after all, a simple redirect from the client to itself.",
           "createdAt": "2025-04-28T18:37:41Z",
           "updatedAt": "2025-04-28T18:37:41Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Changes to make:\n- `client_uri` MUST NOT be restricted to the same domain / origin as `client_id` or one of the `redirect_uris`.\n- Remove \"or client_uri properties,\" from 8.1 Relationship between redirect_uris and client_id or client_uri\n- Split functional URIs (client_id, jwks_uri, redirect_uri, etc) vs informative URIs (logo_uri, client_uri, privacy_uri, etc), we need language to define which of these two buckets a `_uri` property is. This should be a section in **4. Client ID Metadata Document** section as **4.4 Relationship & restrictions on URI-based properties**\n\nIn otherwords we are NOT requiring `client_uri` be a prefix of `client_id`, since applications may host their client_id one one domain and have a marketing website on another.",
+          "createdAt": "2026-10-28T21:38:17Z",
+          "updatedAt": "2026-10-28T21:38:17Z"
         }
       ]
     },
@@ -624,10 +643,12 @@
       "author": "matthieusieben",
       "authorAssociation": "NONE",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "needs PR"
+      ],
       "body": "If so, how would it impact the size limit of the whole metadata document ?",
       "createdAt": "2024-07-08T17:30:56Z",
-      "updatedAt": "2025-01-10T00:38:55Z",
+      "updatedAt": "2026-10-28T22:07:25Z",
       "closedAt": null,
       "comments": [
         {
@@ -678,6 +699,13 @@
           "body": "I agree with the recommendation for the AS to cache and serve the image itself. \r\n\r\nInterestingly, the client providing a data URI and the AS outputting the string verbatim does meet the requirement of not serving 3rd party hosted images \ud83d\ude02 ",
           "createdAt": "2025-01-10T00:38:54Z",
           "updatedAt": "2025-01-10T00:38:54Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "We'll be making a normative change:\n- prefetching of logo_uri will become a MUST, and the file MUST be served from servers that the authorization server trusts, if the authorization server wishes to display the logo_uri when on the authorization page or authorization grants  / clients management page.\n- the authorization server MUST verify that the file contents of the logo_uri is a valid image and that it satisfies their content security policy\n- remove paragraph \"Caching of the logo_uri response can...\"\n- split reasoning from normative paragraph\n- Add security consideration for trusting client metadata properties related to how the client should be presented to the end-user in the authorization server, i.e., they can have their own policies\n- move 8.9 above 8.8",
+          "createdAt": "2026-10-28T19:58:47Z",
+          "updatedAt": "2026-10-28T19:58:47Z"
         }
       ]
     },
@@ -686,16 +714,24 @@
       "id": "I_kwDOL_Xevs6QeUFQ",
       "title": "Review relationship of SPICE Metadata Discovery",
       "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/20",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "ThisIsMissEm",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "https://www.ietf.org/archive/id/draft-steele-spice-metadata-discovery-01.html",
       "createdAt": "2024-07-22T22:23:00Z",
-      "updatedAt": "2024-07-22T22:23:00Z",
-      "closedAt": null,
-      "comments": []
+      "updatedAt": "2026-10-28T21:39:06Z",
+      "closedAt": "2026-10-28T21:39:03Z",
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Draft expired.",
+          "createdAt": "2026-10-28T21:39:06Z",
+          "updatedAt": "2026-10-28T21:39:06Z"
+        }
+      ]
     },
     {
       "number": 21,
@@ -789,10 +825,12 @@
       "author": "birdhalfbaked",
       "authorAssociation": "NONE",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "needs PR"
+      ],
       "body": "While reading the draft, it currently seems to allow broad use of query parameters in the client_id for sending information that a guides the use of metadata that should be retrieved in the flows. \r\n\r\n> **Client identifier URLs MAY contain a query string component** and MAY contain a port.\r\n> This specification places no restrictions on what URL is used as a client identifier. A short URL is RECOMMENDED, since the URL may be displayed to the end user in the authorization interface or in management interfaces. Usage of a stable URL that does not frequently change for the client is also RECOMMENDED.\r\n\r\n(emphasis mine)\r\n\r\nWe already see some implementations using this to facilitate development by passing OAuth metadata (e.g. `scope `and `redirect_uris`) such as with ATProto's use of OAuth in the [localhost exception case](https://atproto.com/specs/oauth), and as written this may mistakenly encourage the use of dynamically-generated metadata documents from user-given inputs even in non-development use cases which can undermine the mechanisms herein.\r\n\r\ne.g. `client_id: https://someurl.com?scope=scope1%20scope2` is allowed, but should be strongly discouraged outside of local development contexts.\r\n\r\nThis discouragement could fit well in the additional **Security Considerations** I am thinking. Something along the lines \"Authorization servers SHOULD reject the use of query params to dynamically generate metadata outside of development contexts where other methods of generating metadata documents are not practical.\" \r\n\r\nWording probably needs work :P Also reinforces some good ideas I've seen around setting up a service for development metadata documents like in #12 ",
       "createdAt": "2024-11-04T20:07:13Z",
-      "updatedAt": "2025-03-30T14:50:01Z",
+      "updatedAt": "2026-10-28T22:07:26Z",
       "closedAt": null,
       "comments": [
         {
@@ -864,6 +902,13 @@
           "body": "I think this can be closed as complete based on the changes in #24.",
           "createdAt": "2025-03-30T14:50:00Z",
           "updatedAt": "2025-03-30T14:50:00Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Changes Required:\n- Add paragraph explaining that if the query component is present, then the parameter MUST NOT modify the contents of the CIMD Document\n",
+          "createdAt": "2026-10-28T20:09:51Z",
+          "updatedAt": "2026-10-28T20:09:51Z"
         }
       ]
     },
@@ -1019,11 +1064,12 @@
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [
-        "ietf-126"
+        "ietf-126",
+        "pull request exists"
       ],
       "body": "This issue was initially reported by @DavidBuchanan314 in https://github.com/bluesky-social/atproto/issues/3396.\n\nIn a federated network, in which hosts are known (as are PDS in the atproto network), the fact that OAuth Server will try to `GET` the client metadata can be used to faking traffic from a bunch of fake IPs, simply by forging authorization requests using the `client_id` as parameter.\n\nFor example, by forging the following requests:\n\n- `https://<pds_1>/oauth/authorize?client_id=https://example.com/page_1&...`\n- `https://<pds_2>/oauth/authorize?client_id=https://example.com/page_1&...`\n- `https://<pds_3>/oauth/authorize?client_id=https://example.com/page_1&...`\n\nThe website at `https://example.com/page_1` will see `GET` traffic from the IPs of all those hosts.\n\nPossible mitigations:\n- Retrieve the metadata document *after* the user authorized the request (though that could lead to weird UX & DX)\n- Add strong constraint on the URI format (eg. `.well-known`, \"must end with `.json`\", other...)\n- ~Recommend OAuth servers to remember the origins of previously failed metadata document retrieval, and prevent more call to be made on these origins~ (redacted: could be abused to cause DoS on legitimate services)\n- Other",
       "createdAt": "2025-01-20T09:23:25Z",
-      "updatedAt": "2026-07-01T23:52:58Z",
+      "updatedAt": "2026-10-28T22:48:07Z",
       "closedAt": null,
       "comments": [
         {
@@ -1165,6 +1211,20 @@
           "body": "Agree that CIMD should not require user authentication before fetching CIMD. Client config can influence authentication in some cases.\n\n`Accept` header sounds reasonable to me. I also think short-lived caching of errors and invalid documents makes sense. I was planning to open a separate issue for that discussion if there isn't one already.",
           "createdAt": "2026-05-01T00:15:20Z",
           "updatedAt": "2026-05-01T00:15:20Z"
+        },
+        {
+          "author": "mooreds",
+          "authorAssociation": "NONE",
+          "body": "I am in favor of mentioning authenticating the user before fetching the CIMD document removes a bunch of possible impacts on the server from malicious actors who don't have a valid account. It's an approach we took. \n\nThis also allows per-user rate limiting on CIMD registrations.",
+          "createdAt": "2026-10-28T01:53:09Z",
+          "updatedAt": "2026-10-28T01:53:09Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "We've added language to say that the Authorization Server SHOULD send the `Accept` header of `application/json`. This issue will be further fixed by requiring the path component of Client Identifier URL to NOT be exactly `/`\n\n#86 #63 ",
+          "createdAt": "2026-10-28T22:14:51Z",
+          "updatedAt": "2026-10-28T22:15:06Z"
         }
       ]
     },
@@ -1298,15 +1358,17 @@
       "id": "I_kwDOL_Xevs6420VC",
       "title": "specify native app restriction for clarity on client authentication section",
       "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/36",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "sdesen",
       "authorAssociation": "NONE",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "wontfix"
+      ],
       "body": "> This establishes this client as a confidential client, \n\nMight be worth nothing this is only possible for clients that support credentials in the first place?",
       "createdAt": "2025-05-29T20:11:27Z",
-      "updatedAt": "2026-09-05T04:45:01Z",
-      "closedAt": null,
+      "updatedAt": "2026-10-28T21:13:00Z",
+      "closedAt": "2026-10-28T21:12:52Z",
       "comments": [
         {
           "author": "ThisIsMissEm",
@@ -1983,7 +2045,7 @@
       ],
       "body": "The Problem\nSection 4.1 pulls in jwks via the DCR registry, but Section 6.3 only discusses rotation/updates for jwks_uri. This leaves the expected behavior for embedded jwks unclear.\n\nThe Proposal\nI suggest we only support jwks_uri for CIMD and disallow embedded jwks.\n\nReasons:\n- Reduced Complexity: For Dynamic CIMD, the Authorization Server (AS) shouldn't have to re-parse the entire metadata document just to find a key change.\n- Clean Invalidation: Invalidation is much cleaner when the cryptographic identity is hosted at a separate jwks_uri rather than inside the metadata.\n- Existing Patterns: Current implementations already focus on jwks_uri for dynamic rotation.\n\n**Question**\nDoes the group see a hard requirement for keeping jwks embedded, or can we move to a jwks_uri only model to simplify implementation?",
       "createdAt": "2026-02-05T17:58:51Z",
-      "updatedAt": "2026-03-02T02:53:17Z",
+      "updatedAt": "2026-10-28T23:51:30Z",
       "closedAt": null,
       "comments": [
         {
@@ -2034,6 +2096,13 @@
           "body": "My main interest in this is reducing optionality to make things simpler for implementers.",
           "createdAt": "2026-02-06T20:59:46Z",
           "updatedAt": "2026-02-06T20:59:46Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "We're closing this as won't fix as to not be prescriptive about the source of private keys when using client authentication.",
+          "createdAt": "2026-10-28T23:51:24Z",
+          "updatedAt": "2026-10-28T23:51:24Z"
         }
       ]
     },
@@ -2073,9 +2142,24 @@
       "labels": [],
       "body": "The draft's text includes the following stipulation:\n\n```\nClient identifier URLs SHOULD NOT include a query string component\n```\n\nGiven query strings are inherently unordered, this leads to the scenario where client identifier comparisons using strict string comparison may fail for two URLs that are still semantically the same. As such, I believe we should explicitly ban the use of them to reduce ambiguity.\n\nAdditionally, it's worth noting that OpenID Federation 1.0 (referenced by the document as another example of Client Identifiers being URLs) explicitly bans Query parameters in this location so aligning for interoperability may also be valuable.",
       "createdAt": "2026-03-16T04:59:21Z",
-      "updatedAt": "2026-03-16T04:59:21Z",
+      "updatedAt": "2026-10-28T02:51:20Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "mooreds",
+          "authorAssociation": "NONE",
+          "body": "@MichaelFraser99 I don't understand. What you quote bans query strings, does it not? Or are you saying you think the text should be: \n\n```\nClient identifier URLs MUST NOT include a query string component\n```",
+          "createdAt": "2026-10-28T01:38:28Z",
+          "updatedAt": "2026-10-28T01:38:28Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "We have it as \"SHOULD NOT\" because people started doing this before we tightened language; I guess we could swap to MUST NOT",
+          "createdAt": "2026-10-28T02:51:20Z",
+          "updatedAt": "2026-10-28T02:51:20Z"
+        }
+      ]
     },
     {
       "number": 70,
@@ -2102,10 +2186,14 @@
       "author": "panva",
       "authorAssociation": "MEMBER",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "help wanted",
+        "needs PR",
+        "ietf-127"
+      ],
       "body": "CIMD Section 4.1 client metadata values are those from the DCR Metadata registry but doesn't say what an AS should do when the document contains values the AS doesn't support - for instance a `grant_types` entry like `urn:ietf:params:oauth:grant-type:device_code` on an AS that doesn't offer DAG.\n\nBoth RFC 7591 and OpenID Connect DCR explicitly permit the AS to either reject or substitute/filter unsupported metadata. RFC 7591 says the AS \"MAY reject or replace any of the client's requested metadata values [...] and substitute them with suitable values\" and that the client can then \"check the values in the response to determine if the registration is sufficient for use.\"\n\nThat last part is key - DCR has a negotiation step. The client sends requested metadata, gets back what the AS actually registered, and decides whether it can work with that. Both behaviors (reject or filter) are fine because the client gets feedback.\n\nCIMD doesn't have this (by design). The client publishes one static document for all ASs. There's no response for the client to inspect. Without guidance in the spec, AS implementers may default to the stricter DCR behavior (reject), either by choice or unknowingly by reusing the DCR client metadata validations, which is at odds with clients having a single general purpose static document.\n\nExample: VS Code publishes `https://vscode.dev/oauth/client-metadata.json` with `grant_types` including `authorization_code`, `refresh_token`, and `urn:ietf:params:oauth:grant-type:device_code`. An AS that supports CIMD but not DAG may reject the whole thing, even though `authorization_code` would work fine.\n\nThe spec could say that when processing a CIMD, the AS should filter array-valued fields like `grant_types` and `response_types` to the intersection of what the client declares and what the AS supports, and must reject only when that intersection is empty. This is consistent with what DCR already allows - it just makes filtering the expected default for CIMD, which makes sense given the lack of a negotiation step.\n\nBut the remaining issue is the potential lack of upfront knowledge. Especially for client metadata related to AS metadata that is defined as optional such as grant_types_supported. Note that I now realize grant_types_supported does have a default specified when omitted.\n\nSo I wonder if, combined with the prescribed non-eager reject behaviour, select AS metadata without a default should in addition be made REQUIRED when used in combination with CIMD so that the client knows (or at least can infer) what the resulting metadata likely is that the AS will use. (note I didn't give much thought into scouring each metadata definition for a list just yet)\n\nRefs: https://github.com/panva/node-oidc-provider/issues/1398",
       "createdAt": "2026-03-17T19:27:32Z",
-      "updatedAt": "2026-04-30T23:51:39Z",
+      "updatedAt": "2026-10-28T23:49:00Z",
       "closedAt": null,
       "comments": [
         {
@@ -2114,6 +2202,20 @@
           "body": "> The spec could say that when processing a CIMD, the AS should filter array-valued fields like grant_types and response_types to the intersection of what the client declares and what the AS supports, and must reject only when that intersection is empty. \n\n+1\n\nIn general I'm a fan of making more required fields. It's easy for developers to copy-paste default values into their config. It can be hard to deal with the ambiguities around missing values.\n\nAlso does CIMD say anywhere what the AS should do with unknown metadata fields (not just values)? DCR says it MAY ignore, filter, or reject them, but I think the lack of negotiation in CIMD means that the AS MUST ignore all unknown field values. This enables clients to add extra fields that they know some AS will read (as this will surely happen in practice).",
           "createdAt": "2026-04-30T23:51:39Z",
           "updatedAt": "2026-04-30T23:51:39Z"
+        },
+        {
+          "author": "mooreds",
+          "authorAssociation": "NONE",
+          "body": "> I think the lack of negotiation in CIMD means that the AS MUST ignore all unknown field values. \n\nI'd be a fan of that. In our implementation, we ignore unknown field values.",
+          "createdAt": "2026-10-28T01:32:33Z",
+          "updatedAt": "2026-10-28T01:32:33Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Add to Client Information Discovery:\n\n> the Authorization Server MUST filter array-valued fields, like `grant_types` and `response_types`, to find the intersection of what the Client ID Metadata Document declares and what the Authorization Servers supports, if the intersection of the two properties of the metadata documents is empty, the Authorization Server MUST reject the request with `invalid_client`.",
+          "createdAt": "2026-10-28T23:48:49Z",
+          "updatedAt": "2026-10-28T23:48:49Z"
         }
       ]
     },
@@ -2253,11 +2355,15 @@
       "state": "OPEN",
       "author": "erincandescent",
       "authorAssociation": "NONE",
-      "assignees": [],
-      "labels": [],
+      "assignees": [
+        "aaronpk"
+      ],
+      "labels": [
+        "ietf-127"
+      ],
       "body": "Picture this scenario:\n\n* `example.com` run an AS which implements this spec\n* `example.net` also run an AS with issuer identifier `https://example.net/`. \n* `example.com`'s AS is also connected to `example.net` as a client \n\nIf an attacker can place a JSON file at `https://example.net/`, they can use it as a client ID. They can then use the client credentials grant and potentially (depending upon which OAuth 2 extensions are implemented by `example.com`) will mint JWTs with `{\"iss\":\"https://example.com\",\"sub\":\"https://example.net\"}`.They may be able to trigger flows which result in minting OpenID Connect ID tokens `{\"iss\":\"https://example.com\",\"aud\":\"https://example.net\",\"sub\":\"usersub\"}`. These ID tokens may then be abusable with e.g. the JWT bearer authorization grant, e.g. via the identity chaining spec. \n\nIt may seem unlikely that an attacker can place a JSON file at the root of `https://example.net/`, but consider a setup where a frontend proxy has the configuration:\n\n* `https://example.net/.well-known/` -> forwarded to IDP. The other endpoints of the IDP might live on e.g. `https://auth.example.com/`\n* `https://example.net/` -> forwarded to a Wordpress installation with insecure plugins\n\nThis attack can be relatively silently executed. The attacker can modify the code at `example.net` to sniff if the request is coming from a web browser (inferable because the user agent starts with `Mozilla`, or because `text/html` is in the accept header, or similar) and return the usual home page, only returning the client ID metadata to clients that look like an AS.\n\nThere are three potential ways I see of avoiding this:\n\n1. Embed the client metadata inside the AS metadata document. This makes the `oauth-authorization-server` name misleading (though `openid-connect` less so), but it absolutely guarantees the two entities with the same URI are actually the same entity (In retrospect it might have been better for it to be `/.well-known/oauth` with properties under e.g. `\"as\"`, `\"rp\"` and `\"rs\"`, but that ship sailed a long time ago)\n2. Place the client metadata in `/.well-known/oauth-client` and trust that `.well-known` is well controlled. This is probably OK. There may be a hazard here between OAuth and OpenID style uses of `.well-known`...\n3. Proceed as is, write several paragraphs of guidance in the Security Considerations section cautioning people about potential for confusion between client IDs and AS issuer IDs and watch as everyone gets it wrong and we create a new rich mine of security vulnerabilities",
       "createdAt": "2026-04-13T10:33:27Z",
-      "updatedAt": "2026-04-14T00:10:54Z",
+      "updatedAt": "2026-10-28T23:49:13Z",
       "closedAt": null,
       "comments": [
         {
@@ -2315,6 +2421,34 @@
           "body": "There's a simple answer as to why an AS might want to use both: pushing configuration updates to every \"upstream\" AS is more work than letting them pull said configuration. This is also what OpenID federation is all about\n\nBut in the case in the example the AS was never intentionally using this spec",
           "createdAt": "2026-04-14T00:10:54Z",
           "updatedAt": "2026-04-14T00:10:54Z"
+        },
+        {
+          "author": "mooreds",
+          "authorAssociation": "NONE",
+          "body": "> we may require a path component that's at least one non-`/` character\n\nIn our implementation, we enforce this.",
+          "createdAt": "2026-10-28T01:22:52Z",
+          "updatedAt": "2026-10-28T01:22:52Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "We are requiring the Client Identifier URL path to be more than just a `/` character, in #86 which I think addresses at least part this issue.",
+          "createdAt": "2026-10-28T23:36:21Z",
+          "updatedAt": "2026-10-28T23:36:21Z"
+        },
+        {
+          "author": "erincandescent",
+          "authorAssociation": "NONE",
+          "body": "Does it really? The issuer identifier and CIMD namespaces still overlap, given that path segments are explicitly permitted in issuer identifiers and not uncommonly used",
+          "createdAt": "2026-10-28T23:47:30Z",
+          "updatedAt": "2026-10-28T23:47:30Z"
+        },
+        {
+          "author": "erincandescent",
+          "authorAssociation": "NONE",
+          "body": "(also, in taking this decision - we end up with a situation where an AS cannot also function as a client using CIMD with the same entity identifier)",
+          "createdAt": "2026-10-28T23:49:13Z",
+          "updatedAt": "2026-10-28T23:49:13Z"
         }
       ]
     },
@@ -2354,17 +2488,18 @@
       "id": "I_kwDOL_Xevs8AAAABBAFIKg",
       "title": "Can AS optionally provide `iss` when fetching client_id?",
       "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/78",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "njwatson32",
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [
-        "ietf-126"
+        "ietf-126",
+        "ietf-127"
       ],
       "body": "For example, if `client_id=https://example.com/oauth/client_id.json`, the AS would `GET https://example.com/oauth/client_id.json?iss=https://example-as.com`.\n\nThis allows the client to do a few things:\n\nProgressive rollouts of changes to CIMD, so that blast radius is limited to only certain AS. Making a global change to a client id is bad practice from a production safety point of view, and \"random percentage\" rollouts may not work if the AS queries the CIMD more than once and gets two different documents.  Of course, `iss` isn't a perfect solution here, but it's easy and better than nothing.\n\nThe client could also return AS-specific metadata (as long as it's not secret because `iss` is unvalidated). This could help address certain incompatibilities that may arise in practice where the same values are rejected by some AS but not by others.",
       "createdAt": "2026-05-01T00:45:14Z",
-      "updatedAt": "2026-07-02T00:14:13Z",
-      "closedAt": null,
+      "updatedAt": "2026-10-28T23:24:41Z",
+      "closedAt": "2026-10-28T23:24:17Z",
       "comments": [
         {
           "author": "ThisIsMissEm",
@@ -2456,6 +2591,27 @@
           "body": "I think a slightly different use-case here might for something like SingPass, or Highly Controlled Ecosystems, where its required to use a different signing key. Right now since CIMD exposes a single `jwks_uri` it also ends up requiring us to generate urls as \n\n```https://example.com/connection/<unique_name>/oauth/client.json```\n\nWhich IMO is suboptimal to\n\n```\nhttps://example.com/oauth/client.json\n```",
           "createdAt": "2026-05-27T03:11:46Z",
           "updatedAt": "2026-05-27T03:11:46Z"
+        },
+        {
+          "author": "mooreds",
+          "authorAssociation": "NONE",
+          "body": "> For something like token_endpoint_auth_method currently the client metadata can only present a single option, private_key_jwt or none or one of the other registered auth methods. This makes sense in DCR perhaps, but maybe for CIMD we would actually need an array of supported values by the client.\n\nSee also https://github.com/modelcontextprotocol/modelcontextprotocol/pull/3149 which proposes an array in `token_endpoint_auth_methods_supported` for this issue.",
+          "createdAt": "2026-10-28T01:21:24Z",
+          "updatedAt": "2026-10-28T01:21:24Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "And #99 recommends `token_endpoint_auth_methods_supported` over `token_endpoint_auth_method`",
+          "createdAt": "2026-10-28T02:47:58Z",
+          "updatedAt": "2026-10-28T02:47:58Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "We (@aaronpk and I) believe the primary motivation for being able to vary the Client ID Metadata Document based on `iss` for roll-out was because of the `token_endpoint_auth_method` being a singular value, and as such you could not evolve the client metadata without registering a brand new client or breaking existing deployments.\n\nIn #99 we are making usage of `token_endpoint_auth_methods_supported` a SHOULD and usage of `token_endpoint_auth_method` a SHOULD NOT, which we believe resolves the issue with changing the client authentication used by a client over time.\n\nThe CIMD describes the client capabilities, NOT the client configuration \u2014 the client configuration is still passed via the Authorization Request, Pushed Authorization Request, or the Token Endpoint Request.\n\nAs such, we're closing this as \"not planned\" for now, based on the discussion at [IETF 126](https://ietfminutes.org/minutes/ietf126/oauth). \n\nIf there are other reasons why this _may_ be needed, please open a new issue to discuss why you think the Client ID Metadata Document contents SHOULD be allowed to vary based on requestor, as we currently have the query component as a SHOULD NOT on Client Identifier URLs.",
+          "createdAt": "2026-10-28T23:24:17Z",
+          "updatedAt": "2026-10-28T23:24:17Z"
         }
       ]
     },
@@ -2464,15 +2620,17 @@
       "id": "I_kwDOL_Xevs8AAAABCa7ZIg",
       "title": "Review from Justin Richer",
       "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/79",
-      "state": "CLOSED",
+      "state": "OPEN",
       "author": "ThisIsMissEm",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "help wanted"
+      ],
       "body": "Just so we don't loose his comments in the [mailing list](https://mailarchive.ietf.org/arch/msg/oauth/DRzDT8q_j3PaGwoEJEpgZwcyccI/), I'm copying them here below, we'll probably want to review these separately or split them out into separate issues later:\n\n---\n\nOverall:\n\nI think this is missing a discussion on the kinds of clients where this approach makes sense, and where it does not. Namely, if a client is relatively well-known and has an established home, like a website, then this works great. For other clients, including those in \u00a74.2, it's not as great a fit. I think it's fine for this specification to not work for a class of clients - and it should be upfront about it instead of pretending it fits well.\n\n\u00a73\n\nThis feels like it should be a list, not a paragraph. Try reformatting and see if that works?\n\nGlobally redefining \"client identifier\" seems a bridge too far for this spec to do in isolation, consider perhaps defining \"Client Identifier URI\" or something specific to CIMD so as not to imply that ALL client identifiers are now URLs.\n\nRefer to the URI spec (RFC3986) for URI parts. The \"username or password\" is called the \"userinfo\" subcomponent of the authority, for example. And \"port\" is also part of the authority.\n\n\"Port\" should probably have some matching done to it \u2014 like defaults of 443 being equivalent to non included \u2014 or it should be direct string comparison only as implied by \u00a74.1 and default port processing expressly disallowed. Really, leaning on the URI definitions will help this too.\n\n\"This specification places no restrictions\" after a bunch of restrictions is \u2026 weird. Perhaps be more specific about what \"no restrictions\" are included in \"no restrictions\" like URL shorteners or stability. That said, most shorteners use redirects to work, which breaks the resolution restriction in \u00a74, can we square that circle?\n\n\u00a74\n\nIt's not clear why fetching the document is a \"should\". I know it can be associated by hand, so I think maybe that's what this SHOULD is trying to get at. Perhaps call out that it MUST be associated with a set of client metadata, which is available at the URL, and the AS SHOULD fetch it automatically within security considerations.\n\n\u00a74.1\n\n\"The client metadata document MUST be served with a 200 OK HTTP status code\" this is a requirement of the fetch process not the document.\n\nDoes \"the URL of the document\" mean the URL used to fetch the document, exactly? This sounds like it's something the AS (fetcher) needs to validate, then \u2014 call out both of these more explicitly.\n\nSuggest that the discussion on client secrets be pulled out as a separate section to highlight its importance here. Also add discussion on private keys, but public keys are allowable.\n\nI see no discussion of software_Statement and how it would fit with this work, suggest we add discussion of how (or if) they fit together. I personally think they could be layered with some cautions on the trustworthiness of the software_statement (since it's no longer presented inline by the client).\n\nSuggest that you separate the \"what's in the doc\" from \"how you get the doc\" in this section overall.\n\n\u00a74.2\n\nWhile I see the practical appeal, the CIMD-service really just feels like a weird way to do static registration but use a side door to do so. This also seems like it directly contradicts the trust model proposed by this specification. I would recommend removal of this beyond discussion in security considerations, or add it as an appendix to describe how CIMD-as-a-service could be built and offered by a party, and discuss the security and reputation implications thereof.\n\n\u00a74.3\n\nWhat if the server isn't fetching it, under some circumstances allowed by \u00a74? Are there any validation requirements (that might need its own section alongside 4.1)\n\n\u00a74.5\n\nBy \"exact match\" I assume this means string-match, either call that out or point to the logic in the core OAuth specs that say so.\n\nThis also implies that only redirect-based grants are allowed to be used, but I don't see that called out anywhere in here. Could I use CIMD for client_credentials or token exchange? Device flow? CIBA? Why or why not?\n\n\u00a76\n\nGenerally speaking, there shouldn't be any normative text in security considerations. Especially the MAYs here are pointless and more explanatory than requirement anyway. Stick to non-normative text in this section and put the normative requirements further up.\n\n\u00a76.5\n\n\"except when the authorization server itself is also running on a loopback address and the resolved address matches the same loopback interface\" \u2014 couldn't this be used to force an AS to call a loopback function from the outside via a client-provided value? I'm failing to see what the use case to allow this cutout is. Development is a different world where restrictions like this are routinely relaxed, but here it reads like this should be a normal cutout for the protocol.\n\n\u00a76.6\n\n\"Authorization servers SHOULD limit the response size\" \u2014 how does the AS limit the size of a file it does not control? Do you mean limit processing to the first 5k and erroring or discarding the rest?\n\n\u00a76.8\n\nSuggest adding a discussion of allowlists, especially of domain patterns \u2014 eg, \"anything from [foo.com](http://foo.com/)\". The framing of different policies for different states of client trust is a good one, keep that.\n\n\u00a76.9\n\nThis doesn't seem like a security consideration, but an implementation consideration.\n\nMore to the point, the AS needs to be able to differentiate between clients registered via CIMD and clients registered by other means. Client ID prefix is only one aspect of this, as there might be AS's that do use https:// for clients (such as vanity IDs or stable developer-facing identifiers), but don't fetch the data. Suggest calling out that \"do I fetch this or not\" is the key difference.\n\n\u00a76.10\n\nThis doesn't seem like a security consideration, but an implementation consideration. I would argue that it leverages the namespacing and other aspects of CIMD while not relying on automated systems \u2014 so I would suggest not framing it as \"Defeating the purpose\". This discussion could be helped by separating the \"fetch\" from \"format\" as suggested above.\n\n\u00a7??\n\nThis is missing privacy considerations, please add them. In particular, AS fetching or providing to the end user any URLs dynamically handed over by the client in a CIMD could lead to leaking user usage patterns or information.",
       "createdAt": "2026-05-15T22:48:54Z",
-      "updatedAt": "2026-07-02T23:32:48Z",
-      "closedAt": "2026-07-02T23:32:48Z",
+      "updatedAt": "2026-10-28T23:30:47Z",
+      "closedAt": null,
       "comments": [
         {
           "author": "ThisIsMissEm",
@@ -2480,6 +2638,13 @@
           "body": "`software_statement` has now been added to DCR registry with IANA: https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#client-metadata\n\nIirc, `software_id` and `software_version` are still missing.",
           "createdAt": "2026-05-21T11:02:07Z",
           "updatedAt": "2026-05-21T11:02:07Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Reopening for verification that we have actually addressed all of Justin's feedback. This was closed when #84 merged.",
+          "createdAt": "2026-10-28T23:30:38Z",
+          "updatedAt": "2026-10-28T23:30:38Z"
         }
       ]
     },
@@ -2488,16 +2653,24 @@
       "id": "I_kwDOL_Xevs8AAAABCeQOLw",
       "title": "Privacy Considerations Section",
       "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/80",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "ThisIsMissEm",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "> This is missing privacy considerations, please add them. In particular, AS fetching or providing to the end user any URLs dynamically handed over by the client in a CIMD could lead to leaking user usage patterns or information.\n\nThis comes from Justin Richer's review (#79), and it is a section we should probably cover. We already have a bunch of security considerations around URLs in CIMDs, but we don't yet have a privacy considerations section. I think this would be an extension of the text in [Dynamic Client Registration](https://datatracker.ietf.org/doc/html/rfc7591#autoid-23), however, this specifically would not apply:\n\n> Note that clients are forbidden by this specification from creating their own client identifier.\n\nIn CIMDs the client does indeed control the document URL and therefore the `client_id`, so could theoretically use those for tracking purposes. I think I've even seen some people attempting this, which lead to some of the restrictions on redirects and other security considerations.",
       "createdAt": "2026-05-16T18:35:54Z",
-      "updatedAt": "2026-05-16T18:35:54Z",
-      "closedAt": null,
-      "comments": []
+      "updatedAt": "2026-10-28T23:28:12Z",
+      "closedAt": "2026-10-28T23:27:26Z",
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Added in oauth-02",
+          "createdAt": "2026-10-28T23:27:32Z",
+          "updatedAt": "2026-10-28T23:27:32Z"
+        }
+      ]
     },
     {
       "number": 81,
@@ -2509,11 +2682,12 @@
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [
-        "enhancement"
+        "enhancement",
+        "needs PR"
       ],
       "body": "Also from #79, Section 4.5 specifies some language for Redirect URIs, https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-01.html#name-redirect-url-registration\n\nWe may want to consider aligning this text with OAuth 2.1's text: https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1#section-4.1.1-28\n\n> In particular, the authorization server MUST validate the redirect_uri in the request if present, ensuring that it matches one of the registered redirect URIs previously established during client registration ([Section 2](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1#client-registration)). When comparing the two URIs the authorization server MUST ensure that the two URIs are equal, see [Section 6.2.1](https://rfc-editor.org/rfc/rfc3986#section-6.2.1) of [[RFC3986](https://www.rfc-editor.org/info/rfc3986)], Simple String Comparison, for details. The only exception is native apps using a localhost URI: In this case, the authorization server MUST allow variable port numbers as described in [Section 7.3](https://rfc-editor.org/rfc/rfc8252#section-7.3) of [[RFC8252](https://www.rfc-editor.org/info/rfc8252)].\n\nOr specify it in a way that directly references the normative model for redirect URIs and registration / validation of them.",
       "createdAt": "2026-05-16T19:02:34Z",
-      "updatedAt": "2026-05-24T06:05:48Z",
+      "updatedAt": "2026-10-28T23:31:08Z",
       "closedAt": null,
       "comments": [
         {
@@ -2609,13 +2783,16 @@
       "state": "OPEN",
       "author": "aaronpk",
       "authorAssociation": "MEMBER",
-      "assignees": [],
+      "assignees": [
+        "aaronpk"
+      ],
       "labels": [
-        "ietf-126"
+        "ietf-126",
+        "needs PR"
       ],
       "body": "The AS is supposed to return an error if the CIMD is invalid for some reason, in particular if the `client_id` URL doesn't match.\n\nThis could happen in a token request (client credentials grant), a PAR request, or an authorization request. In an authorization request it is important to not redirect back to the client since the client is invalid. But for a token request or PAR request we should define the specific error to return in JSON.",
       "createdAt": "2026-07-02T22:17:04Z",
-      "updatedAt": "2026-07-20T22:02:47Z",
+      "updatedAt": "2026-10-28T22:49:36Z",
       "closedAt": null,
       "comments": [
         {
@@ -2649,15 +2826,26 @@
       "state": "OPEN",
       "author": "aaronpk",
       "authorAssociation": "MEMBER",
-      "assignees": [],
+      "assignees": [
+        "aaronpk"
+      ],
       "labels": [
-        "ietf-126"
+        "ietf-126",
+        "needs PR"
       ],
       "body": "This came up from a comment in Justin's review. There is already text to discourage this, but we might want to go further and actually prohibit this path.",
       "createdAt": "2026-07-02T23:32:26Z",
-      "updatedAt": "2026-07-02T23:32:26Z",
+      "updatedAt": "2026-10-28T22:14:21Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Add text to section 3. Client Identifier URL to prohibit a path segment of exactly `/`",
+          "createdAt": "2026-10-28T22:13:51Z",
+          "updatedAt": "2026-10-28T22:13:51Z"
+        }
+      ]
     },
     {
       "number": 87,
@@ -2673,7 +2861,7 @@
       ],
       "body": "Currently, RFC8414 defines `token_endpoint_auth_methods_supported` as \"JSON array containing a list of client authentication methods supported by this token endpoint\". (Even though this is referred to as token endpoint, this actually applies to client authentication at other endpoints such as the PAR endpoint.) This enables an AS to declare which client authentication methods are supported, so a client can choose which to use.\n\nDCR defines `token_endpoint_auth_method` as a single string, \"the requested authentication method for the token endpoint\". So a client can request a particular auth method when it registers, presumably from the list of supported methods at the AS.\n\nNow in the world of CIMD, clients no longer register with an individual AS. Instead the AS discovers metadata about the client. This means `token_endpoint_auth_method` doesn't really work, because the client metadata document is not aware of the AS.\n\nIf we add `token_endpoint_auth_methods_supported` to the CIMD, the client can also advertise its supported auth methods. This would enable the negotiation to work both ways. The various combinations of client and AS support of `none` and `private_key_jwt` are below:\n\n* Client supports both, AS supports both:\n  * The client advertises support for both `none` and `private_key_jwt`. The AS advertises support for both `none` and `private_key_jwt`. When the AS fetches the client metadata, it sees the client supports both, and can reject requests with no auth.\n* Client supports `none`, AS supports both:\n  * The client advertises support for only `none`. The AS fetches the client metadata and sees only `none`, so accepts no auth.\n* Client supports `private_key_jwt`, AS supports both:\n  * The client advertises support for only `none`. The AS fetches the client metadata and can see that the client supports `private_key_jwt`, so can require auth and block other clients from using the CIMD URL without authentication\n* Client supports both, AS supports `none`\n  * The client would not send any client auth, and the AS accepts it because it can see the client also supports `none`\n* Client supports both, AS supports `private_key_jwt`\n  * The client would see the AS requires auth, the AS accepts it because it can see the client supports `private_key_jwt`\n\nWithout this ability to negotiate, you can end up in these not-desirable situations:\n\n* The client advertises `token_endpoint_auth_method: \"private_key_jwt\"` but an AS that only supports `none` rejects that CIMD URL because it doesn't see `none` as the value.\n* The client doesn't advertise any `token_endpoint_auth_method`, so the AS is forced to accept both `none` and `private_key_jwt` for that CIMD URL\n* The AS is unable to enforce `private_key_jwt` for clients that support it\n\nFor these reasons I believe we should add `token_endpoint_auth_methods_supported` to the client registration vocabulary established by DCR.\n\n",
       "createdAt": "2026-07-08T22:00:09Z",
-      "updatedAt": "2026-10-23T20:09:31Z",
+      "updatedAt": "2026-10-28T22:12:40Z",
       "closedAt": null,
       "comments": [
         {
@@ -2756,13 +2944,16 @@
       "state": "OPEN",
       "author": "itsvs",
       "authorAssociation": "NONE",
-      "assignees": [],
+      "assignees": [
+        "ThisIsMissEm"
+      ],
       "labels": [
-        "ietf-126"
+        "ietf-126",
+        "pull request exists"
       ],
       "body": "Pulling out an idea from #78 into a separate thread as there are some competing thoughts there. One of the reasons mentioned for clients using per-issuer CIMD documents is in order to enable mix-up prevention by providing distinct redirect URLs per AS ([comment](https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/78#issuecomment-4502302325)). The tradeoff is that clients no longer have a single document to represent them, which somewhat goes against the static nature of CIMDs.\n\nAs an easier way to enable mix-up prevention, we could require that ASes that build CIMD support also include the `iss` parameter in the response redirect, as suggested in [[WG Draft] OAuth 2.1 Section 7.14.1](https://www.ietf.org/archive/id/draft-ietf-oauth-v2-1-15.html#section-7.14.1). Pulling this requirement into the CIMD draft would ensure that ASes don't have to implement all of 2.1 just to enable mix-up prevention, and clients could use this method rather than per-AS CIMD documents.",
       "createdAt": "2026-07-09T22:00:28Z",
-      "updatedAt": "2026-07-13T19:03:36Z",
+      "updatedAt": "2026-10-28T23:12:14Z",
       "closedAt": null,
       "comments": [
         {
@@ -2806,6 +2997,13 @@
           "body": "I'd probably say it should be a security consideration \"to prevent mix-up attacks clients and ASs are strongly recommended to implement RFC 9207 for issuer identification\" but I don't think it's our place here to make it a MUST",
           "createdAt": "2026-07-10T21:49:01Z",
           "updatedAt": "2026-07-10T21:49:01Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "We've added a section for this in #110",
+          "createdAt": "2026-10-28T23:12:08Z",
+          "updatedAt": "2026-10-28T23:12:08Z"
         }
       ]
     },
@@ -2821,7 +3019,7 @@
       "labels": [],
       "body": "As noted in #82, some implementations of CIMD involve dynamic client paths being used to render CIMD documents. The specific scenario in that issue is probably fine, but currently there is not much preventing an implementation from allowing something like a dynamic/unvalidated (e.g.) `?redirect_uri=[...]` parameter, and it could be pretty bad if a client's CIMD could be dynamically configured to include a custom redirect URI, custom JWKS URI, etc.\n\nThe draft states that document URLs \"**SHOULD NOT** contain a query component,\" but since this is not a \"**MUST**\", implementers may well ignore the recommendation. It may be prudent to include a security consideration to discourage use of unvalidated query parameters to configure a document at runtime.\n\nAcknowledging that clients may implement multiple CIMD documents for a variety of valid reasons, this mainly boils down to ensuring that the documents that a client exposes are _intentional_ -- e.g. if a client _must_ expose different documents with different JWKS URIs, the client should intentionally specify paths for the documents rather than use a dynamic path like `example.com/<jwks-uri>/client.json`.",
       "createdAt": "2026-07-10T19:27:24Z",
-      "updatedAt": "2026-08-16T19:27:23Z",
+      "updatedAt": "2026-10-28T22:12:28Z",
       "closedAt": null,
       "comments": [
         {
@@ -2923,7 +3121,7 @@
       "labels": [],
       "body": "Related to #87 as well as https://github.com/modelcontextprotocol/modelcontextprotocol/pull/3149 -\n\nThe draft doesn't say anything about what an AS should do when `token_endpoint_auth_method` or `token_endpoint_auth_methods_supported` is not present in the CIMD.\n\nUnder DCR, the AS is empowered to pick a suitable token endpoint auth method for the client to use:\n> Additionally, the authorization server MUST return all registered\n   metadata about this client, including any fields provisioned by the\n   authorization server itself.  The authorization server MAY reject or\n   replace any of the client's requested metadata values submitted\n   during the registration and substitute them with suitable values.\n\nSo we probably want some language explaining how to handle the same situation under CIMD, even if that language is \"it's up to the ecosystem to define this\".",
       "createdAt": "2026-07-28T15:13:19Z",
-      "updatedAt": "2026-08-01T01:53:05Z",
+      "updatedAt": "2026-10-28T22:12:28Z",
       "closedAt": null,
       "comments": [
         {
@@ -2943,11 +3141,15 @@
       "state": "OPEN",
       "author": "adeinega",
       "authorAssociation": "CONTRIBUTOR",
-      "assignees": [],
-      "labels": [],
+      "assignees": [
+        "aaronpk"
+      ],
+      "labels": [
+        "needs PR"
+      ],
       "body": "Aren\u2019t these two properties mutually exclusive? I couldn\u2019t find any text related to that. My guess is they are. If not... keys in them should be the same. Note, the OpenID Federation spec gives some recommendations on this matter in https://openid.net/specs/openid-federation-1_1-final.html#name-usage-of-jwks-jwks_uri-and- .\n\nFurthermore, a URL in jwks_uri implies an additional HTTP request from an AS, which incurs some additional cost, and provides additional room for errors (these typically become more visible at scale).\n\nSince the jwks_uri can point to a different hostname (in a URL) than a client\u2019s metadata itself, there\u2019s also a risk of abuse / misuse when a client provides a link to the JWKS endpoint that doesn\u2019t belong to it.",
       "createdAt": "2026-08-09T21:29:23Z",
-      "updatedAt": "2026-10-25T15:24:25Z",
+      "updatedAt": "2026-10-28T23:58:43Z",
       "closedAt": null,
       "comments": [
         {
@@ -2956,6 +3158,13 @@
           "body": "Yes, the two properties are mutually exclusive. [RFC7591](https://www.rfc-editor.org/info/rfc7591/#section-2:~:text=The%20%22jwks_uri%22%20and%20%22jwks%22%0A%20%20%20%20%20%20parameters%20MUST%20NOT%20both%20be%20present%20in%20the%20same%20request%20or%0A%20%20%20%20%20%20response.) has normative text to that effect:\n\n```\nThe \"jwks_uri\" and \"jwks\" parameters MUST NOT both be present in the same request or response.\n```",
           "createdAt": "2026-10-25T15:24:25Z",
           "updatedAt": "2026-10-25T15:24:25Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "We'll reiterate this sentence from RFC7591:\n\n> The \"jwks_uri\" and \"jwks\" parameters MUST NOT both be present in the same request or response.\n\nAs an \"As described in...\" to 4.1. Credential and Key Material Restrictions",
+          "createdAt": "2026-10-28T22:11:13Z",
+          "updatedAt": "2026-10-28T22:12:13Z"
         }
       ]
     },
@@ -2964,15 +3173,17 @@
       "id": "I_kwDOL_Xevs8AAAABME0ZiQ",
       "title": "Section \"4.5 Redirect URL Registration\"",
       "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/95",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "adeinega",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
-      "labels": [],
+      "labels": [
+        "duplicate"
+      ],
       "body": "Says that\n\n> According to [RFC9700](https://www.rfc-editor.org/rfc/rfc9700), the authorization server MUST require registration of redirect URIs, and MUST ensure that the redirect URI in a request is an exact match of a registered redirect URI.\n\nThis approach won't work for native clients that use \"localhost redirection URIs\", so that \"MUST ensure that the redirect URI in a request is an exact match of a registered redirect URI\" should be clarified or, simply refer to https://datatracker.ietf.org/doc/html/rfc9700#section-2.1.",
       "createdAt": "2026-08-09T23:47:33Z",
-      "updatedAt": "2026-08-10T18:31:13Z",
-      "closedAt": null,
+      "updatedAt": "2026-10-28T21:14:30Z",
+      "closedAt": "2026-10-28T21:14:29Z",
       "comments": [
         {
           "author": "adeinega",
@@ -3001,6 +3212,13 @@
           "body": "@ThisIsMissEm, regarding\n\n> This does actually work for native apps:\n\nYes, technically this works if you want to, but I don't see how it could work well at scale\n\n1. a native client should start a web server with a proper X509 certificate that services its metadata (where does it get this cert? Plus, firewalls & endpoint protectors generally do not like to see this happening)\n2. an AS should always be able to reach this service (network, firewalls, etc.).\n\nIf a native client decides to \"expose\" its metadata somewhere else (say using an external service), we increase the complexity of a solution. I think we all saw enough examples when this happens in the world of OAuth 2 (when clients run handlers of callback URLs somewhere else).\n\nTo avoid these issues and as an alternative option to think about... native clients could push their metadata as part of the authorization requests (PAR). Note, this isn't the same as DCR as everything happens in one go / request, and that's an important nuance, that makes a difference, at scale.",
           "createdAt": "2026-08-10T18:31:13Z",
           "updatedAt": "2026-08-10T18:31:13Z"
+        },
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "Duplicate of #81 ",
+          "createdAt": "2026-10-28T21:14:29Z",
+          "updatedAt": "2026-10-28T21:14:29Z"
         }
       ]
     },
@@ -3016,7 +3234,7 @@
       "labels": [],
       "body": "I left https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/87#issuecomment-5184144682 saying\n\n> Along with `token_endpoint_auth_methods_supported`, RFC 8414 mentions `token_endpoint_auth_signing_alg_values_supported`.\n> \n> Furthermore,  there are also\n> 1. `introspection_endpoint_auth_methods_supported`, and\n> 2. `revocation_endpoint_auth_methods_supported`\n> \n> as it makes sense to support them for clients (allowed values are `none` and `private_key_jwt`).\n\nand suggest it be tracked as a separate issue.",
       "createdAt": "2026-08-10T04:30:01Z",
-      "updatedAt": "2026-09-20T20:30:03Z",
+      "updatedAt": "2026-10-28T22:12:29Z",
       "closedAt": null,
       "comments": [
         {
@@ -3042,7 +3260,7 @@
       ],
       "body": "I haven't been able to find normative language for what should happen if client metadata uses `token_endpoint_auth_method` of `\"private_key_jwt\"` but does not declare a `jwks` nor `jwks_uri` property. Though it's entirely possible that I've missed a specification that does define this.\n\nI suspect that this should cause an `unauthorized_client` error during the authorization request or pushed authorization request.",
       "createdAt": "2026-09-20T21:00:35Z",
-      "updatedAt": "2026-10-25T16:20:52Z",
+      "updatedAt": "2026-10-28T22:43:33Z",
       "closedAt": null,
       "comments": [
         {
@@ -3079,6 +3297,13 @@
           "body": "I would agree that in the cases above, `invalid_client` on the token endpoint request would be correct.\n\nOn authorization request we don't really have an appropriate error code, despite what IANA says, I've not found a specification that would allow `invalid_client` there.\n\nOn PAR requests we could since PAR errors are the union of errors for both token endpoint and authorization endpoint.\n\nI would rather strongly limit information disclosure in any of these error scenarios, apart from maybe missing keys for JWKS in the CIMD, as others could reveal sensitive network information to a potential attacker (e.g., SSRF attacks)",
           "createdAt": "2026-10-25T16:20:51Z",
           "updatedAt": "2026-10-25T16:20:51Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "We're going to cover this in https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/99",
+          "createdAt": "2026-10-28T22:43:33Z",
+          "updatedAt": "2026-10-28T22:43:33Z"
         }
       ]
     },
@@ -3128,6 +3353,54 @@
       "createdAt": "2026-09-25T19:49:18Z",
       "updatedAt": "2026-09-25T21:15:26Z",
       "closedAt": "2026-09-25T21:02:19Z",
+      "comments": []
+    },
+    {
+      "number": 104,
+      "id": "I_kwDOL_Xevs8AAAABasD9Vg",
+      "title": "Recommend an AS-enforced maximum cache duration, independent of document headers",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/104",
+      "state": "OPEN",
+      "author": "mooreds",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "\u00a75.2 allows an AS to define its own upper/lower bounds on cache lifetime but doesn't recommend doing so (see the discussion in #3 , which left this open). \n\nBecause `redirect_uris`, `jwks`/`jwks_uri`, and other trust-relevant fields can change at the client's discretion, an AS that fully honors a long or absent `max-age` risks trusting stale, possibly-revoked metadata for an unbounded period. \n\nSuggest adding a RECOMMENDED maximum effective cache duration regardless of what the document's cache headers request, paralleling the existing fixed numeric recommendation in \u00a78.7 for response size. \n\nRelatedly, worth clarifying that the `Expires` header need not be supported since `Cache-Control` already takes precedence per RFC 9111. Honoring `Cache-Control: max-age` alone is sufficient for conformance.",
+      "createdAt": "2026-10-28T19:28:06Z",
+      "updatedAt": "2026-10-28T19:28:06Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 106,
+      "id": "I_kwDOL_Xevs8AAAABatn7UQ",
+      "title": "Clarify that only certain classes of discovery failure should affect previously-established trust",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/106",
+      "state": "OPEN",
+      "author": "mooreds",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "\u00a75.1 treats all fetch failures uniformly (\"fetching fails... the authorization server SHOULD abort the authorization request\"), without distinguishing a transient error (timeout, 5xx, malformed response) from a failure that reflects a deliberate trust/validation decision (e.g., `client_id` mismatch per \u00a74). \n\nFor a Client Identifier URL the AS has already validated via a prior authorization, this matters. The AS needs guidance on whether a transient re-fetch failure should affect existing grants/tokens the same way a definitive rejection would. \n\nSuggest adding text recommending that transient failures not immediately invalidate previously-established trust/grants, while deliberate rejections MAY. (Related to, but distinct from, the wire-format error-code question in #85.)",
+      "createdAt": "2026-10-28T21:16:33Z",
+      "updatedAt": "2026-10-28T21:16:33Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 108,
+      "id": "I_kwDOL_Xevs8AAAABat_X6A",
+      "title": "Address refresh token/long-lived grant behavior relative to Client ID Metadata Document re-fetching",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/108",
+      "state": "OPEN",
+      "author": "mooreds",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "The draft doesn't mention refresh tokens or other long-lived grants anywhere, leaving open whether a refresh request should trigger re-fetching the Client ID Metadata Document, and what should happen to outstanding refresh tokens if a previously-valid client later fails discovery or is rejected, though I just added #107 to address some of this.\n\nI think that a refresh token should remain valid for its own natural lifetime even while the client is in a transient-failure/tolerance window. Immediate invalidation should be reserved for when the client is rejected on trust/validation grounds.\n\nSuggest adding guidance that metadata re-fetch is tied to new authorization requests, not refresh grants, and that the consequence for outstanding refresh tokens should depend on the transient-vs-terminal failure classification proposed in #106 .\n",
+      "createdAt": "2026-10-28T21:42:53Z",
+      "updatedAt": "2026-10-28T21:47:08Z",
+      "closedAt": null,
       "comments": []
     }
   ],
@@ -5052,19 +5325,21 @@
       "state": "OPEN",
       "author": "aaronpk",
       "authorAssociation": "MEMBER",
-      "assignees": [],
+      "assignees": [
+        "aaronpk"
+      ],
       "labels": [
         "ietf-126"
       ],
       "body": "Replaces #51, for #30",
       "createdAt": "2026-03-02T02:05:06Z",
-      "updatedAt": "2026-08-10T05:51:32Z",
+      "updatedAt": "2026-10-28T22:13:44Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "b5cf62d9abf63fa11f6465a6b670356c85257dfb",
       "headRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "headRefName": "aaronpk/accept-header",
-      "headRefOid": "aaeca42dfbbcb7d1fdc0b485b8af12f75cd87ab6",
+      "headRefOid": "6e6bccb391d43ee804052440e4c8d3251a9d731e",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -5153,6 +5428,20 @@
           "body": "@aaronpk I can't recall if we reached consensus on this at IETF 126?",
           "createdAt": "2026-08-10T05:51:32Z",
           "updatedAt": "2026-08-10T05:51:32Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "We decided to not do `application/cimd+json`, however, we have said that the Authorization Server SHOULD send the `Accept: application/json` header.",
+          "createdAt": "2026-10-28T22:00:59Z",
+          "updatedAt": "2026-10-28T22:00:59Z"
+        },
+        {
+          "author": "trwnh",
+          "authorAssociation": "NONE",
+          "body": "Any particular reasoning why cimd+json was dropped? It's a useful signal of\r\nthe authorization server's processing model...\r\n\r\nOn Wed, Oct 28, 2026 at 17:01 Emelia Smith ***@***.***> wrote:\r\n\r\n> *ThisIsMissEm* left a comment\r\n> (oauth-wg/draft-ietf-oauth-client-id-metadata-document#63)\r\n> <https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/63#issuecomment-6481758838>\r\n>\r\n> We decided to not do application/cimd+json, however, we have said that\r\n> the Authorization Server SHOULD send the Accept: application/json header.\r\n>\r\n> \u2014\r\n> Reply to this email directly, view it on GitHub\r\n> <https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/63?email_source=notifications&email_token=ACQ5OXZYP5TIMQTUYG2S75L5WJUDFA5CNFSNUABFM5UWIORPF5TWS5BNNB2WEL2JONZXKZKDN5WW2ZLOOQXTMNBYGE3TKOBYGM4KM4TFMFZW63VHNVSW45DJN5XKKZLWMVXHJLDGN5XXIZLSL5RWY2LDNM#issuecomment-6481758838>,\r\n> or unsubscribe\r\n> <https://github.com/notifications/unsubscribe-auth/ACQ5OX62APRX342DPR74ZU35WJUDFAVCNFSNUABFKJSXA33TNF2G64TZHM4DANBWGQZDIOJUHNEXG43VMU5TIMBQHA4DOMBTGY32C5QC>\r\n> .\r\n> Triage notifications, keep track of coding agent tasks and review pull\r\n> requests on the go with GitHub Mobile for iOS\r\n> <https://github.com/notifications/mobile/ios/ACQ5OX3UFLAOY6B45IPSTC35WJUDFA5CNFSNUABFM5UWIORPF5TWS5BNNB2WEL2JONZXKZKDN5WW2ZLOOQXTMNBYGE3TKOBYGM4KM4TFMFZW63VHNVSW45DJN5XKKZLWMVXHJKTGN5XXIZLSL5UW64Y>\r\n> and Android\r\n> <https://github.com/notifications/mobile/android/ACQ5OXYAM5DMNQCK3YDDUCT5WJUDFA5CNFSNUABFM5UWIORPF5TWS5BNNB2WEL2JONZXKZKDN5WW2ZLOOQXTMNBYGE3TKOBYGM4KM4TFMFZW63VHNVSW45DJN5XKKZLWMVXHJLTGN5XXIZLSL5QW4ZDSN5UWI>.\r\n> Download it today!\r\n> You are receiving this because you were mentioned.Message ID:\r\n> <oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/63/c6481758838\r\n> @github.com>\r\n>\r\n",
+          "createdAt": "2026-10-28T22:04:33Z",
+          "updatedAt": "2026-10-28T22:04:33Z"
         }
       ],
       "reviews": [
@@ -5193,6 +5482,86 @@
               "body": "maybe I am wrong... its this truly addressing a documented security issue? Won't servers just ignore the accept header, if they are incapable of processing it early?",
               "createdAt": "2026-07-02T13:06:54Z",
               "updatedAt": "2026-07-02T13:06:55Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABUygZ9A",
+          "commit": {
+            "abbreviatedOid": "aaeca42"
+          },
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-28T21:45:39Z",
+          "updatedAt": "2026-10-28T21:45:39Z",
+          "comments": [
+            {
+              "originalPosition": 32,
+              "body": "```suggestion\nto retrieve the client registration information. The Authorization Server SHOULD\n```",
+              "createdAt": "2026-10-28T21:45:39Z",
+              "updatedAt": "2026-10-28T21:45:39Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABUyghAA",
+          "commit": {
+            "abbreviatedOid": "aaeca42"
+          },
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-28T21:45:50Z",
+          "updatedAt": "2026-10-28T21:45:50Z",
+          "comments": [
+            {
+              "originalPosition": 33,
+              "body": "```suggestion\nsend an `Accept` header of `application/json` as described in {{Section 12.5.1 of RFC9110}}\n```",
+              "createdAt": "2026-10-28T21:45:50Z",
+              "updatedAt": "2026-10-28T21:45:50Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABUylDPQ",
+          "commit": {
+            "abbreviatedOid": "aaeca42"
+          },
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-28T21:53:04Z",
+          "updatedAt": "2026-10-28T21:53:05Z",
+          "comments": [
+            {
+              "originalPosition": 55,
+              "body": "```suggestion\nAs described in {{client-information-discovery}}, when fetching the Client ID Metadata Document, the authorization server SHOULD send an `Accept` header of `application/json`. This reduces the chances that the authorization server can be used in a reflection attack on unrelated resources, as the target server has the `Accept` header to early reject the request if the request is made to a resource that does not return JSON.\n```",
+              "createdAt": "2026-10-28T21:53:05Z",
+              "updatedAt": "2026-10-28T21:53:05Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABUyo3cA",
+          "commit": {
+            "abbreviatedOid": "4462221"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-28T21:59:00Z",
+          "updatedAt": "2026-10-28T21:59:01Z",
+          "comments": [
+            {
+              "originalPosition": 64,
+              "body": "```suggestion\n```",
+              "createdAt": "2026-10-28T21:59:00Z",
+              "updatedAt": "2026-10-28T21:59:00Z"
             }
           ]
         }
@@ -6706,7 +7075,7 @@
       "labels": [],
       "body": "This should address all concerns in #87 and #92, by creating a new normative section \"Client Authentication\"",
       "createdAt": "2026-09-20T20:31:22Z",
-      "updatedAt": "2026-10-25T16:22:14Z",
+      "updatedAt": "2026-10-28T22:43:19Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "8f53aecfaa820023f0f71fe5f0c299db725374d3",
@@ -6717,7 +7086,15 @@
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
-      "comments": [],
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Change:\r\n> For example, requiring the token_endpoint_auth_method property be set to \"private_key_jwt\", effectively requiring confidential clients.\r\n\r\nTo use `token_endpoint_auth_methods_supported`",
+          "createdAt": "2026-10-28T21:05:48Z",
+          "updatedAt": "2026-10-28T21:05:48Z"
+        }
+      ],
       "reviews": [
         {
           "id": "PRR_kwDOL_Xevs8AAAABOZ6nCQ",
@@ -6758,8 +7135,439 @@
               "updatedAt": "2026-09-20T20:33:51Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABUx3Ztg",
+          "commit": {
+            "abbreviatedOid": "e144f02"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-28T20:43:22Z",
+          "updatedAt": "2026-10-28T20:43:22Z",
+          "comments": [
+            {
+              "originalPosition": 114,
+              "body": "Replace `invalid_request` with `invalid_client`, OAuth 2.1 will be updated to allow for invalid_client in Authorization Error Response\n\nhttps://github.com/oauth-wg/oauth-v2-1/issues/266",
+              "createdAt": "2026-10-28T20:43:22Z",
+              "updatedAt": "2026-10-28T21:14:55Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABUx4quA",
+          "commit": {
+            "abbreviatedOid": "e144f02"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-28T20:45:16Z",
+          "updatedAt": "2026-10-28T20:45:16Z",
+          "comments": [
+            {
+              "originalPosition": 100,
+              "body": "Change to SHOULD NOT use `token_endpoint_auth_method` and SHOULD use `token_endpoint_auth_methods_supported`\n\nWe need language for the AS to say they must support implement `token_endpoint_auth_methods_supported` and only read `token_endpoint_auth_method` if `token_endpoint_auth_methods_supported` is not present.\n\nAdd in rationale for why (clients often need to evolve authentication over time, or negotiate with servers supporting varying methods of client authentication)",
+              "createdAt": "2026-10-28T20:45:16Z",
+              "updatedAt": "2026-10-28T21:08:48Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABUx44AA",
+          "commit": {
+            "abbreviatedOid": "e144f02"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-28T20:45:33Z",
+          "updatedAt": "2026-10-28T20:45:33Z",
+          "comments": [
+            {
+              "originalPosition": 106,
+              "body": "Keep this paragraph",
+              "createdAt": "2026-10-28T20:45:33Z",
+              "updatedAt": "2026-10-28T20:45:33Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABUx5LOg",
+          "commit": {
+            "abbreviatedOid": "e144f02"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-28T20:45:59Z",
+          "updatedAt": "2026-10-28T20:45:59Z",
+          "comments": [
+            {
+              "originalPosition": 108,
+              "body": "Keep",
+              "createdAt": "2026-10-28T20:45:59Z",
+              "updatedAt": "2026-10-28T20:45:59Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABUx5mDg",
+          "commit": {
+            "abbreviatedOid": "e144f02"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-28T20:46:36Z",
+          "updatedAt": "2026-10-28T20:46:36Z",
+          "comments": [
+            {
+              "originalPosition": 110,
+              "body": "```suggestion\n```",
+              "createdAt": "2026-10-28T20:46:36Z",
+              "updatedAt": "2026-10-28T20:46:36Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABUx8Y2g",
+          "commit": {
+            "abbreviatedOid": "e144f02"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-28T20:50:23Z",
+          "updatedAt": "2026-10-28T20:50:23Z",
+          "comments": [
+            {
+              "originalPosition": 108,
+              "body": "Add sentence to error token endpoint if the client using authentication without declaring it uses authentication",
+              "createdAt": "2026-10-28T20:50:23Z",
+              "updatedAt": "2026-10-28T20:50:23Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABUx8uJQ",
+          "commit": {
+            "abbreviatedOid": "e144f02"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-28T20:50:47Z",
+          "updatedAt": "2026-10-28T20:50:47Z",
+          "comments": [
+            {
+              "originalPosition": 112,
+              "body": "keep",
+              "createdAt": "2026-10-28T20:50:47Z",
+              "updatedAt": "2026-10-28T20:50:47Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABUx81GA",
+          "commit": {
+            "abbreviatedOid": "e144f02"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-28T20:50:55Z",
+          "updatedAt": "2026-10-28T20:50:56Z",
+          "comments": [
+            {
+              "originalPosition": 116,
+              "body": "Delete this paragraph",
+              "createdAt": "2026-10-28T20:50:56Z",
+              "updatedAt": "2026-10-28T20:50:56Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABUx89nQ",
+          "commit": {
+            "abbreviatedOid": "e144f02"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-28T20:51:05Z",
+          "updatedAt": "2026-10-28T20:51:06Z",
+          "comments": [
+            {
+              "originalPosition": 118,
+              "body": "delete",
+              "createdAt": "2026-10-28T20:51:05Z",
+              "updatedAt": "2026-10-28T20:51:06Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABUx-_QA",
+          "commit": {
+            "abbreviatedOid": "e144f02"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-28T20:53:52Z",
+          "updatedAt": "2026-10-28T20:53:52Z",
+          "comments": [
+            {
+              "originalPosition": 136,
+              "body": "```suggestion\n```",
+              "createdAt": "2026-10-28T20:53:52Z",
+              "updatedAt": "2026-10-28T20:53:52Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABUyCcxw",
+          "commit": {
+            "abbreviatedOid": "e144f02"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-28T20:59:00Z",
+          "updatedAt": "2026-10-28T20:59:00Z",
+          "comments": [
+            {
+              "originalPosition": 149,
+              "body": "```suggestion\n```",
+              "createdAt": "2026-10-28T20:59:00Z",
+              "updatedAt": "2026-10-28T20:59:00Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABUzDKEg",
+          "commit": {
+            "abbreviatedOid": "e144f02"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-28T22:43:18Z",
+          "updatedAt": "2026-10-28T22:43:19Z",
+          "comments": [
+            {
+              "originalPosition": 122,
+              "body": "Add:\n> When using `private_key_jwt` for client auth, the CIMD MUST include either `jwks` or `jwks_uri`, if neither are present, the Authorization Request must return an error of `invalid_client`",
+              "createdAt": "2026-10-28T22:43:18Z",
+              "updatedAt": "2026-10-28T22:43:18Z"
+            }
+          ]
         }
       ]
+    },
+    {
+      "number": 105,
+      "id": "PR_kwDOL_Xevs8AAAABLWgn-w",
+      "title": "added language around AS-enforced minimum/maximum cache duration values",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/105",
+      "state": "OPEN",
+      "author": "mooreds",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "This addresses https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/104",
+      "createdAt": "2026-10-28T19:52:53Z",
+      "updatedAt": "2026-10-28T22:06:25Z",
+      "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "8f53aecfaa820023f0f71fe5f0c299db725374d3",
+      "headRepository": "FusionAuth/draft-ietf-oauth-client-id-metadata-document",
+      "headRefName": "mooreds/issue-104",
+      "headRefOid": "dbc8aa8ea6c4645eae092841ddb64f6038b8b9c2",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABUxeDbw",
+          "commit": {
+            "abbreviatedOid": "dbc8aa8"
+          },
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-28T20:09:33Z",
+          "updatedAt": "2026-10-28T20:09:33Z",
+          "comments": [
+            {
+              "originalPosition": 13,
+              "body": "Hi @mooreds, amazing, thanks for this @aaronpk and I were literally just discussing this. Could you modify this line to say that the authorization server MAY implement rate limiting or other measures to prevent repeatedly fetching a Client Identifier URL that results in a error response, or an invalid or malformed document.",
+              "createdAt": "2026-10-28T20:09:33Z",
+              "updatedAt": "2026-10-28T20:09:33Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABUyF9fQ",
+          "commit": {
+            "abbreviatedOid": "dbc8aa8"
+          },
+          "author": "mooreds",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-28T21:04:22Z",
+          "updatedAt": "2026-10-28T21:04:22Z",
+          "comments": [
+            {
+              "originalPosition": 13,
+              "body": "sure, happy to. ",
+              "createdAt": "2026-10-28T21:04:22Z",
+              "updatedAt": "2026-10-28T21:04:23Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABUyJPFQ",
+          "commit": {
+            "abbreviatedOid": "dbc8aa8"
+          },
+          "author": "mooreds",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2026-10-28T21:09:15Z",
+          "updatedAt": "2026-10-28T21:09:16Z",
+          "comments": [
+            {
+              "originalPosition": 13,
+              "body": "Actually, @ThisIsMissEm are you talking about the line starting with `the authorization server MUST NOT cache error responses.`?\n\nIf so, shouldn't that be a separate issue/PR?\n\nOr do I misunderstand?",
+              "createdAt": "2026-10-28T21:09:15Z",
+              "updatedAt": "2026-10-28T21:09:16Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 107,
+      "id": "PR_kwDOL_Xevs8AAAABLXv9BQ",
+      "title": "add language around metadata discovery failure",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/107",
+      "state": "OPEN",
+      "author": "mooreds",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "Discuss which of these kinds of failures, if any, should affect previously-established trust such as refresh tokens.",
+      "createdAt": "2026-10-28T21:35:45Z",
+      "updatedAt": "2026-10-28T22:06:05Z",
+      "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "8f53aecfaa820023f0f71fe5f0c299db725374d3",
+      "headRepository": "FusionAuth/draft-ietf-oauth-client-id-metadata-document",
+      "headRefName": "mooreds/issue-106",
+      "headRefOid": "29fe16faec910f2ce3a4c09afd7d20b12f407d27",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 109,
+      "id": "PR_kwDOL_Xevs8AAAABLX72wA",
+      "title": "add language around refresh token/long-lived grant behavior ",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/109",
+      "state": "OPEN",
+      "author": "mooreds",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "When does a CIMD refetch happen?\r\n\r\nWhat happens to refresh tokens if it fails?\r\n\r\nDepends on #107 for defining fetch failure modes.",
+      "createdAt": "2026-10-28T21:51:20Z",
+      "updatedAt": "2026-10-28T21:51:56Z",
+      "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "8f53aecfaa820023f0f71fe5f0c299db725374d3",
+      "headRepository": "FusionAuth/draft-ietf-oauth-client-id-metadata-document",
+      "headRefName": "mooreds/issue-108",
+      "headRefOid": "0d49c4ca088218b06f8a446110e661deccd7b0c2",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 110,
+      "id": "PR_kwDOL_Xevs8AAAABLYy5jg",
+      "title": "Require iss parameter on authorization responses",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/110",
+      "state": "OPEN",
+      "author": "ThisIsMissEm",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Fixes #88 ",
+      "createdAt": "2026-10-28T23:11:27Z",
+      "updatedAt": "2026-10-28T23:11:47Z",
+      "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "8f53aecfaa820023f0f71fe5f0c299db725374d3",
+      "headRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "headRefName": "as-requirements",
+      "headRefOid": "89e8a00c93b61af1b42b58a23051a6e8e22159db",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 111,
+      "id": "PR_kwDOL_Xevs8AAAABLZNxTQ",
+      "title": "Switch to the default XML2RFC styling to improve readability",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/111",
+      "state": "OPEN",
+      "author": "ThisIsMissEm",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This results in the document looking more like https://www.rfc-editor.org/rfc/rfc9207.html \u2014 I requested this change because I was struggling to read the serif typeface when working on the document due to my eyesight not being great.",
+      "createdAt": "2026-10-28T23:55:10Z",
+      "updatedAt": "2026-10-28T23:55:24Z",
+      "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "8f53aecfaa820023f0f71fe5f0c299db725374d3",
+      "headRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "headRefName": "improve-document-style-and-readability",
+      "headRefOid": "34142e6f326a504bcc19cc9d93544bc3c06a83e9",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
