@@ -161,7 +161,7 @@ A Client Identifier URL:
 * MUST NOT contain a fragment component
 
 Client Identifier URLs MUST be compared using simple string comparison, as
-defined in Section 6.2.1 of {{RFC3986}}. For example,
+defined in {{Section 6.2.1 of RFC3986}}. For example,
 `https://example.com/client` and `https://example.com:443/client`
 are not equivalent even though 443 is the default port for the `https` scheme.
 
@@ -201,7 +201,7 @@ as established by {{RFC7591}}.
 The Client ID Metadata Document MUST contain a `client_id` property whose value
 MUST match the Client Identifier URL, which MUST also match the URL that the
 authorization server used to fetch the document; comparisons MUST be made
-using simple string comparison as defined in Section 6.2.1 of {{RFC3986}}. The
+using simple string comparison as defined in {{Section 6.2.1 of RFC3986}}. The
 authorization server is responsible for validating this match as part of
 processing the fetched document.
 
@@ -370,7 +370,11 @@ In addition to the security considerations in OAuth 2.0 Core {{RFC6749}}, and OA
 
 ## Client Identifier URL Confusion Attacks {#client_identifier_urls_security_considerations}
 
-To prevent token confusion attacks, an authorization server SHOULD reject a Client Identifier URL that is equal, using simple string comparison as defined in Section 6.2.1 of {{RFC3986}}, to its own `issuer` identifier, or to the identifier of any authorization server or resource server it has a trust relationship with.
+To prevent token confusion attacks, an authorization server SHOULD reject a
+Client Identifier URL that is equal, using simple string comparison as defined
+in {{Section 6.2.1 of RFC3986}}, to its own `issuer` identifier, or to the
+identifier of any authorization server or resource server it has a trust
+relationship with.
 
 The Client Identifier URL appears in tokens and assertions as the value of claims such as `aud` in tokens issued to the client, `iss` and `sub` in client authentication assertions ({{RFC7523}}), and `client_id` in access tokens and token introspection responses. If the Client Identifier URL equals the identifier of another party, these values become ambiguous, and a token or assertion relating to the client could be accepted by that party as having been issued by, issued to, or being about itself.
 
@@ -425,8 +429,8 @@ if encountering the client for the first time.
 Clients should therefore treat their Client Identifier URL with the same
 degree of stability as they would treat any persistent identity. Operators
 should plan for the URL to remain resolvable and under their control
-indefinitely, as loss of control over the URL — for example through domain
-expiry or reassignment — would allow a third party to assume the client's
+indefinitely, as loss of control over the URL (for example through domain
+expiry or reassignment) would allow a third party to assume the client's
 identity.
 
 ## Changes in Client Metadata {#client_metadata_changes}
@@ -504,8 +508,8 @@ For example, the authorization server could require that the first 100 users to 
 Any mechanism an authorization server uses to persist or reuse a prior
 authorization decision for a client MUST be scoped at least to the
 pair of Client Identifier URL and `resource`, consistent with the
-binding already required of refresh tokens in {{RFC9700}} Section
-4.14.2.
+binding already required of refresh tokens in
+{{Section 4.14.2 of RFC9700}}.
 
 ## CIMD Services {#cimd_services}
 
