@@ -1392,7 +1392,7 @@ metadata about the client as needed.<a href="#section-abstract-1" class="pilcrow
             <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
-                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-client-identifier-urls" class="internal xref">Client Identifier URLs</a></p>
+                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-client-identifier-url-confu" class="internal xref">Client Identifier URL Confusion Attacks</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
                 <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="auto internal xref">9.2</a>.  <a href="#name-relationship-between-redire" class="internal xref">Relationship between <code>redirect_uris</code> and <code>client_id</code> or <code>client_uri</code></a></p>
@@ -1795,8 +1795,8 @@ server also <span class="bcp14">MUST NOT</span> cache documents which are invali
 <p id="section-9-1">In addition to the security considerations in OAuth 2.0 Core <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, and OAuth 2.0 Threat Model and Security Considerations <span>[<a href="#RFC6819" class="cite xref">RFC6819</a>]</span>, and <span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span> the additional considerations apply.<a href="#section-9-1" class="pilcrow">¶</a></p>
 <div id="client_identifier_urls_security_considerations">
 <section id="section-9.1">
-        <h3 id="name-client-identifier-urls">
-<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-client-identifier-urls" class="section-name selfRef">Client Identifier URLs</a>
+        <h3 id="name-client-identifier-url-confu">
+<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-client-identifier-url-confu" class="section-name selfRef">Client Identifier URL Confusion Attacks</a>
         </h3>
 <p id="section-9.1-1">To prevent token confusion attacks, an authorization server <span class="bcp14">SHOULD</span> reject a Client Identifier URL that is equal, using simple string comparison as defined in Section 6.2.1 of <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>, to its own <code>issuer</code> identifier, or to the identifier of any authorization server or resource server it has a trust relationship with.<a href="#section-9.1-1" class="pilcrow">¶</a></p>
 <p id="section-9.1-2">The Client Identifier URL appears in tokens and assertions as the value of claims such as <code>aud</code> in tokens issued to the client, <code>iss</code> and <code>sub</code> in client authentication assertions (<span>[<a href="#RFC7523" class="cite xref">RFC7523</a>]</span>), and <code>client_id</code> in access tokens and token introspection responses. If the Client Identifier URL equals the identifier of another party, these values become ambiguous, and a token or assertion relating to the client could be accepted by that party as having been issued by, issued to, or being about itself.<a href="#section-9.1-2" class="pilcrow">¶</a></p>

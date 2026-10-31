@@ -90,7 +90,7 @@ Table of Contents
      8.1.  Supporting Both Pre-Registered and Unregistered Clients
      8.2.  Pre-Registering Client Identifier URLs
    9.  Security Considerations
-     9.1.  Client Identifier URLs
+     9.1.  Client Identifier URL Confusion Attacks
      9.2.  Relationship between redirect_uris and client_id or
             client_uri
      9.3.  Client Authentication
@@ -444,7 +444,7 @@ Table of Contents
    [RFC6749], and OAuth 2.0 Threat Model and Security Considerations
    [RFC6819], and [RFC9700] the additional considerations apply.
 
-9.1.  Client Identifier URLs
+9.1.  Client Identifier URL Confusion Attacks
 
    To prevent token confusion attacks, an authorization server SHOULD
    reject a Client Identifier URL that is equal, using simple string
