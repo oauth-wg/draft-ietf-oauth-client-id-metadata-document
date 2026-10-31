@@ -1560,26 +1560,29 @@ referred to in this document as a Client Identifier URL.<a href="#section-3-1" c
 </li>
       </ul>
 <p id="section-3-4">Client Identifier URLs <span class="bcp14">MUST</span> be compared using simple string comparison, as
-defined in Section 6.2.1 of <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>. For example,
+defined in <span><a href="https://rfc-editor.org/rfc/rfc3986#section-6.2.1" class="relref">Section 6.2.1</a> of [<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>. For example,
 <code>https://example.com/client</code> and <code>https://example.com:443/client</code>
 are not equivalent even though 443 is the default port for the <code>https</code> scheme.<a href="#section-3-4" class="pilcrow">¶</a></p>
-<p id="section-3-5">This specification places no restrictions on the brevity or longevity of a
+<p id="section-3-5">The client <span class="bcp14">SHOULD</span> normalize its Client Identifier URL as described in
+Sections <a href="https://rfc-editor.org/rfc/rfc3986#section-6.2.2" class="relref">6.2.2</a> and <a href="https://rfc-editor.org/rfc/rfc3986#section-6.2.3" class="relref">6.2.3</a> of <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>, as the Authorization Server <span class="bcp14">MUST NOT</span> normalize
+Client Identifier URLs when performing comparison.<a href="#section-3-5" class="pilcrow">¶</a></p>
+<p id="section-3-6">This specification places no restrictions on the brevity or longevity of a
 Client Identifier URL beyond the requirements listed above. A short URL is
 <span class="bcp14">RECOMMENDED</span>, since the URI may be displayed to the end user in the
 authorization interface or in management interfaces. Usage of a stable URL
 that does not change frequently for the client is also <span class="bcp14">RECOMMENDED</span>, as
 changing the URL will appear to the authorization server to be an entirely
-different Client Identifier URL as described in <a href="#client_id_url_changes" class="auto internal xref">Section 9.4</a>.<a href="#section-3-5" class="pilcrow">¶</a></p>
-<p id="section-3-6">Note that URL shortening services are generally not suitable as Client Identifier
+different Client Identifier URL as described in <a href="#client_id_url_changes" class="auto internal xref">Section 9.4</a>.<a href="#section-3-6" class="pilcrow">¶</a></p>
+<p id="section-3-7">Note that URL shortening services are generally not suitable as Client Identifier
 URLs, since they typically operate using HTTP redirects, which conflicts
 with the requirement in <a href="#client_information_discovery" class="auto internal xref">Section 5</a> when fetching the
 Client ID Metadata Document. Using a path of <code>/</code> (e.g., <code>https://example.com/</code>)
 is <span class="bcp14">NOT RECOMMENDED</span>, since the Client ID Metadata Document would then be served at
-the root of the domain, conflicting with existing content that may be published there.<a href="#section-3-6" class="pilcrow">¶</a></p>
-<p id="section-3-7">A Client Identifier URL <span class="bcp14">MUST</span> be associated with a set of client metadata,
+the root of the domain, conflicting with existing content that may be published there.<a href="#section-3-7" class="pilcrow">¶</a></p>
+<p id="section-3-8">A Client Identifier URL <span class="bcp14">MUST</span> be associated with a set of client metadata,
 in the form of a Client ID Metadata Document as described in
-<a href="#client_metadata_document" class="auto internal xref">Section 4</a>, available at the Client Identifier URL.<a href="#section-3-7" class="pilcrow">¶</a></p>
-<p id="section-3-8">See also <a href="#client_identifier_urls_security_considerations" class="auto internal xref">Section 9.1</a> for security considerations relating to Client Identifier URLs.<a href="#section-3-8" class="pilcrow">¶</a></p>
+<a href="#client_metadata_document" class="auto internal xref">Section 4</a>, available at the Client Identifier URL.<a href="#section-3-8" class="pilcrow">¶</a></p>
+<p id="section-3-9">See also <a href="#client_identifier_urls_security_considerations" class="auto internal xref">Section 9.1</a> for security considerations relating to Client Identifier URLs.<a href="#section-3-9" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="client_metadata_document">
@@ -1595,7 +1598,7 @@ as established by <span>[<a href="#RFC7591" class="cite xref">RFC7591</a>]</span
 <p id="section-4-2">The Client ID Metadata Document <span class="bcp14">MUST</span> contain a <code>client_id</code> property whose value
 <span class="bcp14">MUST</span> match the Client Identifier URL, which <span class="bcp14">MUST</span> also match the URL that the
 authorization server used to fetch the document; comparisons <span class="bcp14">MUST</span> be made
-using simple string comparison as defined in Section 6.2.1 of <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>. The
+using simple string comparison as defined in <span><a href="https://rfc-editor.org/rfc/rfc3986#section-6.2.1" class="relref">Section 6.2.1</a> of [<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>. The
 authorization server is responsible for validating this match as part of
 processing the fetched document.<a href="#section-4-2" class="pilcrow">¶</a></p>
 <p id="section-4-3">The Client ID Metadata Document <span class="bcp14">MUST</span> be served with a 200 OK HTTP status code.
@@ -1801,7 +1804,11 @@ server also <span class="bcp14">MUST NOT</span> cache documents which are invali
         <h3 id="name-client-identifier-url-confu">
 <a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-client-identifier-url-confu" class="section-name selfRef">Client Identifier URL Confusion Attacks</a>
         </h3>
-<p id="section-9.1-1">To prevent token confusion attacks, an authorization server <span class="bcp14">SHOULD</span> reject a Client Identifier URL that is equal, using simple string comparison as defined in Section 6.2.1 of <span>[<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>, to its own <code>issuer</code> identifier, or to the identifier of any authorization server or resource server it has a trust relationship with.<a href="#section-9.1-1" class="pilcrow">¶</a></p>
+<p id="section-9.1-1">To prevent token confusion attacks, an authorization server <span class="bcp14">SHOULD</span> reject a
+Client Identifier URL that is equal, using simple string comparison as defined
+in <span><a href="https://rfc-editor.org/rfc/rfc3986#section-6.2.1" class="relref">Section 6.2.1</a> of [<a href="#RFC3986" class="cite xref">RFC3986</a>]</span>, to its own <code>issuer</code> identifier, or to the
+identifier of any authorization server or resource server it has a trust
+relationship with.<a href="#section-9.1-1" class="pilcrow">¶</a></p>
 <p id="section-9.1-2">The Client Identifier URL appears in tokens and assertions as the value of claims such as <code>aud</code> in tokens issued to the client, <code>iss</code> and <code>sub</code> in client authentication assertions (<span>[<a href="#RFC7523" class="cite xref">RFC7523</a>]</span>), and <code>client_id</code> in access tokens and token introspection responses. If the Client Identifier URL equals the identifier of another party, these values become ambiguous, and a token or assertion relating to the client could be accepted by that party as having been issued by, issued to, or being about itself.<a href="#section-9.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1861,8 +1868,8 @@ if encountering the client for the first time.<a href="#section-9.4-1" class="pi
 <p id="section-9.4-2">Clients should therefore treat their Client Identifier URL with the same
 degree of stability as they would treat any persistent identity. Operators
 should plan for the URL to remain resolvable and under their control
-indefinitely, as loss of control over the URL — for example through domain
-expiry or reassignment — would allow a third party to assume the client's
+indefinitely, as loss of control over the URL (for example through domain
+expiry or reassignment) would allow a third party to assume the client's
 identity.<a href="#section-9.4-2" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1967,8 +1974,8 @@ URLs.<a href="#section-9.5.1-2" class="pilcrow">¶</a></p>
 <p id="section-9.11-1">Any mechanism an authorization server uses to persist or reuse a prior
 authorization decision for a client <span class="bcp14">MUST</span> be scoped at least to the
 pair of Client Identifier URL and <code>resource</code>, consistent with the
-binding already required of refresh tokens in <span>[<a href="#RFC9700" class="cite xref">RFC9700</a>]</span> Section
-4.14.2.<a href="#section-9.11-1" class="pilcrow">¶</a></p>
+binding already required of refresh tokens in
+<span><a href="https://rfc-editor.org/rfc/rfc9700#section-4.14.2" class="relref">Section 4.14.2</a> of [<a href="#RFC9700" class="cite xref">RFC9700</a>]</span>.<a href="#section-9.11-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="cimd_services">
@@ -2244,88 +2251,94 @@ as clients that publish their own Client ID Metadata Document.<a href="#appendix
 <a href="#name-document-history" class="section-name selfRef">Document History</a>
       </h2>
 <p id="appendix-C-1">(This appendix to be deleted by the RFC editor in the final specification.)<a href="#appendix-C-1" class="pilcrow">¶</a></p>
-<p id="appendix-C-2">-02<a href="#appendix-C-2" class="pilcrow">¶</a></p>
+<p id="appendix-C-2">-03<a href="#appendix-C-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="appendix-C-3.1">
-          <p id="appendix-C-3.1.1">Clarified loopback exception for SSRF checks<a href="#appendix-C-3.1.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-3.2">
-          <p id="appendix-C-3.2.1">More strongly recommend doing client authentication<a href="#appendix-C-3.2.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-3.3">
-          <p id="appendix-C-3.3.1">Clarified scope of applicability in the Introduction<a href="#appendix-C-3.3.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-3.4">
-          <p id="appendix-C-3.4.1">Renamed "client identifier" to "Client Identifier URL" to avoid implying all OAuth client identifiers are URLs<a href="#appendix-C-3.4.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-3.5">
-          <p id="appendix-C-3.5.1">Reformatted Client Identifier URL requirements as a list, and aligned terminology with RFC3986 (userinfo, authority)<a href="#appendix-C-3.5.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-3.6">
-          <p id="appendix-C-3.6.1">Clarified that Client Identifier URL comparison uses simple string comparison without default port normalization<a href="#appendix-C-3.6.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-3.7">
-          <p id="appendix-C-3.7.1">Clarified that URL shorteners are incompatible with the no-redirect requirement<a href="#appendix-C-3.7.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-3.8">
-          <p id="appendix-C-3.8.1">Clarified the relationship between associating and fetching client metadata<a href="#appendix-C-3.8.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-3.9">
-          <p id="appendix-C-3.9.1">Split "what is in the document" and "how to fetch the document" into separate top-level sections<a href="#appendix-C-3.9.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-3.10">
-          <p id="appendix-C-3.10.1">Moved the 200 OK requirement to the fetching process rather than the document definition<a href="#appendix-C-3.10.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-3.11">
-          <p id="appendix-C-3.11.1">Split client credential/key restrictions into their own subsection, and added a discussion of software_statement<a href="#appendix-C-3.11.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-3.12">
-          <p id="appendix-C-3.12.1">Moved Client ID Metadata Documents for Development Purposes to a non-normative appendix, and added discussion of its security and reputation implications<a href="#appendix-C-3.12.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-3.13">
-          <p id="appendix-C-3.13.1">Clarified applicability of redirect URI registration requirements to non-redirect-based grant types<a href="#appendix-C-3.13.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-3.14">
-          <p id="appendix-C-3.14.1">Moved Supporting Both Pre-Registered and Unregistered Clients and Pre-Registering Client ID Metadata Document URLs to a new Implementation Considerations section<a href="#appendix-C-3.14.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-3.15">
-          <p id="appendix-C-3.15.1">Removed normative language from Security Considerations where it was purely explanatory<a href="#appendix-C-3.15.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-3.16">
-          <p id="appendix-C-3.16.1">Clarified the SSRF loopback exception applies only to development and testing deployments<a href="#appendix-C-3.16.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-3.17">
-          <p id="appendix-C-3.17.1">Clarified the maximum response size guidance applies to how much data the authorization server reads, not the size of the file itself<a href="#appendix-C-3.17.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-3.18">
-          <p id="appendix-C-3.18.1">Added discussion of domain allowlists to Client ID Domain Trust<a href="#appendix-C-3.18.1" class="pilcrow">¶</a></p>
-</li>
-        <li class="normal" id="appendix-C-3.19">
-          <p id="appendix-C-3.19.1">Added a Privacy Considerations section<a href="#appendix-C-3.19.1" class="pilcrow">¶</a></p>
+          <p id="appendix-C-3.1.1">Added requirement for clients to normalize their Client Identifier URLs<a href="#appendix-C-3.1.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="appendix-C-4">-01<a href="#appendix-C-4" class="pilcrow">¶</a></p>
+<p id="appendix-C-4">-02<a href="#appendix-C-4" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="appendix-C-5.1">
-          <p id="appendix-C-5.1.1">Added security consideration for changes in Client Metadata<a href="#appendix-C-5.1.1" class="pilcrow">¶</a></p>
+          <p id="appendix-C-5.1.1">Clarified loopback exception for SSRF checks<a href="#appendix-C-5.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-C-5.2">
-          <p id="appendix-C-5.2.1">Recommend sending Accept header when fetching metadata<a href="#appendix-C-5.2.1" class="pilcrow">¶</a></p>
+          <p id="appendix-C-5.2.1">More strongly recommend doing client authentication<a href="#appendix-C-5.2.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-C-5.3">
-          <p id="appendix-C-5.3.1">Added guidance for an AS that supports both registered and unregistered clients<a href="#appendix-C-5.3.1" class="pilcrow">¶</a></p>
+          <p id="appendix-C-5.3.1">Clarified scope of applicability in the Introduction<a href="#appendix-C-5.3.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-C-5.4">
-          <p id="appendix-C-5.4.1">Require HTTP 200 response for fetching metadata<a href="#appendix-C-5.4.1" class="pilcrow">¶</a></p>
+          <p id="appendix-C-5.4.1">Renamed "client identifier" to "Client Identifier URL" to avoid implying all OAuth client identifiers are URLs<a href="#appendix-C-5.4.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="appendix-C-5.5">
-          <p id="appendix-C-5.5.1">Added additional SSRF considerations<a href="#appendix-C-5.5.1" class="pilcrow">¶</a></p>
+          <p id="appendix-C-5.5.1">Reformatted Client Identifier URL requirements as a list, and aligned terminology with RFC3986 (userinfo, authority)<a href="#appendix-C-5.5.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-5.6">
+          <p id="appendix-C-5.6.1">Clarified that Client Identifier URL comparison uses simple string comparison without default port normalization<a href="#appendix-C-5.6.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-5.7">
+          <p id="appendix-C-5.7.1">Clarified that URL shorteners are incompatible with the no-redirect requirement<a href="#appendix-C-5.7.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-5.8">
+          <p id="appendix-C-5.8.1">Clarified the relationship between associating and fetching client metadata<a href="#appendix-C-5.8.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-5.9">
+          <p id="appendix-C-5.9.1">Split "what is in the document" and "how to fetch the document" into separate top-level sections<a href="#appendix-C-5.9.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-5.10">
+          <p id="appendix-C-5.10.1">Moved the 200 OK requirement to the fetching process rather than the document definition<a href="#appendix-C-5.10.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-5.11">
+          <p id="appendix-C-5.11.1">Split client credential/key restrictions into their own subsection, and added a discussion of software_statement<a href="#appendix-C-5.11.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-5.12">
+          <p id="appendix-C-5.12.1">Moved Client ID Metadata Documents for Development Purposes to a non-normative appendix, and added discussion of its security and reputation implications<a href="#appendix-C-5.12.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-5.13">
+          <p id="appendix-C-5.13.1">Clarified applicability of redirect URI registration requirements to non-redirect-based grant types<a href="#appendix-C-5.13.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-5.14">
+          <p id="appendix-C-5.14.1">Moved Supporting Both Pre-Registered and Unregistered Clients and Pre-Registering Client ID Metadata Document URLs to a new Implementation Considerations section<a href="#appendix-C-5.14.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-5.15">
+          <p id="appendix-C-5.15.1">Removed normative language from Security Considerations where it was purely explanatory<a href="#appendix-C-5.15.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-5.16">
+          <p id="appendix-C-5.16.1">Clarified the SSRF loopback exception applies only to development and testing deployments<a href="#appendix-C-5.16.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-5.17">
+          <p id="appendix-C-5.17.1">Clarified the maximum response size guidance applies to how much data the authorization server reads, not the size of the file itself<a href="#appendix-C-5.17.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-5.18">
+          <p id="appendix-C-5.18.1">Added discussion of domain allowlists to Client ID Domain Trust<a href="#appendix-C-5.18.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-5.19">
+          <p id="appendix-C-5.19.1">Added a Privacy Considerations section<a href="#appendix-C-5.19.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="appendix-C-6">-00<a href="#appendix-C-6" class="pilcrow">¶</a></p>
+<p id="appendix-C-6">-01<a href="#appendix-C-6" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="appendix-C-7.1">
-          <p id="appendix-C-7.1.1">Initial draft<a href="#appendix-C-7.1.1" class="pilcrow">¶</a></p>
+          <p id="appendix-C-7.1.1">Added security consideration for changes in Client Metadata<a href="#appendix-C-7.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-7.2">
+          <p id="appendix-C-7.2.1">Recommend sending Accept header when fetching metadata<a href="#appendix-C-7.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-7.3">
+          <p id="appendix-C-7.3.1">Added guidance for an AS that supports both registered and unregistered clients<a href="#appendix-C-7.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-7.4">
+          <p id="appendix-C-7.4.1">Require HTTP 200 response for fetching metadata<a href="#appendix-C-7.4.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-7.5">
+          <p id="appendix-C-7.5.1">Added additional SSRF considerations<a href="#appendix-C-7.5.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="appendix-C-8">-00<a href="#appendix-C-8" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="appendix-C-9.1">
+          <p id="appendix-C-9.1.1">Initial draft<a href="#appendix-C-9.1.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 </section>

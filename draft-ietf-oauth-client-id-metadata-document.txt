@@ -181,6 +181,10 @@ Table of Contents
    https://example.com/client and https://example.com:443/client are not
    equivalent even though 443 is the default port for the https scheme.
 
+   The client SHOULD normalize its Client Identifier URL as described in
+   Sections 6.2.2 and 6.2.3 of [RFC3986], as the Authorization Server
+   MUST NOT normalize Client Identifier URLs when performing comparison.
+
    This specification places no restrictions on the brevity or longevity
    of a Client Identifier URL beyond the requirements listed above.  A
    short URL is RECOMMENDED, since the URI may be displayed to the end
@@ -546,8 +550,8 @@ Table of Contents
    Clients should therefore treat their Client Identifier URL with the
    same degree of stability as they would treat any persistent identity.
    Operators should plan for the URL to remain resolvable and under
-   their control indefinitely, as loss of control over the URL — for
-   example through domain expiry or reassignment — would allow a third
+   their control indefinitely, as loss of control over the URL (for
+   example through domain expiry or reassignment) would allow a third
    party to assume the client's identity.
 
 9.5.  Changes in Client Metadata
@@ -702,8 +706,8 @@ Table of Contents
    Any mechanism an authorization server uses to persist or reuse a
    prior authorization decision for a client MUST be scoped at least to
    the pair of Client Identifier URL and resource, consistent with the
-   binding already required of refresh tokens in [RFC9700]
-   Section 4.14.2.
+   binding already required of refresh tokens in Section 4.14.2 of
+   [RFC9700].
 
 9.12.  CIMD Services
 
@@ -970,6 +974,11 @@ Document History
 
    (This appendix to be deleted by the RFC editor in the final
    specification.)
+
+   -03
+
+   *  Added requirement for clients to normalize their Client Identifier
+      URLs
 
    -02
 
