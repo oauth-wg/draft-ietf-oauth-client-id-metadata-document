@@ -485,7 +485,7 @@ Varying a Client ID Metadata Document based on the requesting user,
 authorization server, or other request context can amplify this side channel.
 It can enable a client to track requesters or selectively present misleading
 metadata that is difficult for users and independent reviewers to detect.
-Clients MUST follow the consistency requirements in
+Clients must follow the consistency requirements in
 {{client_metadata_consistency}}. Authorization servers SHOULD avoid sending
 cookies, user-specific information, or unnecessary request headers when
 fetching Client ID Metadata Documents.
