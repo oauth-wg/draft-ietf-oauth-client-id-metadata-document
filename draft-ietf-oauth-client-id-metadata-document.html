@@ -1407,7 +1407,10 @@ metadata about the client as needed.<a href="#section-abstract-1" class="pilcrow
                 <p id="section-toc.1-1.9.2.5.1"><a href="#section-9.5" class="auto internal xref">9.5</a>.  <a href="#name-changes-in-client-metadata" class="internal xref">Changes in Client Metadata</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.5.2.1">
-                    <p id="section-toc.1-1.9.2.5.2.1.1"><a href="#section-9.5.1" class="auto internal xref">9.5.1</a>.  <a href="#name-changes-in-client-keys" class="internal xref">Changes in Client Keys</a></p>
+                    <p id="section-toc.1-1.9.2.5.2.1.1"><a href="#section-9.5.1" class="auto internal xref">9.5.1</a>.  <a href="#name-consistency-of-client-metad" class="internal xref">Consistency of Client Metadata</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.5.2.2">
+                    <p id="section-toc.1-1.9.2.5.2.2.1"><a href="#section-9.5.2" class="auto internal xref">9.5.2</a>.  <a href="#name-changes-in-client-keys" class="internal xref">Changes in Client Keys</a></p>
 </li>
                 </ul>
 </li>
@@ -1870,12 +1873,32 @@ identity.<a href="#section-9.4-2" class="pilcrow">¶</a></p>
         </h3>
 <p id="section-9.5-1">Authorization servers should be aware that Client ID Metadata Documents can change over time since they are served from URLs under client control. Authorization servers should consider the security implications when metadata properties change, such as <code>redirect_uris</code>, <code>token_endpoint_auth_method</code>, <code>scope</code>, <code>grant_types</code>, <code>jwks</code>, <code>jwks_uri</code>, or display properties like <code>client_name</code> and <code>logo_uri</code>.<a href="#section-9.5-1" class="pilcrow">¶</a></p>
 <p id="section-9.5-2">Significant changes to client metadata may affect the trust relationship between the authorization server and the client, and could impact the validity of previously granted user consent. Authorization servers may choose to invalidate existing grants, require fresh user consent, or implement other policies when certain types of metadata changes are detected. The appropriate response will depend on the authorization server's risk tolerance and operational requirements.<a href="#section-9.5-2" class="pilcrow">¶</a></p>
-<div id="client_key_changes">
+<div id="client_metadata_consistency">
 <section id="section-9.5.1">
-          <h4 id="name-changes-in-client-keys">
-<a href="#section-9.5.1" class="section-number selfRef">9.5.1. </a><a href="#name-changes-in-client-keys" class="section-name selfRef">Changes in Client Keys</a>
+          <h4 id="name-consistency-of-client-metad">
+<a href="#section-9.5.1" class="section-number selfRef">9.5.1. </a><a href="#name-consistency-of-client-metad" class="section-name selfRef">Consistency of Client Metadata</a>
           </h4>
-<p id="section-9.5.1-1">If the authorization server notices that the <code>jwks</code>, <code>jwks_uri</code> or the contents at the <code>jwks_uri</code> have changed compared to the last time it fetched the metadata, the authorization server may take actions such as revoking any tokens issued to this client, or revoking the user's consent for this client. The particular actions to take are left up to the discretion of the authorization server based on its own risk assessment. However, periodic rotation of keys can also be expected as good security hygiene by the client.<a href="#section-9.5.1-1" class="pilcrow">¶</a></p>
+<p id="section-9.5.1-1">A Client ID Metadata Document is intended to consistently describe one client.
+Clients <span class="bcp14">MUST NOT</span> derive the contents of a Client ID Metadata Document from
+untrusted external input. This includes input embedded in path or query
+components of a Client Identifier URL, as well as request headers, cookies, or
+information about the requesting user or authorization server. In particular,
+untrusted external input <span class="bcp14">MUST NOT</span> influence URIs used for protocol operation
+(Functional URIs), URIs providing information about the client (Informative
+URIs), or other security-sensitive or user-visible metadata such as
+<code>client_name</code>, <code>client_uri</code>, <code>logo_uri</code>, <code>policy_uri</code>, or <code>tos_uri</code>.<a href="#section-9.5.1-1" class="pilcrow">¶</a></p>
+<p id="section-9.5.1-2">This requirement does not prevent an operator from intentionally updating a
+Client ID Metadata Document, including performing key rotation, or from
+publishing intentionally different documents at distinct Client Identifier
+URLs.<a href="#section-9.5.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="client_key_changes">
+<section id="section-9.5.2">
+          <h4 id="name-changes-in-client-keys">
+<a href="#section-9.5.2" class="section-number selfRef">9.5.2. </a><a href="#name-changes-in-client-keys" class="section-name selfRef">Changes in Client Keys</a>
+          </h4>
+<p id="section-9.5.2-1">If the authorization server notices that the <code>jwks</code>, <code>jwks_uri</code> or the contents at the <code>jwks_uri</code> have changed compared to the last time it fetched the metadata, the authorization server may take actions such as revoking any tokens issued to this client, or revoking the user's consent for this client. The particular actions to take are left up to the discretion of the authorization server based on its own risk assessment. However, periodic rotation of keys can also be expected as good security hygiene by the client.<a href="#section-9.5.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1991,6 +2014,14 @@ request, rather than relying on cached data, are more susceptible to this
 side channel. Authorization servers <span class="bcp14">SHOULD</span> respect cache headers as
 described in <a href="#metadata_caching" class="auto internal xref">Section 5.2</a> to reduce the frequency of unnecessary
 fetches.<a href="#section-10.1-2" class="pilcrow">¶</a></p>
+<p id="section-10.1-3">Varying a Client ID Metadata Document based on the requesting user,
+authorization server, or other request context can amplify this side channel.
+It can enable a client to track requesters or selectively present misleading
+metadata that is difficult for users and independent reviewers to detect.
+Clients must follow the consistency requirements in
+<a href="#client_metadata_consistency" class="auto internal xref">Section 9.5.1</a>. Authorization servers <span class="bcp14">SHOULD</span> avoid sending
+cookies, user-specific information, or unnecessary request headers when
+fetching Client ID Metadata Documents.<a href="#section-10.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="urls-referenced-in-client-id-metadata-documents">

@@ -96,7 +96,8 @@ Table of Contents
      9.3.  Client Authentication
      9.4.  Changes in Client Identifier URL
      9.5.  Changes in Client Metadata
-       9.5.1.  Changes in Client Keys
+       9.5.1.  Consistency of Client Metadata
+       9.5.2.  Changes in Client Keys
      9.6.  OAuth Phishing Attacks
      9.7.  Server Side Request Forgery (SSRF) Attacks
        9.7.1.  Accept Header
@@ -567,7 +568,25 @@ Table of Contents
    will depend on the authorization server's risk tolerance and
    operational requirements.
 
-9.5.1.  Changes in Client Keys
+9.5.1.  Consistency of Client Metadata
+
+   A Client ID Metadata Document is intended to consistently describe
+   one client.  Clients MUST NOT derive the contents of a Client ID
+   Metadata Document from untrusted external input.  This includes input
+   embedded in path or query components of a Client Identifier URL, as
+   well as request headers, cookies, or information about the requesting
+   user or authorization server.  In particular, untrusted external
+   input MUST NOT influence URIs used for protocol operation (Functional
+   URIs), URIs providing information about the client (Informative
+   URIs), or other security-sensitive or user-visible metadata such as
+   client_name, client_uri, logo_uri, policy_uri, or tos_uri.
+
+   This requirement does not prevent an operator from intentionally
+   updating a Client ID Metadata Document, including performing key
+   rotation, or from publishing intentionally different documents at
+   distinct Client Identifier URLs.
+
+9.5.2.  Changes in Client Keys
 
    If the authorization server notices that the jwks, jwks_uri or the
    contents at the jwks_uri have changed compared to the last time it
@@ -721,6 +740,15 @@ Table of Contents
    susceptible to this side channel.  Authorization servers SHOULD
    respect cache headers as described in Section 5.2 to reduce the
    frequency of unnecessary fetches.
+
+   Varying a Client ID Metadata Document based on the requesting user,
+   authorization server, or other request context can amplify this side
+   channel.  It can enable a client to track requesters or selectively
+   present misleading metadata that is difficult for users and
+   independent reviewers to detect.  Clients must follow the consistency
+   requirements in Section 9.5.1.  Authorization servers SHOULD avoid
+   sending cookies, user-specific information, or unnecessary request
+   headers when fetching Client ID Metadata Documents.
 
 10.2.  URLs Referenced in Client ID Metadata Documents
 
