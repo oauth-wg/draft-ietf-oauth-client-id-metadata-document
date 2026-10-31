@@ -364,7 +364,7 @@ This deployment pattern is expected to be common in enterprise environments wher
 
 In addition to the security considerations in OAuth 2.0 Core {{RFC6749}}, and OAuth 2.0 Threat Model and Security Considerations {{RFC6819}}, and {{RFC9700}} the additional considerations apply.
 
-## Client Identifier URLs {#client_identifier_urls_security_considerations}
+## Client Identifier URL Confusion Attacks {#client_identifier_urls_security_considerations}
 
 To prevent token confusion attacks, an authorization server SHOULD reject a Client Identifier URL that is equal, using simple string comparison as defined in Section 6.2.1 of {{RFC3986}}, to its own `issuer` identifier, or to the identifier of any authorization server or resource server it has a trust relationship with.
 
