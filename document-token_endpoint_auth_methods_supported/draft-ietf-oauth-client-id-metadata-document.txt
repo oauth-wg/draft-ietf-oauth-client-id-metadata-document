@@ -5,8 +5,8 @@
 Web Authorization Protocol                                    A. Parecki
 Internet-Draft                                                      Okta
 Intended status: Standards Track                                E. Smith
-Expires: 27 April 2027                                       independent
-                                                         24 October 2026
+Expires: 4 May 2027                                          independent
+                                                         31 October 2026
 
 
                    OAuth Client ID Metadata Document
@@ -57,7 +57,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 27 April 2027.
+   This Internet-Draft will expire on 4 May 2027.
 
 Copyright Notice
 
@@ -424,8 +424,8 @@ Table of Contents
 
    When using JWT-based client authentication methods such as
    private_key_jwt, authorization servers and clients MUST follow
-   [RFC8725].  In particular, client authentication JWTs MUST include an
-   explicit typ header parameter (recommended value: oauth-client-
+   [RFC8725].  In particular, client authentication JWTs SHOULD include
+   an explicit typ header parameter (recommended value: oauth-client-
    auth+jwt) to prevent cross-JWT confusion attacks, and authorization
    servers MUST validate JWT types and implement algorithm allowlists.
 
