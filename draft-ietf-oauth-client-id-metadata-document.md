@@ -653,6 +653,7 @@ The authors would like to thank the following people for their contributions and
 -03
 
 * Added requirement for clients to normalize their Client Identifier URLs
+* Added an exception that is made for redirect URIs on the loopback, per RFC9700
 
 -02
 
