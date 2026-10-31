@@ -333,7 +333,7 @@ server also MUST NOT cache documents which are invalid or malformed.
 
 # Authorization Response
 
-The authorization response MUST include the `iss` parameter, as defined in {{RFC9207}}. See Section 7.15 and {{RFC9207}} for additional details how the client can use it to prevent mix-up attacks.
+The authorization response MUST include the `iss` parameter, as defined in {{RFC9207}}. See {{Section 4.4 of RFC9700}} and {{RFC9207}} for additional details how the client can use it to prevent mix-up attacks.
 
 # Authorization Server Metadata {#as-metadata}
 
