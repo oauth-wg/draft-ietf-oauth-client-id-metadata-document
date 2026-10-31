@@ -171,8 +171,9 @@ Client Identifier URLs when performing comparison.
 
 This specification places no restrictions on the brevity or longevity of a
 Client Identifier URL beyond the requirements listed above. A short URL is
-RECOMMENDED, since the URI may be displayed to the end user in the
-authorization interface or in management interfaces. Usage of a stable URL
+RECOMMENDED, since the URI may be displayed to the end user in the authorization interface
+or in management interfaces. An authorization server SHOULD document the maximum
+length of a Client Identifier URL it will accept.  Usage of a stable URL
 that does not change frequently for the client is also RECOMMENDED, as
 changing the URL will appear to the authorization server to be an entirely
 different Client Identifier URL as described in {{client_id_url_changes}}.
