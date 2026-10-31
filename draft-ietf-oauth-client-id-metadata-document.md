@@ -338,7 +338,7 @@ Treating such a client as a public client would silently downgrade a client that
 
 An authorization server MAY restrict the supported methods of client authentication based on its own policies, and SHOULD advertise the supported methods of client authentication in the authorization server metadata by using the property `token_endpoint_auth_methods_supported` as defined in {{RFC8414}}.
 
-When using JWT-based client authentication methods such as `private_key_jwt`, authorization servers and clients MUST follow {{RFC8725}}. In particular, client authentication JWTs MUST include an explicit `typ` header parameter (recommended value: `oauth-client-auth+jwt`) to prevent cross-JWT confusion attacks, and authorization servers MUST validate JWT types and implement algorithm allowlists.
+When using JWT-based client authentication methods such as `private_key_jwt`, authorization servers and clients MUST follow {{RFC8725}}. In particular, client authentication JWTs SHOULD include an explicit `typ` header parameter (recommended value: `oauth-client-auth+jwt`) to prevent cross-JWT confusion attacks, and authorization servers MUST validate JWT types and implement algorithm allowlists.
 
 Clients that are capable of maintaining private key material and performing client authentication SHOULD do so using a client authentication method that uses public/private key pairs, such as `private_key_jwt` from the [OAuth Token Endpoint Authentication Methods registry](https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-endpoint-auth-method).
 
