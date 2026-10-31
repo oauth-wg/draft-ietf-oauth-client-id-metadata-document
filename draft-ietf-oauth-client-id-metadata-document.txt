@@ -5,7 +5,7 @@
 Web Authorization Protocol                                    A. Parecki
 Internet-Draft                                                      Okta
 Intended status: Standards Track                                E. Smith
-Expires: 2 May 2027                                      29 October 2026
+Expires: 4 May 2027                                      31 October 2026
 
 
                    OAuth Client ID Metadata Document
@@ -56,7 +56,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 2 May 2027.
+   This Internet-Draft will expire on 4 May 2027.
 
 Copyright Notice
 
@@ -373,8 +373,9 @@ Table of Contents
 6.  Authorization Response
 
    The authorization response MUST include the iss parameter, as defined
-   in [RFC9207].  See Section 7.15 and [RFC9207] for additional details
-   how the client can use it to prevent mix-up attacks.
+   in [RFC9207].  See Section 4.4 of [RFC9700] and [RFC9207] for
+   additional details how the client can use it to prevent mix-up
+   attacks.
 
 7.  Authorization Server Metadata
 
