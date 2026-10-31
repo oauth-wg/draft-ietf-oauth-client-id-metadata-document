@@ -1719,7 +1719,9 @@ response comparable in spirit to the <code>temporarily_unavailable</code>
 condition in <span><a href="https://rfc-editor.org/rfc/rfc6749#section-4.1.2.1" class="relref">Section 4.1.2.1</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>) and a terminal failure (the
 document was retrieved but rejected on trust or validation grounds).<a href="#section-5.1-2" class="pilcrow">¶</a></p>
 <p id="section-5.1-3">A transient failure <span class="bcp14">SHOULD NOT</span> by itself invalidate a Client Identifier
-URL's previously established trust or outstanding refresh tokens.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
+URL's previously established trust or outstanding refresh tokens. An
+authorization server <span class="bcp14">SHOULD NOT</span> discard previously cached valid client metadata
+on transient failures.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
 <p id="section-5.1-4">A terminal failure caused by a client_id mismatch <span class="bcp14">SHOULD</span> invalidate the
 client's outstanding refresh tokens immediately.<a href="#section-5.1-4" class="pilcrow">¶</a></p>
 <p id="section-5.1-5">A terminal failure caused by the authorization server's own trust or policy
@@ -1741,6 +1743,7 @@ directives in the response. The authorization server <span class="bcp14">SHOULD<
 duration when none is otherwise indicated.<a href="#section-5.2-3" class="pilcrow">¶</a></p>
 <p id="section-5.2-4">The authorization server <span class="bcp14">MUST NOT</span> cache error responses. The authorization
 server also <span class="bcp14">MUST NOT</span> cache documents which are invalid or malformed.<a href="#section-5.2-4" class="pilcrow">¶</a></p>
+<p id="section-5.2-5">The authorization server <span class="bcp14">MAY</span> implement rate limiting or other measures to avoid repeatedly fetching a Client ID Metadata Document URL, even if that results in fetching the URL less often than requested by the cache headers.<a href="#section-5.2-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2260,6 +2263,12 @@ as clients that publish their own Client ID Metadata Document.<a href="#appendix
 </li>
         <li class="normal" id="appendix-C-3.2">
           <p id="appendix-C-3.2.1">Added an exception that is made for redirect URIs on the loopback, per RFC9700<a href="#appendix-C-3.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-3.3">
+          <p id="appendix-C-3.3.1">Clarify transient failures on fetching of client metadata<a href="#appendix-C-3.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-3.4">
+          <p id="appendix-C-3.4.1">Added paragraph allowing Authorization Servers to rate limit or otherwise prevent requests to Client Identifier URLs being made repeatedly<a href="#appendix-C-3.4.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <p id="appendix-C-4">-02<a href="#appendix-C-4" class="pilcrow">¶</a></p>
