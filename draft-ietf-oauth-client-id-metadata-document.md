@@ -658,6 +658,8 @@ The authors would like to thank the following people for their contributions and
 
 * Added requirement for clients to normalize their Client Identifier URLs
 * Added an exception that is made for redirect URIs on the loopback, per RFC9700
+* Clarify transient failures on fetching of client metadata
+* Added paragraph allowing Authorization Servers to rate limit or otherwise prevent requests to Client Identifier URLs being made repeatedly
 
 -02
 
