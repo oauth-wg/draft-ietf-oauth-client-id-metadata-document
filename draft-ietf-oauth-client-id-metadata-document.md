@@ -460,6 +460,14 @@ URLs.
 
 If the authorization server notices that the `jwks`, `jwks_uri` or the contents at the `jwks_uri` have changed compared to the last time it fetched the metadata, the authorization server may take actions such as revoking any tokens issued to this client, or revoking the user's consent for this client. The particular actions to take are left up to the discretion of the authorization server based on its own risk assessment. However, periodic rotation of keys can also be expected as good security hygiene by the client.
 
+### Interaction with Refresh Tokens {#interactions_refresh_tokens}
+
+A refresh request MUST NOT trigger retrieval of the Client ID Metadata
+Document. Whether an outstanding refresh token remains valid after a
+Client Identifier URL subsequently fails retrieval or validation
+depends on the classification in {{metadata-discovery-errors}}: a transient failure
+SHOULD NOT affect outstanding refresh tokens; a terminal failure MAY
+invalidate them immediately.
 
 ## OAuth Phishing Attacks
 
