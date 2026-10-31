@@ -404,8 +404,7 @@ URIs), or other security-sensitive or user-visible metadata such as
 This requirement does not prevent an operator from intentionally updating a
 Client ID Metadata Document, including performing key rotation, or from
 publishing intentionally different documents at distinct Client Identifier
-URLs. Each such document needs to be independently configured rather than
-constructed from untrusted external input.
+URLs.
 
 ### Changes in Client Keys {#client_key_changes}
 
