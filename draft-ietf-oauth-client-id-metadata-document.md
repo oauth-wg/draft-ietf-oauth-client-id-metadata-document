@@ -165,6 +165,10 @@ defined in Section 6.2.1 of {{RFC3986}}. For example,
 `https://example.com/client` and `https://example.com:443/client`
 are not equivalent even though 443 is the default port for the `https` scheme.
 
+The client SHOULD normalize its Client Identifier URL as described in
+{{Sections 6.2.2 and 6.2.3 of RFC3986}}, as the Authorization Server MUST NOT normalize
+Client Identifier URLs when performing comparison.
+
 This specification places no restrictions on the brevity or longevity of a
 Client Identifier URL beyond the requirements listed above. A short URL is
 RECOMMENDED, since the URI may be displayed to the end user in the
@@ -639,6 +643,10 @@ The authors would like to thank the following people for their contributions and
 {:numbered="false"}
 
 (This appendix to be deleted by the RFC editor in the final specification.)
+
+-03
+
+* Added requirement for clients to normalize their Client Identifier URLs
 
 -02
 
