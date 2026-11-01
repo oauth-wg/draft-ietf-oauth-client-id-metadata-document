@@ -36,6 +36,7 @@ normative:
   RFC6819:
   RFC6890:
   RFC7591:
+  RFC7523:
   RFC8259:
   RFC8414:
   RFC8725:
@@ -107,7 +108,7 @@ informative:
         org: Connect2id
   I-D.draft-ietf-oauth-attestation-based-client-auth:
   I-D.draft-ietf-oauth-spiffe-client-auth:
-  RFC7523:
+  I-D.draft-ietf-oauth-rfc7523bis:
   RFC9111:
   OWASP.SSRF:
     title: OWASP SSRF Cheat Sheet
@@ -227,8 +228,6 @@ Other specifications MAY place additional restrictions on the contents of the
 Client ID Metadata Document accepted by authorization servers implementing their
 specification. For example, requiring confidential clients using public/private key authentication by constraining the value(s) of the `token_endpoint_auth_method` and `token_endpoint_auth_methods_supported` properties to `"private_key_jwt"` and not `"none"`.
 
-TBD: We may want a property such as `client_id_expires_at` for indicating that the client is ephemeral and not valid after a given timestamp, especially for documents issued by a service for development purposes.
-
 ## Credential and Key Material Restrictions {#client_metadata_restrictions}
 
 As client metadata documents are publicly accessible, the following restrictions apply to the contents of the Client ID Metadata Document:
@@ -287,6 +286,68 @@ the client instance and the Client ID Metadata Document. Authorization servers s
 evaluate whether this combination meets their assurance requirements before
 relying on software statements delivered this way.
 
+# Client Authentication {#client_authentication}
+
+Client authentication methods based around a shared symmetric secret cannot be used, as there is no way to securely establish a shared symmetric secret in a Client ID Metadata Document; see {{client_metadata_restrictions}}. Client Authentication is possible using authentication methods that use public/private key pairs by having the client publish the public key in its metadata document, for example via the `jwks` or `jwks_uri` properties.
+
+A client SHOULD use the `token_endpoint_auth_methods_supported` ({{OpenID.RPMetadataChoices}}) property to advertise which client authentication methods the client supports, even if the value is only `["none"]`.
+
+For backwards compatibility, if the `token_endpoint_auth_methods_supported` property is not present, an authorization server MAY read the singular `token_endpoint_auth_method` ({{Section 2 of RFC7591}}) property to determine whether the client supports a method acceptable to the authorization server. The `token_endpoint_auth_method` property is NOT RECOMMENDED as it prevents a client from presenting a single Client ID Metadata Document to authorization servers that may have different client authentication requirements, as well as preventing a client from evolving authentication methods over time.
+
+If the client presents both the `token_endpoint_auth_methods_supported` property and the `token_endpoint_auth_method` property, then the value in `token_endpoint_auth_method` MUST be included within `token_endpoint_auth_methods_supported` per Section 2 of {{OpenID.RPMetadataChoices}}.
+
+When a Client ID Metadata Document contains neither the `token_endpoint_auth_method` property ({{RFC7591}}) nor the `token_endpoint_auth_methods_supported` property (defined in Section 2 of {{OpenID.RPMetadataChoices}}), the authorization server MUST assume the token endpoint authentication method of `none`. If the authorization server has determined the client's token endpoint authentication method to be `none`, and the client includes client authentication in a token request, the authorization server MUST reject the request with `invalid_client`.
+
+Authorization servers MUST NOT apply the default value of `token_endpoint_auth_method` defined in {{Section 2 of RFC7591}}, as that default is `client_secret_basic`, which cannot be used with Client ID Metadata Documents, see {{client_metadata_restrictions}}.
+
+Authorization servers MUST recognise the presence of the `token_endpoint_auth_methods_supported` property, even if they do not otherwise implement {{OpenID.RPMetadataChoices}}.
+
+An authorization server that supports {{OpenID.RPMetadataChoices}} SHOULD select one of the values in `token_endpoint_auth_methods_supported` that it supports, and SHOULD NOT consider it an error that it does not support the remaining values, per Section 4 of {{OpenID.RPMetadataChoices}}.
+
+When an authorization server does not support any of the token endpoint authentication methods declared in the Client ID Metadata Document, the authorization server MUST abort the authorization request and token requests with `invalid_client`.[^cimd-error-code]
+
+[^cimd-error-code]: The `invalid_client` error currently applies to both request types in the IANA registry, however, the underlying specification text does not have language that supports this, see: [Issue 266 on OAuth 2.1](https://github.com/oauth-wg/oauth-v2-1/issues/266)
+
+An authorization server MAY restrict the supported methods of client authentication based on its own policies, and SHOULD advertise the supported methods of client authentication in the authorization server metadata by using the property `token_endpoint_auth_methods_supported` as defined in {{RFC8414}}.
+
+When using JWT-based client authentication methods such as `private_key_jwt`, authorization servers and clients SHOULD follow {{RFC8725}}. In particular, client authentication JWTs SHOULD include an explicit `typ` header parameter (recommended value: `client-authentication+jwt` per {{I-D.draft-ietf-oauth-rfc7523bis}}) to prevent cross-JWT confusion attacks, and authorization servers SHOULD validate JWT types and MUST implement algorithm allowlists.
+
+Clients that are capable of maintaining private key material and performing client authentication SHOULD do so using a client authentication method that uses public/private key pairs, such as `private_key_jwt` from the [OAuth Token Endpoint Authentication Methods registry](https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-endpoint-auth-method).
+
+When a client declares `private_key_jwt` as a token endpoint auth method and the authorization server supports this method, the authorization server MUST require client authentication according to {{Section 2.2 of RFC7523}} using the corresponding key discovered from the client's metadata document.
+
+See {{client_authentication_key_material}} for security details on managing Client Authentication Key Material.
+
+## Examples of Client Authentication
+
+This section is non-normative.
+
+To establish client authentication using a public key with the `private_key_jwt` authentication method defined in {{OpenID}}, the client metadata document would look like the following:
+
+    {
+      ...
+      "token_endpoint_auth_methods_supported": ["private_key_jwt"],
+      "jwks_uri": "https://client.example.com/jwks.json"
+      ...
+    }
+
+This establishes this client as a confidential client, and any communication with
+the authorization server must include client authentication using `private_key_jwt`.
+
+A client can advertise more than one client authentication method to interoperate with authorization servers that support different methods. In the following example, the client offers `private_key_jwt` to authorization servers that support it, while remaining usable as a public client for those that do not:
+
+    {
+      ...
+      "token_endpoint_auth_methods_supported": ["none", "private_key_jwt"],
+      "jwks_uri": "https://client.example.com/jwks.json"
+      ...
+    }
+
+If the authorization server does not support `private_key_jwt`, then the token endpoint authentication method to be used by the client must be `none` and the client will be a public client.
+
+If the authorization server does support `private_key_jwt` client authentication, then the client should use the `private_key_jwt` token endpoint authentication method. If the client were to use `none` then the authorization server may reject the request with `invalid_client`.
+
+This means the client may either be a public client or confidential client, dependent on the token endpoint authentication method selected for use.
 
 # Client Information Discovery {#client_information_discovery}
 
@@ -367,70 +428,6 @@ Authorization servers that publish Authorization Server Metadata {{RFC8414}} MUS
 
 This enables clients to avoid sending the user to a dead end, by only redirecting the user to an authorization server that supports this specification. Otherwise, the client would redirect the user and the user would be met with an error about an invalid client as described in {{Section 4.1.2.1 of RFC6749}}.
 
-# Client Authentication {#client_authentication}
-
-Client authentication methods based around a shared symmetric secret cannot be used, as there is no way to securely establish a shared symmetric secret in a Client ID Metadata Document; see {{client_metadata_restrictions}}. Client Authentication is possible using authentication methods that use public/private key pairs by having the client publish the public key in its metadata document, for example via the `jwks` or `jwks_uri` properties.
-
-A client MAY include either or both of the `token_endpoint_auth_method` ({{Section 2 of RFC7591}}) and `token_endpoint_auth_methods_supported` ({{OpenID.RPMetadataChoices}}) properties in its metadata document. Clients are RECOMMENDED to use the `token_endpoint_auth_methods_supported` property, with `token_endpoint_auth_method` present for backwards compatibility with authorization servers not supporting {{OpenID.RPMetadataChoices}}, as recommended by Section 4 of that specification.
-
-The `token_endpoint_auth_method` value for a client MUST be included within `token_endpoint_auth_methods_supported` per Section 2 of {{OpenID.RPMetadataChoices}}, if the `token_endpoint_auth_methods_supported` property is present.
-
-A Client ID Metadata Document that includes only `token_endpoint_auth_methods_supported` decreases interoperability, as an authorization server that does not support {{OpenID.RPMetadataChoices}} will not recognise the property and will be unable to determine the client authentication method the client supports.
-
-Authorization servers MUST NOT apply the default value of `token_endpoint_auth_method` defined in {{Section 2 of RFC7591}}, as that default is `client_secret_basic`, which cannot be used with Client ID Metadata Documents, see {{client_metadata_restrictions}}.
-
-When a Client ID Metadata Document contains neither the `token_endpoint_auth_method` property ({{RFC7591}}) nor the `token_endpoint_auth_methods_supported` property (defined in Section 2 of {{OpenID.RPMetadataChoices}}), the authorization server MUST assume the default token endpoint authentication method of `none`.
-
-An authorization server MUST NOT treat a missing `token_endpoint_auth_method` property as the default of `none` if the `token_endpoint_auth_methods_supported` property is present, even if the authorization server does not support {{OpenID.RPMetadataChoices}}, as the client has advertised token endpoint authentication methods, just not in a way that the authorization server understands. Authorization servers implementing this specification MUST therefore recognise the presence of the `token_endpoint_auth_methods_supported` property, even where they do not otherwise implement {{OpenID.RPMetadataChoices}}.
-
-An authorization server that supports {{OpenID.RPMetadataChoices}} SHOULD select one of the values in `token_endpoint_auth_methods_supported` that it supports, and SHOULD NOT consider it an error that it does not support the remaining values, per Section 4 of {{OpenID.RPMetadataChoices}}.
-
-When an authorization server does not support any of the token endpoint authentication methods declared by the client, the authorization server MUST abort the authorization request with `invalid_request` and abort the token request with `invalid_client`, rather than treating the client as a public client.[^cimd-error-codes]
-
-Treating such a client as a public client would silently downgrade a client that intended to authenticate, permitting tokens to be issued without the client authentication the client advertised.
-
-[^cimd-error-codes]: The error codes used for this condition are subject to change. No registered authorization endpoint error code precisely describes a Client ID Metadata Document whose declared client authentication methods are unusable at a given authorization server. See [issue #85](https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/85).
-
-An authorization server MAY restrict the supported methods of client authentication based on its own policies, and SHOULD advertise the supported methods of client authentication in the authorization server metadata by using the property `token_endpoint_auth_methods_supported` as defined in {{RFC8414}}.
-
-When using JWT-based client authentication methods such as `private_key_jwt`, authorization servers and clients MUST follow {{RFC8725}}. In particular, client authentication JWTs MUST include an explicit `typ` header parameter (recommended value: `oauth-client-auth+jwt`) to prevent cross-JWT confusion attacks, and authorization servers MUST validate JWT types and implement algorithm allowlists.
-
-Clients that are capable of maintaining private key material and performing client authentication SHOULD do so using a client authentication method that uses public/private key pairs, such as `private_key_jwt` from the [OAuth Token Endpoint Authentication Methods registry](https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-endpoint-auth-method).
-
-See {{client_authentication_key_material}} for security details on managing Client Authentication Key Material.
-
-## Examples of Client Authentication
-
-This section is non-normative.
-
-To establish client authentication using a public key with the `private_key_jwt` authentication method defined in {{OpenID}}, the client metadata document would look like the following:
-
-    {
-      ...
-      "token_endpoint_auth_method": "private_key_jwt",
-      "token_endpoint_auth_methods_supported": ["private_key_jwt"],
-      "jwks_uri": "https://client.example.com/jwks.json"
-      ...
-    }
-
-This establishes this client as a confidential client, and any communication with
-the authorization server must include client authentication using `private_key_jwt`.
-
-A client can advertise more than one client authentication method to interoperate with authorization servers that support different methods. In the following example, the client offers `private_key_jwt` to authorization servers that support it, while remaining usable as a public client for those that do not:
-
-    {
-      ...
-      "token_endpoint_auth_method": "none",
-      "token_endpoint_auth_methods_supported": ["none", "private_key_jwt"],
-      "jwks_uri": "https://client.example.com/jwks.json"
-      ...
-    }
-
-If the authorization server does not support {{OpenID.RPMetadataChoices}} or the authorization server does not support `private_key_jwt`, then the token endpoint authentication method to be used by the client must be `none` and the client will be a public client.
-
-If the authorization server does support {{OpenID.RPMetadataChoices}} and `private_key_jwt` client authentication, then the client may use either of the token endpoint authentication methods that the authorization server also supports. This means the client may either be a public client or confidential client, dependent on the token endpoint authentication method selected for use.
-
-
 # Implementation Considerations {#implementation_considerations}
 
 ## Supporting Both Pre-Registered and Unregistered Clients
@@ -470,11 +467,7 @@ Some restrictions on `redirect_uris` can make developer usage of Client ID Metad
 
 ## Client Authentication Key Material {#client_authentication_key_material}
 
-When a client declares `private_key_jwt` as a Client Authentication method, the authorization server
-MUST require client authentication according to {{Section 2.2 of RFC7523}} using the corresponding key discovered from the client's metadata document.
-
-The particular method of how the client manages the private key is out of scope of this specification, but may include manual provisioning or methods such as "Attestation Based Client Authentication" [I-D.draft-ietf-oauth-attestation-based-client-auth] or "OAuth SPIFFE Client Authentication" [I-D.draft-ietf-oauth-spiffe-client-auth]. For example, the client developer could run a Client Attester Backend, using a native application's platform-specific APIs to authenticate to the backend service, where the private key corresponding to the `jwks_uri` key is managed by the backend service. This would allow a mobile app to request JWTs from the backend service that the mobile app could then use as client authentication to the authorization server.
-
+The particular method of how the client manages the private key is out of scope of this specification, but may include manual provisioning or methods such as "Attestation Based Client Authentication" {{I-D.draft-ietf-oauth-attestation-based-client-auth}} or "OAuth SPIFFE Client Authentication" {{I-D.draft-ietf-oauth-spiffe-client-auth}}. For example, the client developer could run a Client Attester Backend, using a native application's platform-specific APIs to authenticate to the backend service, where the private key corresponding to the `jwks_uri` key is managed by the backend service. This would allow a mobile app to request JWTs from the backend service that the mobile app could then use as client authentication to the authorization server.
 
 ## Changes in Client Identifier URL {#client_id_url_changes}
 
@@ -711,24 +704,17 @@ The authors would like to thank the following people for their contributions and
 
 -03
 
-<<<<<<< HEAD
 * Added requirement for clients to normalize their Client Identifier URLs
 * Added an exception that is made for redirect URIs on the loopback, per RFC9700
 * Clarify transient failures on fetching of client metadata
 * Added paragraph allowing Authorization Servers to rate limit or otherwise prevent requests to Client Identifier URLs being made repeatedly
-||||||| parent of f7ab9ba (Add information for using token_endpoint_auth_methods_supported)
-=======
 * Moved Client Authentication from Security Considerations to a new top-level section, and renamed the remaining Security Considerations subsection to Client Authentication Key Material
+* Changed `token_endpoint_auth_method` to not be recommended in favour of `token_endpoint_auth_methods_supported`
 * Specified that the default `token_endpoint_auth_method` defined in RFC7591 does not apply, and that a Client ID Metadata Document omitting both client authentication properties indicates the `none` method
-* Added `token_endpoint_auth_methods_supported` to the credential and key material restrictions, and added guidance and an example for using it alongside `token_endpoint_auth_method`
+* Added `token_endpoint_auth_methods_supported` to the credential and key material restrictions
 * Specified authorization server behaviour when it supports none of the token endpoint authentication methods declared by the client
 * Clarified that the credential and key material restrictions also apply to metadata conveyed via `software_statement`
-<<<<<<< HEAD
->>>>>>> f7ab9ba (Add information for using token_endpoint_auth_methods_supported)
-||||||| parent of 80e01f7 (Strengthen JWT Security References)
-=======
 * Add language to strengthen security of JWT based client authentication.
->>>>>>> 80e01f7 (Strengthen JWT Security References)
 
 -02
 
