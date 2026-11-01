@@ -389,6 +389,9 @@ Table of Contents
    authentication+jwt per [I-D.draft-ietf-oauth-rfc7523bis]) to prevent
    cross-JWT confusion attacks, and authorization servers SHOULD
    validate JWT types and MUST implement algorithm allowlists.
+   Additionally, the Client ID Metadata Document MUST include either
+   jwks or jwks_uri properties, if neither are present, the
+   Authorization Request must return an error of invalid_client.
 
    Clients that are capable of maintaining private key material and
    performing client authentication SHOULD do so using a client
@@ -1151,6 +1154,9 @@ Document History
 
    *  Add language to strengthen security of JWT based client
       authentication.
+
+   *  Added requirement for jwks/jwks_uri to be present when using
+      private_key_jwt.
 
    -02
 
