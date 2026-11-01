@@ -310,7 +310,7 @@ When an authorization server does not support any of the token endpoint authenti
 
 An authorization server MAY restrict the supported methods of client authentication based on its own policies, and SHOULD advertise the supported methods of client authentication in the authorization server metadata by using the property `token_endpoint_auth_methods_supported` as defined in {{RFC8414}}.
 
-When using JWT-based client authentication methods such as `private_key_jwt`, authorization servers and clients SHOULD follow {{RFC8725}}. In particular, client authentication JWTs SHOULD include an explicit `typ` header parameter (recommended value: `client-authentication+jwt` per {{I-D.draft-ietf-oauth-rfc7523bis}}) to prevent cross-JWT confusion attacks, and authorization servers SHOULD validate JWT types and MUST implement algorithm allowlists.
+When using JWT-based client authentication methods such as `private_key_jwt`, authorization servers and clients SHOULD follow {{RFC8725}}. In particular, client authentication JWTs SHOULD include an explicit `typ` header parameter (recommended value: `client-authentication+jwt` per {{I-D.draft-ietf-oauth-rfc7523bis}}) to prevent cross-JWT confusion attacks, and authorization servers SHOULD validate JWT types and MUST implement algorithm allowlists. Additionally, the Client ID Metadata Document MUST include either `jwks` or `jwks_uri` properties, if neither are present, the Authorization Request must return an error of `invalid_client`.
 
 Clients that are capable of maintaining private key material and performing client authentication SHOULD do so using a client authentication method that uses public/private key pairs, such as `private_key_jwt` from the [OAuth Token Endpoint Authentication Methods registry](https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-endpoint-auth-method).
 
@@ -715,6 +715,7 @@ The authors would like to thank the following people for their contributions and
 * Specified authorization server behaviour when it supports none of the token endpoint authentication methods declared by the client
 * Clarified that the credential and key material restrictions also apply to metadata conveyed via `software_statement`
 * Add language to strengthen security of JWT based client authentication.
+* Added requirement for `jwks`/`jwks_uri` to be present when using `private_key_jwt`.
 
 -02
 
