@@ -83,6 +83,7 @@ Table of Contents
      4.2.  Redirect URL Registration
      4.3.  Relationship with software_statement
      4.4.  Relationship and Restrictions on URI-based Properties
+     4.5.  Preventing External Influence of Document Contents
    5.  Client Authentication
      5.1.  Examples of Client Authentication
    6.  Client Information Discovery
@@ -99,8 +100,7 @@ Table of Contents
      10.3.  Client Authentication Key Material
      10.4.  Changes in Client Identifier URL
      10.5.  Changes in Client Metadata
-       10.5.1.  Consistency of Client Metadata
-       10.5.2.  Changes in Client Keys
+       10.5.1.  Changes in Client Keys
      10.6.  OAuth Phishing Attacks
      10.7.  Server Side Request Forgery (SSRF) Attacks
        10.7.1.  Accept Header
@@ -351,7 +351,25 @@ Table of Contents
    Since informative URIs are under the control of the client and are
    displayed to the end-user, authorization servers should treat them
    with the same caution described in Section 5 of [RFC7591] for open
-   client registration.  See also Section 10.9 and Section 10.5.1.
+   client registration.  See also Section 10.9 and Section 4.5.
+
+4.5.  Preventing External Influence of Document Contents
+
+   A Client ID Metadata Document is intended to consistently describe
+   one client.  Clients MUST NOT derive the contents of a Client ID
+   Metadata Document from untrusted external input.  This includes input
+   embedded in path or query components of a Client Identifier URL, as
+   well as request headers, cookies, or information about the requesting
+   user or authorization server.  In particular, untrusted external
+   input MUST NOT influence URIs used for protocol operation (Functional
+   URIs), URIs providing information about the client (Informative
+   URIs), or other security-sensitive or user-visible metadata such as
+   client_name, client_uri, logo_uri, policy_uri, or tos_uri.
+
+   This requirement does not prevent an operator from intentionally
+   updating a Client ID Metadata Document, including performing key
+   rotation, or from publishing intentionally different documents at
+   distinct Client Identifier URLs.
 
 5.  Client Authentication
 
@@ -746,25 +764,7 @@ Table of Contents
    will depend on the authorization server's risk tolerance and
    operational requirements.
 
-10.5.1.  Consistency of Client Metadata
-
-   A Client ID Metadata Document is intended to consistently describe
-   one client.  Clients MUST NOT derive the contents of a Client ID
-   Metadata Document from untrusted external input.  This includes input
-   embedded in path or query components of a Client Identifier URL, as
-   well as request headers, cookies, or information about the requesting
-   user or authorization server.  In particular, untrusted external
-   input MUST NOT influence URIs used for protocol operation (Functional
-   URIs), URIs providing information about the client (Informative
-   URIs), or other security-sensitive or user-visible metadata such as
-   client_name, client_uri, logo_uri, policy_uri, or tos_uri.
-
-   This requirement does not prevent an operator from intentionally
-   updating a Client ID Metadata Document, including performing key
-   rotation, or from publishing intentionally different documents at
-   distinct Client Identifier URLs.
-
-10.5.2.  Changes in Client Keys
+10.5.1.  Changes in Client Keys
 
    If the authorization server notices that the jwks, jwks_uri or the
    contents at the jwks_uri have changed compared to the last time it
@@ -950,7 +950,7 @@ Table of Contents
    channel.  It can enable a client to track requesters or selectively
    present misleading metadata that is difficult for users and
    independent reviewers to detect.  Clients must follow the consistency
-   requirements in Section 10.5.1.  Authorization servers SHOULD avoid
+   requirements in Section 4.5.  Authorization servers SHOULD avoid
    sending cookies, user-specific information, or unnecessary request
    headers when fetching Client ID Metadata Documents.
 
@@ -1247,6 +1247,9 @@ Document History
       end-users
 
    *  Disallow the root path / as a CIMD URL
+
+   *  Moved the client metadata consistency requirements from Security
+      Considerations to Section 4, and renamed the section.
 
    -02
 
