@@ -1854,10 +1854,10 @@ when fetching Client ID Metadata Documents, as described in <a href="#ssrf_attac
 and fetching the metadata document fails, the authorization server <span class="bcp14">SHOULD</span> abort the
 authorization request.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
 <p id="section-6.1-2">This document distinguishes two classes of discovery failure: a
-transient failure (e.g., a network error, timeout, or malformed
-response comparable in spirit to the <code>temporarily_unavailable</code>
-condition in <span><a href="https://rfc-editor.org/rfc/rfc6749#section-4.1.2.1" class="relref">Section 4.1.2.1</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>) and a terminal failure (the
-document was retrieved but rejected on trust or validation grounds).<a href="#section-6.1-2" class="pilcrow">¶</a></p>
+transient failure (e.g., a network error or timeout, comparable in
+spirit to the <code>temporarily_unavailable</code> condition in
+<span><a href="https://rfc-editor.org/rfc/rfc6749#section-4.1.2.1" class="relref">Section 4.1.2.1</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>) and a terminal failure (the document was
+retrieved but was malformed, or was rejected on trust or validation grounds).<a href="#section-6.1-2" class="pilcrow">¶</a></p>
 <p id="section-6.1-3">A transient failure <span class="bcp14">SHOULD NOT</span> by itself invalidate a Client Identifier
 URL's previously established trust or outstanding refresh tokens. An
 authorization server <span class="bcp14">SHOULD NOT</span> discard previously cached valid client metadata
@@ -1867,6 +1867,12 @@ client's outstanding refresh tokens immediately.<a href="#section-6.1-4" class="
 <p id="section-6.1-5">A terminal failure caused by the authorization server's own trust or policy
 <span class="bcp14">MAY</span> invalidate the client's outstanding refresh tokens immediately, at the
 authorization server's discretion, consistent with <a href="#client_metadata_changes" class="auto internal xref">Section 10.5</a>.<a href="#section-6.1-5" class="pilcrow">¶</a></p>
+<p id="section-6.1-6">When a request fails because the Client ID Metadata Document could not be
+retrieved or was invalid, the authorization server <span class="bcp14">MUST NOT</span> redirect the user
+agent to the client, as described in <span><a href="https://rfc-editor.org/rfc/rfc6749#section-4.1.2.1" class="relref">Section 4.1.2.1</a> of [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>, and <span class="bcp14">SHOULD</span>
+inform the user of the error. At the token endpoint or pushed authorization
+request endpoint, the authorization server <span class="bcp14">MUST</span> return an <code>invalid_client</code>
+error, or for a transient failure, an HTTP 503 status code.<a href="#section-6.1-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="metadata_caching">
@@ -2453,6 +2459,9 @@ as clients that publish their own Client ID Metadata Document.<a href="#appendix
 </li>
         <li class="normal" id="appendix-C-3.17">
           <p id="appendix-C-3.17.1">Moved the client metadata consistency requirements from Security Considerations to Section 4, and renamed the section.<a href="#appendix-C-3.17.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-3.18">
+          <p id="appendix-C-3.18.1">Defined error handling when the Client ID Metadata Document cannot be retrieved or is invalid, and reclassified malformed documents as terminal failures<a href="#appendix-C-3.18.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <p id="appendix-C-4">-02<a href="#appendix-C-4" class="pilcrow">¶</a></p>
