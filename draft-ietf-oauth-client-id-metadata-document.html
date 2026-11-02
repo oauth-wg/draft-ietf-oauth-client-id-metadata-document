@@ -1438,19 +1438,22 @@ metadata about the client as needed.<a href="#section-abstract-1" class="pilcrow
                 </ul>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.8">
-                <p id="section-toc.1-1.10.2.8.1"><a href="#section-10.8" class="auto internal xref">10.8</a>.  <a href="#name-maximum-response-size-for-c" class="internal xref">Maximum Response Size for Client ID Metadata Documents</a></p>
+                <p id="section-toc.1-1.10.2.8.1"><a href="#section-10.8" class="auto internal xref">10.8</a>.  <a href="#name-client-id-domain-trust" class="internal xref">Client ID Domain Trust</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.9">
                 <p id="section-toc.1-1.10.2.9.1"><a href="#section-10.9" class="auto internal xref">10.9</a>.  <a href="#name-displaying-logos-to-end-use" class="internal xref">Displaying Logos to End-Users</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.10">
-                <p id="section-toc.1-1.10.2.10.1"><a href="#section-10.10" class="auto internal xref">10.10</a>. <a href="#name-client-id-domain-trust" class="internal xref">Client ID Domain Trust</a></p>
+                <p id="section-toc.1-1.10.2.10.1"><a href="#section-10.10" class="auto internal xref">10.10</a>. <a href="#name-presentation-of-the-client-" class="internal xref">Presentation of the Client to End-Users</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.11">
-                <p id="section-toc.1-1.10.2.11.1"><a href="#section-10.11" class="auto internal xref">10.11</a>. <a href="#name-resource-indicator-scoping-" class="internal xref">Resource Indicator Scoping of Persisted Authorization State</a></p>
+                <p id="section-toc.1-1.10.2.11.1"><a href="#section-10.11" class="auto internal xref">10.11</a>. <a href="#name-maximum-response-size-for-c" class="internal xref">Maximum Response Size for Client ID Metadata Documents</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.12">
-                <p id="section-toc.1-1.10.2.12.1"><a href="#section-10.12" class="auto internal xref">10.12</a>. <a href="#name-cimd-services" class="internal xref">CIMD Services</a></p>
+                <p id="section-toc.1-1.10.2.12.1"><a href="#section-10.12" class="auto internal xref">10.12</a>. <a href="#name-resource-indicator-scoping-" class="internal xref">Resource Indicator Scoping of Persisted Authorization State</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.13">
+                <p id="section-toc.1-1.10.2.13.1"><a href="#section-10.13" class="auto internal xref">10.13</a>. <a href="#name-cimd-services" class="internal xref">CIMD Services</a></p>
 </li>
             </ul>
 </li>
@@ -1526,7 +1529,7 @@ Clients that do not control a stable public URL, such as clients under active de
 on a developer's local machine, or clients that cannot guarantee the longevity
 of a URL, are less well served by this mechanism. Deployments that need to
 support such clients should consider the guidance in <a href="#implementation_considerations" class="auto internal xref">Section 9</a>
-and <a href="#cimd_services" class="auto internal xref">Section 10.12</a>.<a href="#section-1-4" class="pilcrow">¶</a></p>
+and <a href="#cimd_services" class="auto internal xref">Section 10.13</a>.<a href="#section-1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="conventions-and-definitions">
@@ -1848,7 +1851,8 @@ authorization server's discretion, consistent with <a href="#client_metadata_cha
 <a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-metadata-caching" class="section-name selfRef">Metadata Caching</a>
         </h3>
 <p id="section-6.2-1">The authorization server <span class="bcp14">MAY</span> cache the client metadata it discovers at the
-Client ID Metadata Document URL.<a href="#section-6.2-1" class="pilcrow">¶</a></p>
+Client ID Metadata Document URL, including data retrieved from referenced URLs
+such as the <code>jwks_uri</code> and <code>logo_uri</code>.<a href="#section-6.2-1" class="pilcrow">¶</a></p>
 <p id="section-6.2-2">The authorization server <span class="bcp14">SHOULD</span> respect HTTP cache headers <span>[<a href="#RFC9111" class="cite xref">RFC9111</a>]</span> when caching client metadata.
 The <code>Expires</code> HTTP header need not be honored, since <code>Cache-Control</code> takes precedence under <span>[<a href="#RFC9111" class="cite xref">RFC9111</a>]</span>.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
 <p id="section-6.2-3">The authorization server <span class="bcp14">SHOULD</span> enforce a maximum effective cache duration regardless of the cache
@@ -1937,7 +1941,7 @@ relationship with.<a href="#section-10.1-1" class="pilcrow">¶</a></p>
         </h3>
 <p id="section-10.2-1">An authorization server may impose restrictions or relationships between the <code>redirect_uris</code> and the <code>client_id</code>, for example to restrict the <code>redirect_uri</code> to the same-origin as the Client ID Metadata Document. Without restrictions like these, there are potential trust and safety issues where the client attempts to impersonate a more well-known client or otherwise act in a way which is malicious or puts the end-user at risk. Restrictions of this kind do not apply to informative URIs such as <code>client_uri</code>, as described in <a href="#uri_properties" class="auto internal xref">Section 4.4</a>.<a href="#section-10.2-1" class="pilcrow">¶</a></p>
 <p id="section-10.2-2">Having no restrictions on the relationship between <code>redirect_uris</code> and <code>client_id</code> was a common practice with <span>[<a href="#Solid-OIDC" class="cite xref">Solid-OIDC</a>]</span>'s Client ID Documents, so this ability is preserved for backwards compatibility between <span>[<a href="#Solid-OIDC" class="cite xref">Solid-OIDC</a>]</span> and this specification.<a href="#section-10.2-2" class="pilcrow">¶</a></p>
-<p id="section-10.2-3">Some restrictions on <code>redirect_uris</code> can make developer usage of Client ID Metadata Documents difficult. <a href="#cimd_services" class="auto internal xref">Section 10.12</a> discusses how a service offered by the authorization server can enable development usage of Client ID Metadata Documents for authorization servers that impose restrictions on the <code>redirect_uri</code>.<a href="#section-10.2-3" class="pilcrow">¶</a></p>
+<p id="section-10.2-3">Some restrictions on <code>redirect_uris</code> can make developer usage of Client ID Metadata Documents difficult. <a href="#cimd_services" class="auto internal xref">Section 10.13</a> discusses how a service offered by the authorization server can enable development usage of Client ID Metadata Documents for authorization servers that impose restrictions on the <code>redirect_uri</code>.<a href="#section-10.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="client_authentication_key_material">
@@ -2006,7 +2010,7 @@ URLs.<a href="#section-10.5.1-2" class="pilcrow">¶</a></p>
 </div>
 </section>
 </div>
-<div id="oauth-phishing-attacks">
+<div id="oauth_phishing">
 <section id="section-10.6">
         <h3 id="name-oauth-phishing-attacks">
 <a href="#section-10.6" class="section-number selfRef">10.6. </a><a href="#name-oauth-phishing-attacks" class="section-name selfRef">OAuth Phishing Attacks</a>
@@ -2036,12 +2040,13 @@ URLs.<a href="#section-10.5.1-2" class="pilcrow">¶</a></p>
 </div>
 </section>
 </div>
-<div id="maximum-response-size-for-client-id-metadata-documents">
+<div id="client_id_domain_trust">
 <section id="section-10.8">
-        <h3 id="name-maximum-response-size-for-c">
-<a href="#section-10.8" class="section-number selfRef">10.8. </a><a href="#name-maximum-response-size-for-c" class="section-name selfRef">Maximum Response Size for Client ID Metadata Documents</a>
+        <h3 id="name-client-id-domain-trust">
+<a href="#section-10.8" class="section-number selfRef">10.8. </a><a href="#name-client-id-domain-trust" class="section-name selfRef">Client ID Domain Trust</a>
         </h3>
-<p id="section-10.8-1">Since the authorization server does not control the size of the Client ID Metadata Document served by the client, it cannot limit the size of the response itself. Instead, authorization servers <span class="bcp14">SHOULD</span> limit the amount of data they read and process when fetching a Client ID Metadata Document, for example by stopping after a maximum number of bytes and treating the response as an error if that limit is reached before the document has been fully read. The recommended maximum size to read is 5 kilobytes.<a href="#section-10.8-1" class="pilcrow">¶</a></p>
+<p id="section-10.8-1">The authorization server may choose to have its own heuristics and policies around the trust of domain names used as client IDs.<a href="#section-10.8-1" class="pilcrow">¶</a></p>
+<p id="section-10.8-2">For example, the authorization server could require that the first 100 users to authorize a <code>client_id</code> see an additional warning screen before the OAuth consent screen. The authorization server could check attributes of the domain reputation, such as how recently the domain was registered, and put up extra warnings for new domains. An authorization server may also maintain allowlists of trusted domain patterns, such as treating any Client Identifier URL under <code>*.example.com</code> as belonging to a known and trusted operator, and apply reduced friction for clients matching such patterns.<a href="#section-10.8-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="displaying_logos">
@@ -2049,41 +2054,74 @@ URLs.<a href="#section-10.5.1-2" class="pilcrow">¶</a></p>
         <h3 id="name-displaying-logos-to-end-use">
 <a href="#section-10.9" class="section-number selfRef">10.9. </a><a href="#name-displaying-logos-to-end-use" class="section-name selfRef">Displaying Logos to End-Users</a>
         </h3>
-<p id="section-10.9-1">Authorization servers that wish to make use of the <code>logo_uri</code> property within Client ID Metadata Document <span class="bcp14">SHOULD</span> prefetch the file at <code>logo_uri</code> and cache it for the cache duration of the Client ID Metadata Document. This allows for moderation tools to verify the file contents (e.g., preventing usage of logos that look like other logos), as well as preventing the logo from being dynamically changed to confuse an end-user.<a href="#section-10.9-1" class="pilcrow">¶</a></p>
-<p id="section-10.9-2">Caching of the <code>logo_uri</code> response can additionally prevent cross-domain tracking through the <code>logo_uri</code> being requested by the client, since the cached file would be served not from the remote URI but instead from a URI that the Authorization server trusts.<a href="#section-10.9-2" class="pilcrow">¶</a></p>
+<p id="section-10.9-1">Authorization servers that wish to display the image at <code>logo_uri</code> to the
+end-user, such as on the authorization page or on a page where the end-user
+manages their authorized clients, <span class="bcp14">MUST</span> prefetch the file at <code>logo_uri</code> and
+<span class="bcp14">MUST</span> serve it to the end-user from servers that the authorization server
+trusts, rather than referencing the <code>logo_uri</code> directly. See <a href="#metadata_caching" class="auto internal xref">Section 6.2</a>
+for considerations related to caching the metadata and logo.<a href="#section-10.9-1" class="pilcrow">¶</a></p>
+<p id="section-10.9-2">Before displaying the file, the authorization server <span class="bcp14">MUST</span> verify that the
+file contents are a valid image, and that the image satisfies the
+authorization server's content security policy.<a href="#section-10.9-2" class="pilcrow">¶</a></p>
+<p id="section-10.9-3">Prefetching and serving the logo from a trusted server allows moderation
+tools to verify the file contents (e.g., preventing usage of logos that look
+like other logos), and prevents the logo from being dynamically changed to
+confuse an end-user, or from being served differently to the authorization
+server than to the end-user. It also prevents the operator of the <code>logo_uri</code>
+from tracking end-users across domains through requests made by the
+end-user's browser, as described in <a href="#urls_referenced" class="auto internal xref">Section 11.2</a>.<a href="#section-10.9-3" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="client-id-domain-trust">
+<div id="client_presentation">
 <section id="section-10.10">
-        <h3 id="name-client-id-domain-trust">
-<a href="#section-10.10" class="section-number selfRef">10.10. </a><a href="#name-client-id-domain-trust" class="section-name selfRef">Client ID Domain Trust</a>
+        <h3 id="name-presentation-of-the-client-">
+<a href="#section-10.10" class="section-number selfRef">10.10. </a><a href="#name-presentation-of-the-client-" class="section-name selfRef">Presentation of the Client to End-Users</a>
         </h3>
-<p id="section-10.10-1">The authorization server may choose to have its own heuristics and policies around the trust of domain names used as client IDs.<a href="#section-10.10-1" class="pilcrow">¶</a></p>
-<p id="section-10.10-2">For example, the authorization server could require that the first 100 users to authorize a <code>client_id</code> see an additional warning screen before the OAuth consent screen. The authorization server could check attributes of the domain reputation, such as how recently the domain was registered, and put up extra warnings for new domains. An authorization server may also maintain allowlists of trusted domain patterns, such as treating any Client Identifier URL under <code>*.example.com</code> as belonging to a known and trusted operator, and apply reduced friction for clients matching such patterns.<a href="#section-10.10-2" class="pilcrow">¶</a></p>
+<p id="section-10.10-1">Client metadata properties that describe how the client is presented to the
+end-user, such as <code>client_name</code>, <code>logo_uri</code>, <code>client_uri</code>, <code>policy_uri</code>, and
+<code>tos_uri</code>, are asserted by the client. A malicious client can use these
+properties to impersonate a more well-known client, for example by using
+another client's name or logo.<a href="#section-10.10-1" class="pilcrow">¶</a></p>
+<p id="section-10.10-2">Authorization servers are not required to display these properties, and <span class="bcp14">MAY</span>
+apply their own policies when deciding whether and how to present them to
+the end-user. For example, an authorization server could only display the
+<code>client_name</code> or logo of clients that have been manually reviewed or that
+appear on an allowlist, could display a warning alongside these properties
+for clients that have not been reviewed, or could display only the hostname
+of the Client Identifier URL as described in <a href="#oauth_phishing" class="auto internal xref">Section 10.6</a>. See also
+<a href="#client_id_domain_trust" class="auto internal xref">Section 10.8</a> and <a href="#uri_properties" class="auto internal xref">Section 4.4</a>.<a href="#section-10.10-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="maximum-response-size-for-client-id-metadata-documents">
+<section id="section-10.11">
+        <h3 id="name-maximum-response-size-for-c">
+<a href="#section-10.11" class="section-number selfRef">10.11. </a><a href="#name-maximum-response-size-for-c" class="section-name selfRef">Maximum Response Size for Client ID Metadata Documents</a>
+        </h3>
+<p id="section-10.11-1">Since the authorization server does not control the size of the Client ID Metadata Document served by the client, it cannot limit the size of the response itself. Instead, authorization servers <span class="bcp14">SHOULD</span> limit the amount of data they read and process when fetching a Client ID Metadata Document, for example by stopping after a maximum number of bytes and treating the response as an error if that limit is reached before the document has been fully read. The recommended maximum size to read is 5 kilobytes.<a href="#section-10.11-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="resource-indicator-scoping-of-persisted-authorization-state">
-<section id="section-10.11">
+<section id="section-10.12">
         <h3 id="name-resource-indicator-scoping-">
-<a href="#section-10.11" class="section-number selfRef">10.11. </a><a href="#name-resource-indicator-scoping-" class="section-name selfRef">Resource Indicator Scoping of Persisted Authorization State</a>
+<a href="#section-10.12" class="section-number selfRef">10.12. </a><a href="#name-resource-indicator-scoping-" class="section-name selfRef">Resource Indicator Scoping of Persisted Authorization State</a>
         </h3>
-<p id="section-10.11-1">Any mechanism an authorization server uses to persist or reuse a prior
+<p id="section-10.12-1">Any mechanism an authorization server uses to persist or reuse a prior
 authorization decision for a client <span class="bcp14">MUST</span> be scoped at least to the
 pair of Client Identifier URL and <code>resource</code>, consistent with the
 binding already required of refresh tokens in
-<span><a href="https://rfc-editor.org/rfc/rfc9700#section-4.14.2" class="relref">Section 4.14.2</a> of [<a href="#RFC9700" class="cite xref">RFC9700</a>]</span>.<a href="#section-10.11-1" class="pilcrow">¶</a></p>
+<span><a href="https://rfc-editor.org/rfc/rfc9700#section-4.14.2" class="relref">Section 4.14.2</a> of [<a href="#RFC9700" class="cite xref">RFC9700</a>]</span>.<a href="#section-10.12-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="cimd_services">
-<section id="section-10.12">
+<section id="section-10.13">
         <h3 id="name-cimd-services">
-<a href="#section-10.12" class="section-number selfRef">10.12. </a><a href="#name-cimd-services" class="section-name selfRef">CIMD Services</a>
+<a href="#section-10.13" class="section-number selfRef">10.13. </a><a href="#name-cimd-services" class="section-name selfRef">CIMD Services</a>
         </h3>
-<p id="section-10.12-1">This section describes a pattern, referred to as a CIMD Service, through
+<p id="section-10.13-1">This section describes a pattern, referred to as a CIMD Service, through
 which an authorization server can offer developers a way to obtain Client
 Identifier URIs for use during development, without requiring the developer
-to host a publicly accessible document themselves.<a href="#section-10.12-1" class="pilcrow">¶</a></p>
-<p id="section-10.12-2">Operating a CIMD Service has security and reputation implications, since it
+to host a publicly accessible document themselves.<a href="#section-10.13-1" class="pilcrow">¶</a></p>
+<p id="section-10.13-2">Operating a CIMD Service has security and reputation implications, since it
 is effectively acting as a proxy for static client registration for any
 client it provisions. An authorization server operating a CIMD Service
 should ensure that clients provisioned this way are clearly distinguished
@@ -2091,7 +2129,7 @@ from other clients when presented to end users, and should consider the
 implications on the trust model described in this specification, since a
 CIMD Service intermediates the relationship between the client and the
 authorization server rather than the client publishing its own metadata
-directly.<a href="#section-10.12-2" class="pilcrow">¶</a></p>
+directly.<a href="#section-10.13-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2127,7 +2165,7 @@ cookies, user-specific information, or unnecessary request headers when
 fetching Client ID Metadata Documents.<a href="#section-11.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="urls-referenced-in-client-id-metadata-documents">
+<div id="urls_referenced">
 <section id="section-11.2">
         <h3 id="name-urls-referenced-in-client-i">
 <a href="#section-11.2" class="section-number selfRef">11.2. </a><a href="#name-urls-referenced-in-client-i" class="section-name selfRef">URLs Referenced in Client ID Metadata Documents</a>
@@ -2139,9 +2177,9 @@ in the authorization interface. When these URLs are fetched by the
 authorization server, or their content is served to the end user's browser,
 they may create cross-domain tracking opportunities for the operator of the
 referenced URL.<a href="#section-11.2-1" class="pilcrow">¶</a></p>
-<p id="section-11.2-2">As described in <a href="#displaying_logos" class="auto internal xref">Section 10.9</a>, authorization servers that fetch and
-cache the content of <code>logo_uri</code> rather than linking to it directly mitigate
-the risk of cross-domain tracking through logo requests initiated by the
+<p id="section-11.2-2">As described in <a href="#displaying_logos" class="auto internal xref">Section 10.9</a>, authorization servers that fetch the
+content of <code>logo_uri</code> and serve it themselves rather than linking to it
+directly mitigate the risk of cross-domain tracking through logo requests initiated by the
 end user's browser. Authorization servers should consider similar
 precautions for other URLs contained in the Client ID Metadata Document before
 exposing them to end users.<a href="#section-11.2-2" class="pilcrow">¶</a></p>
@@ -2339,7 +2377,7 @@ under-development and may not be trustworthy or secure.<a href="#appendix-A-7" c
 performing a form of static client registration on behalf of the developer,
 mediated through a URL rather than a direct registration API. Authorization
 servers offering a CIMD Service should consider the security and reputation
-implications discussed in <a href="#cimd_services" class="auto internal xref">Section 10.12</a>, and should ensure that clients
+implications discussed in <a href="#cimd_services" class="auto internal xref">Section 10.13</a>, and should ensure that clients
 provisioned through a CIMD Service are not afforded the same level of trust
 as clients that publish their own Client ID Metadata Document.<a href="#appendix-A-8" class="pilcrow">¶</a></p>
 </section>
@@ -2399,6 +2437,12 @@ as clients that publish their own Client ID Metadata Document.<a href="#appendix
 </li>
         <li class="normal" id="appendix-C-3.13">
           <p id="appendix-C-3.13.1">Added section distinguishing functional and informative URI-based properties, and clarified that <code>client_uri</code> is not restricted to the origin of the <code>client_id</code> or <code>redirect_uris</code><a href="#appendix-C-3.13.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-3.14">
+          <p id="appendix-C-3.14.1">Made prefetching <code>logo_uri</code> and serving it from a trusted server a requirement when displaying logos, and required validating the image contents<a href="#appendix-C-3.14.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-3.15">
+          <p id="appendix-C-3.15.1">Added security consideration on the presentation of the client to end-users<a href="#appendix-C-3.15.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <p id="appendix-C-4">-02<a href="#appendix-C-4" class="pilcrow">¶</a></p>

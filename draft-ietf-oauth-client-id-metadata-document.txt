@@ -104,12 +104,13 @@ Table of Contents
      10.6.  OAuth Phishing Attacks
      10.7.  Server Side Request Forgery (SSRF) Attacks
        10.7.1.  Accept Header
-     10.8.  Maximum Response Size for Client ID Metadata Documents
+     10.8.  Client ID Domain Trust
      10.9.  Displaying Logos to End-Users
-     10.10. Client ID Domain Trust
-     10.11. Resource Indicator Scoping of Persisted Authorization
+     10.10. Presentation of the Client to End-Users
+     10.11. Maximum Response Size for Client ID Metadata Documents
+     10.12. Resource Indicator Scoping of Persisted Authorization
              State
-     10.12. CIMD Services
+     10.13. CIMD Services
    11. Privacy Considerations
      11.1.  Authorization Server Fetch Side Channel
      11.2.  URLs Referenced in Client ID Metadata Documents
@@ -149,7 +150,7 @@ Table of Contents
    clients under active development on a developer's local machine, or
    clients that cannot guarantee the longevity of a URL, are less well
    served by this mechanism.  Deployments that need to support such
-   clients should consider the guidance in Section 9 and Section 10.12.
+   clients should consider the guidance in Section 9 and Section 10.13.
 
 2.  Conventions and Definitions
 
@@ -552,7 +553,8 @@ Table of Contents
 6.2.  Metadata Caching
 
    The authorization server MAY cache the client metadata it discovers
-   at the Client ID Metadata Document URL.
+   at the Client ID Metadata Document URL, including data retrieved from
+   referenced URLs such as the jwks_uri and logo_uri.
 
    The authorization server SHOULD respect HTTP cache headers [RFC9111]
    when caching client metadata.  The Expires HTTP header need not be
@@ -680,7 +682,7 @@ Table of Contents
    between [Solid-OIDC] and this specification.
 
    Some restrictions on redirect_uris can make developer usage of Client
-   ID Metadata Documents difficult.  Section 10.12 discusses how a
+   ID Metadata Documents difficult.  Section 10.13 discusses how a
    service offered by the authorization server can enable development
    usage of Client ID Metadata Documents for authorization servers that
    impose restrictions on the redirect_uri.
@@ -825,33 +827,7 @@ Table of Contents
    header to early reject the request if the request is made to a
    resource that does not return JSON.
 
-10.8.  Maximum Response Size for Client ID Metadata Documents
-
-   Since the authorization server does not control the size of the
-   Client ID Metadata Document served by the client, it cannot limit the
-   size of the response itself.  Instead, authorization servers SHOULD
-   limit the amount of data they read and process when fetching a Client
-   ID Metadata Document, for example by stopping after a maximum number
-   of bytes and treating the response as an error if that limit is
-   reached before the document has been fully read.  The recommended
-   maximum size to read is 5 kilobytes.
-
-10.9.  Displaying Logos to End-Users
-
-   Authorization servers that wish to make use of the logo_uri property
-   within Client ID Metadata Document SHOULD prefetch the file at
-   logo_uri and cache it for the cache duration of the Client ID
-   Metadata Document.  This allows for moderation tools to verify the
-   file contents (e.g., preventing usage of logos that look like other
-   logos), as well as preventing the logo from being dynamically changed
-   to confuse an end-user.
-
-   Caching of the logo_uri response can additionally prevent cross-
-   domain tracking through the logo_uri being requested by the client,
-   since the cached file would be served not from the remote URI but
-   instead from a URI that the Authorization server trusts.
-
-10.10.  Client ID Domain Trust
+10.8.  Client ID Domain Trust
 
    The authorization server may choose to have its own heuristics and
    policies around the trust of domain names used as client IDs.
@@ -866,7 +842,59 @@ Table of Contents
    *.example.com as belonging to a known and trusted operator, and apply
    reduced friction for clients matching such patterns.
 
-10.11.  Resource Indicator Scoping of Persisted Authorization State
+10.9.  Displaying Logos to End-Users
+
+   Authorization servers that wish to display the image at logo_uri to
+   the end-user, such as on the authorization page or on a page where
+   the end-user manages their authorized clients, MUST prefetch the file
+   at logo_uri and MUST serve it to the end-user from servers that the
+   authorization server trusts, rather than referencing the logo_uri
+   directly.  See Section 6.2 for considerations related to caching the
+   metadata and logo.
+
+   Before displaying the file, the authorization server MUST verify that
+   the file contents are a valid image, and that the image satisfies the
+   authorization server's content security policy.
+
+   Prefetching and serving the logo from a trusted server allows
+   moderation tools to verify the file contents (e.g., preventing usage
+   of logos that look like other logos), and prevents the logo from
+   being dynamically changed to confuse an end-user, or from being
+   served differently to the authorization server than to the end-user.
+   It also prevents the operator of the logo_uri from tracking end-users
+   across domains through requests made by the end-user's browser, as
+   described in Section 11.2.
+
+10.10.  Presentation of the Client to End-Users
+
+   Client metadata properties that describe how the client is presented
+   to the end-user, such as client_name, logo_uri, client_uri,
+   policy_uri, and tos_uri, are asserted by the client.  A malicious
+   client can use these properties to impersonate a more well-known
+   client, for example by using another client's name or logo.
+
+   Authorization servers are not required to display these properties,
+   and MAY apply their own policies when deciding whether and how to
+   present them to the end-user.  For example, an authorization server
+   could only display the client_name or logo of clients that have been
+   manually reviewed or that appear on an allowlist, could display a
+   warning alongside these properties for clients that have not been
+   reviewed, or could display only the hostname of the Client Identifier
+   URL as described in Section 10.6.  See also Section 10.8 and
+   Section 4.4.
+
+10.11.  Maximum Response Size for Client ID Metadata Documents
+
+   Since the authorization server does not control the size of the
+   Client ID Metadata Document served by the client, it cannot limit the
+   size of the response itself.  Instead, authorization servers SHOULD
+   limit the amount of data they read and process when fetching a Client
+   ID Metadata Document, for example by stopping after a maximum number
+   of bytes and treating the response as an error if that limit is
+   reached before the document has been fully read.  The recommended
+   maximum size to read is 5 kilobytes.
+
+10.12.  Resource Indicator Scoping of Persisted Authorization State
 
    Any mechanism an authorization server uses to persist or reuse a
    prior authorization decision for a client MUST be scoped at least to
@@ -874,7 +902,7 @@ Table of Contents
    binding already required of refresh tokens in Section 4.14.2 of
    [RFC9700].
 
-10.12.  CIMD Services
+10.13.  CIMD Services
 
    This section describes a pattern, referred to as a CIMD Service,
    through which an authorization server can offer developers a way to
@@ -929,12 +957,12 @@ Table of Contents
    served to the end user's browser, they may create cross-domain
    tracking opportunities for the operator of the referenced URL.
 
-   As described in Section 10.9, authorization servers that fetch and
-   cache the content of logo_uri rather than linking to it directly
-   mitigate the risk of cross-domain tracking through logo requests
-   initiated by the end user's browser.  Authorization servers should
-   consider similar precautions for other URLs contained in the Client
-   ID Metadata Document before exposing them to end users.
+   As described in Section 10.9, authorization servers that fetch the
+   content of logo_uri and serve it themselves rather than linking to it
+   directly mitigate the risk of cross-domain tracking through logo
+   requests initiated by the end user's browser.  Authorization servers
+   should consider similar precautions for other URLs contained in the
+   Client ID Metadata Document before exposing them to end users.
 
 12.  IANA Considerations
 
@@ -1134,7 +1162,7 @@ Appendix A.  CIMD Services for Development Purposes
    is performing a form of static client registration on behalf of the
    developer, mediated through a URL rather than a direct registration
    API.  Authorization servers offering a CIMD Service should consider
-   the security and reputation implications discussed in Section 10.12,
+   the security and reputation implications discussed in Section 10.13,
    and should ensure that clients provisioned through a CIMD Service are
    not afforded the same level of trust as clients that publish their
    own Client ID Metadata Document.
@@ -1203,6 +1231,13 @@ Document History
    *  Added section distinguishing functional and informative URI-based
       properties, and clarified that client_uri is not restricted to the
       origin of the client_id or redirect_uris
+
+   *  Made prefetching logo_uri and serving it from a trusted server a
+      requirement when displaying logos, and required validating the
+      image contents
+
+   *  Added security consideration on the presentation of the client to
+      end-users
 
    -02
 
