@@ -1806,21 +1806,25 @@ the authorization server must include client authentication using <code>private_
       </h2>
 <p id="section-6-1">Authorization servers <span class="bcp14">SHOULD</span> automatically fetch the Client ID Metadata
 Document at the Client Identifier URL to retrieve the client metadata.<a href="#section-6-1" class="pilcrow">¶</a></p>
-<p id="section-6-2">The Authorization Server <span class="bcp14">SHOULD</span>
+<p id="section-6-2">The Authorization Server <span class="bcp14">MUST</span> filter the <code>grant_types</code> and <code>response_types</code> array-valued
+fields and find the intersection of what the Client ID Metadata Document
+declares and what the Authorization Servers supports. If the intersection of either of these
+two properties is empty, the Authorization Server <span class="bcp14">MUST</span> reject the request with <code>invalid_client</code>.<a href="#section-6-2" class="pilcrow">¶</a></p>
+<p id="section-6-3">The Authorization Server <span class="bcp14">SHOULD</span>
 send an <code>Accept</code> header of <code>application/json</code> as described in <span><a href="https://rfc-editor.org/rfc/rfc9110#section-12.5.1" class="relref">Section 12.5.1</a> of [<a href="#RFC9110" class="cite xref">RFC9110</a>]</span>
-when fetching the client metadata. See <a href="#accept-header" class="auto internal xref">Section 10.7.1</a> for additional details.<a href="#section-6-2" class="pilcrow">¶</a></p>
-<p id="section-6-3">Authorization servers <span class="bcp14">SHOULD</span> periodically re-fetch the Client ID Metadata Document
+when fetching the client metadata. See <a href="#accept-header" class="auto internal xref">Section 10.7.1</a> for additional details.<a href="#section-6-3" class="pilcrow">¶</a></p>
+<p id="section-6-4">Authorization servers <span class="bcp14">SHOULD</span> periodically re-fetch the Client ID Metadata Document
 as the contents may change over time. See <a href="#metadata_caching" class="auto internal xref">Section 6.2</a> and
-<a href="#client_metadata_changes" class="auto internal xref">Section 10.5</a> for additional considerations.<a href="#section-6-3" class="pilcrow">¶</a></p>
-<p id="section-6-4">An authorization server <span class="bcp14">MAY</span> instead associate a Client Identifier URL with
+<a href="#client_metadata_changes" class="auto internal xref">Section 10.5</a> for additional considerations.<a href="#section-6-4" class="pilcrow">¶</a></p>
+<p id="section-6-5">An authorization server <span class="bcp14">MAY</span> instead associate a Client Identifier URL with
 client metadata through other means, such as by pre-registering the URL as
-described in <a href="#prereg_cimd_urls" class="auto internal xref">Section 9.2</a>.<a href="#section-6-4" class="pilcrow">¶</a></p>
-<p id="section-6-5">The Client ID Metadata Document <span class="bcp14">MUST</span> be served with a 200 OK HTTP status code.
+described in <a href="#prereg_cimd_urls" class="auto internal xref">Section 9.2</a>.<a href="#section-6-5" class="pilcrow">¶</a></p>
+<p id="section-6-6">The Client ID Metadata Document <span class="bcp14">MUST</span> be served with a 200 OK HTTP status code.
 The authorization server <span class="bcp14">MUST</span> treat all other HTTP status codes as an error response, as
 described in <a href="#metadata_discovery_errors" class="auto internal xref">Section 6.1</a>. The authorization server <span class="bcp14">MUST NOT</span>
-automatically follow HTTP redirects when fetching the Client ID Metadata Document.<a href="#section-6-5" class="pilcrow">¶</a></p>
-<p id="section-6-6">Special care should be taken to avoid Server Side Request Forgery (SSRF) Attacks
-when fetching Client ID Metadata Documents, as described in <a href="#ssrf_attacks" class="auto internal xref">Section 10.7</a>.<a href="#section-6-6" class="pilcrow">¶</a></p>
+automatically follow HTTP redirects when fetching the Client ID Metadata Document.<a href="#section-6-6" class="pilcrow">¶</a></p>
+<p id="section-6-7">Special care should be taken to avoid Server Side Request Forgery (SSRF) Attacks
+when fetching Client ID Metadata Documents, as described in <a href="#ssrf_attacks" class="auto internal xref">Section 10.7</a>.<a href="#section-6-7" class="pilcrow">¶</a></p>
 <div id="metadata_discovery_errors">
 <section id="section-6.1">
         <h3 id="name-metadata-discovery-errors">
