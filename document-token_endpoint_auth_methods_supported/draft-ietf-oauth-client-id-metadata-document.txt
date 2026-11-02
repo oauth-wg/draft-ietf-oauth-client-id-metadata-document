@@ -5,8 +5,8 @@
 Web Authorization Protocol                                    A. Parecki
 Internet-Draft                                                      Okta
 Intended status: Standards Track                                E. Smith
-Expires: 5 May 2027                                          independent
-                                                         1 November 2026
+Expires: 6 May 2027                                          independent
+                                                         2 November 2026
 
 
                    OAuth Client ID Metadata Document
@@ -57,7 +57,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 5 May 2027.
+   This Internet-Draft will expire on 6 May 2027.
 
 Copyright Notice
 
@@ -361,11 +361,10 @@ Table of Contents
    token_endpoint_auth_methods_supported property, even if they do not
    otherwise implement [OpenID.RPMetadataChoices].
 
-   An authorization server that supports [OpenID.RPMetadataChoices]
-   SHOULD select one of the values in
+   An authorization server SHOULD select one of the values in
    token_endpoint_auth_methods_supported that it supports, and SHOULD
    NOT consider it an error that it does not support the remaining
-   values, per Section 4 of [OpenID.RPMetadataChoices].
+   values, as described in Section 4 of [OpenID.RPMetadataChoices].
 
    When an authorization server does not support any of the token
    endpoint authentication methods declared in the Client ID Metadata
@@ -403,7 +402,7 @@ Table of Contents
    When a client declares private_key_jwt as a token endpoint auth
    method and the authorization server supports this method, the
    authorization server MUST require client authentication according to
-   Section 2.2 of [RFC7523] using the corresponding key discovered from
+   Section 2.2 of [RFC7523] using a corresponding key discovered from
    the client's metadata document.
 
    See Section 10.3 for security details on managing Client
@@ -415,7 +414,7 @@ Table of Contents
 
    To establish client authentication using a public key with the
    private_key_jwt authentication method defined in [OpenID], the client
-   metadata document would look like the following:
+   metadata document would contain the following:
 
    {
      ...
@@ -1015,9 +1014,9 @@ Table of Contents
               Schwenkschuster, A., Kasselman, P., Rose, S., Thorgersen,
               S., and N. Cam-Winget, "OAuth SPIFFE Client
               Authentication", Work in Progress, Internet-Draft, draft-
-              ietf-oauth-spiffe-client-auth-02, 15 June 2026,
+              ietf-oauth-spiffe-client-auth-03, 2 November 2026,
               <https://datatracker.ietf.org/doc/html/draft-ietf-oauth-
-              spiffe-client-auth-02>.
+              spiffe-client-auth-03>.
 
    [IndieAuth]
               Parecki, A., "IndieAuth", 12 February 2022,
