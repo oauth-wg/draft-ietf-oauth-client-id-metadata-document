@@ -326,6 +326,23 @@ to the end-user, authorization servers should treat them with the same caution
 described in {{Section 5 of RFC7591}} for open client registration. See also
 {{displaying_logos}} and {{client_metadata_consistency}}.
 
+## Preventing External Influence of Document Contents {#client_metadata_consistency}
+
+A Client ID Metadata Document is intended to consistently describe one client.
+Clients MUST NOT derive the contents of a Client ID Metadata Document from
+untrusted external input. This includes input embedded in path or query
+components of a Client Identifier URL, as well as request headers, cookies, or
+information about the requesting user or authorization server. In particular,
+untrusted external input MUST NOT influence URIs used for protocol operation
+(Functional URIs), URIs providing information about the client (Informative
+URIs), or other security-sensitive or user-visible metadata such as
+`client_name`, `client_uri`, `logo_uri`, `policy_uri`, or `tos_uri`.
+
+This requirement does not prevent an operator from intentionally updating a
+Client ID Metadata Document, including performing key rotation, or from
+publishing intentionally different documents at distinct Client Identifier
+URLs.
+
 # Client Authentication {#client_authentication}
 
 Client authentication methods based around a shared symmetric secret cannot be used, as there is no way to securely establish a shared symmetric secret in a Client ID Metadata Document; see {{client_metadata_restrictions}}. Client Authentication is possible using authentication methods that use public/private key pairs by having the client publish the public key in its metadata document, for example via the `jwks` or `jwks_uri` properties.
@@ -538,23 +555,6 @@ identity.
 Authorization servers should be aware that Client ID Metadata Documents can change over time since they are served from URLs under client control. Authorization servers should consider the security implications when metadata properties change, such as `redirect_uris`, `token_endpoint_auth_method`, `scope`, `grant_types`, `jwks`, `jwks_uri`, or display properties like `client_name` and `logo_uri`.
 
 Significant changes to client metadata may affect the trust relationship between the authorization server and the client, and could impact the validity of previously granted user consent. Authorization servers may choose to invalidate existing grants, require fresh user consent, or implement other policies when certain types of metadata changes are detected. The appropriate response will depend on the authorization server's risk tolerance and operational requirements.
-
-### Consistency of Client Metadata {#client_metadata_consistency}
-
-A Client ID Metadata Document is intended to consistently describe one client.
-Clients MUST NOT derive the contents of a Client ID Metadata Document from
-untrusted external input. This includes input embedded in path or query
-components of a Client Identifier URL, as well as request headers, cookies, or
-information about the requesting user or authorization server. In particular,
-untrusted external input MUST NOT influence URIs used for protocol operation
-(Functional URIs), URIs providing information about the client (Informative
-URIs), or other security-sensitive or user-visible metadata such as
-`client_name`, `client_uri`, `logo_uri`, `policy_uri`, or `tos_uri`.
-
-This requirement does not prevent an operator from intentionally updating a
-Client ID Metadata Document, including performing key rotation, or from
-publishing intentionally different documents at distinct Client Identifier
-URLs.
 
 ### Changes in Client Keys {#client_key_changes}
 
@@ -798,6 +798,7 @@ The authors would like to thank the following people for their contributions and
 * Made prefetching `logo_uri` and serving it from a trusted server a requirement when displaying logos, and required validating the image contents
 * Added security consideration on the presentation of the client to end-users
 * Disallow the root path / as a CIMD URL
+* Moved the client metadata consistency requirements from Security Considerations to Section 4, and renamed the section.
 
 -02
 
