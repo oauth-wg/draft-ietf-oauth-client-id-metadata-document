@@ -441,7 +441,8 @@ authorization server's discretion, consistent with {{client_metadata_changes}}.
 ## Metadata Caching {#metadata_caching}
 
 The authorization server MAY cache the client metadata it discovers at the
-Client ID Metadata Document URL.
+Client ID Metadata Document URL, including data retrieved from referenced URLs
+such as the `jwks_uri` and `logo_uri`.
 
 The authorization server SHOULD respect HTTP cache headers {{RFC9111}} when caching client metadata.
 The `Expires` HTTP header need not be honored, since `Cache-Control` takes precedence under {{RFC9111}}.
@@ -555,7 +556,7 @@ URLs.
 If the authorization server notices that the `jwks`, `jwks_uri` or the contents at the `jwks_uri` have changed compared to the last time it fetched the metadata, the authorization server may take actions such as revoking any tokens issued to this client, or revoking the user's consent for this client. The particular actions to take are left up to the discretion of the authorization server based on its own risk assessment. However, periodic rotation of keys can also be expected as good security hygiene by the client.
 
 
-## OAuth Phishing Attacks
+## OAuth Phishing Attacks {#oauth_phishing}
 
 Authorization servers SHOULD fetch the `client_id` metadata document provided in the authorization request in order to provide users with additional information about the request, such as the application name and logo. If the server does not fetch the Client ID Metadata Document, then it SHOULD take additional measures to ensure the user is provided with as much information as possible about the request.
 
@@ -580,22 +581,54 @@ Authorization servers SHOULD ensure they only fetch or parse URLs with known and
 
 When fetching the Client ID Metadata Document, the authorization server follows the recommendations described in {{client_information_discovery}}, reducing the chances that the authorization server can be used in a reflection attack on unrelated resources, as the target server has the `Accept` header to early reject the request if the request is made to a resource that does not return JSON.
 
-## Maximum Response Size for Client ID Metadata Documents
-
-Since the authorization server does not control the size of the Client ID Metadata Document served by the client, it cannot limit the size of the response itself. Instead, authorization servers SHOULD limit the amount of data they read and process when fetching a Client ID Metadata Document, for example by stopping after a maximum number of bytes and treating the response as an error if that limit is reached before the document has been fully read. The recommended maximum size to read is 5 kilobytes.
-
-
-## Displaying Logos to End-Users {#displaying_logos}
-
-Authorization servers that wish to make use of the `logo_uri` property within Client ID Metadata Document SHOULD prefetch the file at `logo_uri` and cache it for the cache duration of the Client ID Metadata Document. This allows for moderation tools to verify the file contents (e.g., preventing usage of logos that look like other logos), as well as preventing the logo from being dynamically changed to confuse an end-user.
-
-Caching of the `logo_uri` response can additionally prevent cross-domain tracking through the `logo_uri` being requested by the client, since the cached file would be served not from the remote URI but instead from a URI that the Authorization server trusts.
-
-## Client ID Domain Trust
+## Client ID Domain Trust {#client_id_domain_trust}
 
 The authorization server may choose to have its own heuristics and policies around the trust of domain names used as client IDs.
 
 For example, the authorization server could require that the first 100 users to authorize a `client_id` see an additional warning screen before the OAuth consent screen. The authorization server could check attributes of the domain reputation, such as how recently the domain was registered, and put up extra warnings for new domains. An authorization server may also maintain allowlists of trusted domain patterns, such as treating any Client Identifier URL under `*.example.com` as belonging to a known and trusted operator, and apply reduced friction for clients matching such patterns.
+
+## Displaying Logos to End-Users {#displaying_logos}
+
+Authorization servers that wish to display the image at `logo_uri` to the
+end-user, such as on the authorization page or on a page where the end-user
+manages their authorized clients, MUST prefetch the file at `logo_uri` and
+MUST serve it to the end-user from servers that the authorization server
+trusts, rather than referencing the `logo_uri` directly. See {{metadata_caching}}
+for considerations related to caching the metadata and logo.
+
+Before displaying the file, the authorization server MUST verify that the
+file contents are a valid image, and that the image satisfies the
+authorization server's content security policy.
+
+Prefetching and serving the logo from a trusted server allows moderation
+tools to verify the file contents (e.g., preventing usage of logos that look
+like other logos), and prevents the logo from being dynamically changed to
+confuse an end-user, or from being served differently to the authorization
+server than to the end-user. It also prevents the operator of the `logo_uri`
+from tracking end-users across domains through requests made by the
+end-user's browser, as described in {{urls_referenced}}.
+
+## Presentation of the Client to End-Users {#client_presentation}
+
+Client metadata properties that describe how the client is presented to the
+end-user, such as `client_name`, `logo_uri`, `client_uri`, `policy_uri`, and
+`tos_uri`, are asserted by the client. A malicious client can use these
+properties to impersonate a more well-known client, for example by using
+another client's name or logo.
+
+Authorization servers are not required to display these properties, and MAY
+apply their own policies when deciding whether and how to present them to
+the end-user. For example, an authorization server could only display the
+`client_name` or logo of clients that have been manually reviewed or that
+appear on an allowlist, could display a warning alongside these properties
+for clients that have not been reviewed, or could display only the hostname
+of the Client Identifier URL as described in {{oauth_phishing}}. See also
+{{client_id_domain_trust}} and {{uri_properties}}.
+
+## Maximum Response Size for Client ID Metadata Documents
+
+Since the authorization server does not control the size of the Client ID Metadata Document served by the client, it cannot limit the size of the response itself. Instead, authorization servers SHOULD limit the amount of data they read and process when fetching a Client ID Metadata Document, for example by stopping after a maximum number of bytes and treating the response as an error if that limit is reached before the document has been fully read. The recommended maximum size to read is 5 kilobytes.
+
 
 ## Resource Indicator Scoping of Persisted Authorization State
 
@@ -648,7 +681,7 @@ Clients must follow the consistency requirements in
 cookies, user-specific information, or unnecessary request headers when
 fetching Client ID Metadata Documents.
 
-## URLs Referenced in Client ID Metadata Documents
+## URLs Referenced in Client ID Metadata Documents {#urls_referenced}
 
 Client ID Metadata Documents may contain URLs, such as `logo_uri`, `jwks_uri`,
 `policy_uri`, or `tos_uri`, that the authorization server fetches directly
@@ -658,9 +691,9 @@ authorization server, or their content is served to the end user's browser,
 they may create cross-domain tracking opportunities for the operator of the
 referenced URL.
 
-As described in {{displaying_logos}}, authorization servers that fetch and
-cache the content of `logo_uri` rather than linking to it directly mitigate
-the risk of cross-domain tracking through logo requests initiated by the
+As described in {{displaying_logos}}, authorization servers that fetch the
+content of `logo_uri` and serve it themselves rather than linking to it
+directly mitigate the risk of cross-domain tracking through logo requests initiated by the
 end user's browser. Authorization servers should consider similar
 precautions for other URLs contained in the Client ID Metadata Document before
 exposing them to end users.
@@ -757,6 +790,8 @@ The authors would like to thank the following people for their contributions and
 * Add language to strengthen security of JWT based client authentication.
 * Added requirement for `jwks`/`jwks_uri` to be present when using `private_key_jwt`.
 * Added section distinguishing functional and informative URI-based properties, and clarified that `client_uri` is not restricted to the origin of the `client_id` or `redirect_uris`
+* Made prefetching `logo_uri` and serving it from a trusted server a requirement when displaying logos, and required validating the image contents
+* Added security consideration on the presentation of the client to end-users
 
 -02
 
