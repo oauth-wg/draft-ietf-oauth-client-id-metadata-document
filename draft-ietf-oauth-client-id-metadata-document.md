@@ -170,7 +170,7 @@ A Client Identifier URL:
 * MUST use the `https` URL scheme
 * MUST NOT contain a userinfo component defined by {{RFC3986}}
 * MAY contain a port
-* MUST contain a path component
+* MUST contain a path component other than `/`
 * MUST NOT contain single-dot or double-dot path components
 * SHOULD NOT contain a query component
 * MUST NOT contain a fragment component
@@ -195,8 +195,8 @@ different Client Identifier URL as described in {{client_id_url_changes}}.
 Note that URL shortening services are generally not suitable as Client Identifier
 URLs, since they typically operate using HTTP redirects, which conflicts
 with the requirement in {{client_information_discovery}} when fetching the
-Client ID Metadata Document. Using a path of `/` (e.g., `https://example.com/`)
-is NOT RECOMMENDED, since the Client ID Metadata Document would then be served at
+Client ID Metadata Document. A path of `/` (e.g., `https://example.com/`)
+is prohibited since the Client ID Metadata Document would then be served at
 the root of the domain, conflicting with existing content that may be published there.
 
 A Client Identifier URL MUST be associated with a set of client metadata,
@@ -797,6 +797,7 @@ The authors would like to thank the following people for their contributions and
 * Added section distinguishing functional and informative URI-based properties, and clarified that `client_uri` is not restricted to the origin of the `client_id` or `redirect_uris`
 * Made prefetching `logo_uri` and serving it from a trusted server a requirement when displaying logos, and required validating the image contents
 * Added security consideration on the presentation of the client to end-users
+* Disallow the root path / as a CIMD URL
 
 -02
 
