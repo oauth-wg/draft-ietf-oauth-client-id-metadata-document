@@ -355,6 +355,11 @@ This means the client may either be a public client or confidential client, depe
 Authorization servers SHOULD automatically fetch the Client ID Metadata
 Document at the Client Identifier URL to retrieve the client metadata.
 
+The Authorization Server MUST filter the `grant_types` and `response_types` array-valued
+fields and find the intersection of what the Client ID Metadata Document
+declares and what the Authorization Servers supports. If the intersection of either of these
+two properties is empty, the Authorization Server MUST reject the request with `invalid_client`.
+
 The Authorization Server SHOULD
 send an `Accept` header of `application/json` as described in {{Section 12.5.1 of RFC9110}}
 when fetching the client metadata. See {{accept-header}} for additional details.
