@@ -1359,6 +1359,9 @@ metadata about the client as needed.<a href="#section-abstract-1" class="pilcrow
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3">
                 <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="auto internal xref">4.3</a>.  <a href="#name-relationship-with-software_" class="internal xref">Relationship with software_statement</a></p>
 </li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4">
+                <p id="section-toc.1-1.4.2.4.1"><a href="#section-4.4" class="auto internal xref">4.4</a>.  <a href="#name-relationship-and-restrictio" class="internal xref">Relationship and Restrictions on URI-based Properties</a></p>
+</li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
@@ -1404,7 +1407,7 @@ metadata about the client as needed.<a href="#section-abstract-1" class="pilcrow
                 <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="auto internal xref">10.1</a>.  <a href="#name-client-identifier-url-confu" class="internal xref">Client Identifier URL Confusion Attacks</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.2">
-                <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="auto internal xref">10.2</a>.  <a href="#name-relationship-between-redire" class="internal xref">Relationship between <code>redirect_uris</code> and <code>client_id</code> or <code>client_uri</code></a></p>
+                <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="auto internal xref">10.2</a>.  <a href="#name-relationship-between-redire" class="internal xref">Relationship between <code>redirect_uris</code> and <code>client_id</code></a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.3">
                 <p id="section-toc.1-1.10.2.3.1"><a href="#section-10.3" class="auto internal xref">10.3</a>.  <a href="#name-client-authentication-key-m" class="internal xref">Client Authentication Key Material</a></p>
@@ -1690,6 +1693,51 @@ evaluate whether this combination meets their assurance requirements before
 relying on software statements delivered this way.<a href="#section-4.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
+<div id="uri_properties">
+<section id="section-4.4">
+        <h3 id="name-relationship-and-restrictio">
+<a href="#section-4.4" class="section-number selfRef">4.4. </a><a href="#name-relationship-and-restrictio" class="section-name selfRef">Relationship and Restrictions on URI-based Properties</a>
+        </h3>
+<p id="section-4.4-1">Many client metadata properties have URI values. For the purposes of this
+specification, these properties fall into one of two categories:<a href="#section-4.4-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-4.4-2">
+          <dt id="section-4.4-2.1">Functional URIs:</dt>
+          <dd style="margin-left: 1.5em" id="section-4.4-2.2">
+            <p id="section-4.4-2.2.1">URIs that the authorization server dereferences, or uses directly, as part of
+processing the OAuth protocol. These include the <code>client_id</code> itself, the
+<code>redirect_uris</code>, and the <code>jwks_uri</code>.<a href="#section-4.4-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+<dt id="section-4.4-2.3">Informative URIs:</dt>
+          <dd style="margin-left: 1.5em" id="section-4.4-2.4">
+            <p id="section-4.4-2.4.1">URIs that are intended to be presented to the end-user, typically on the
+authorization or consent screen, to provide additional information about the
+client. These include <code>client_uri</code>, <code>logo_uri</code>, <code>policy_uri</code>, and <code>tos_uri</code>.<a href="#section-4.4-2.4.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+<p id="section-4.4-3">Properties defined by other specifications that have URI values fall into one
+of these two categories based on how they are used, as described by the
+specification that defines them. A property whose value the authorization
+server dereferences or acts on during protocol processing is a functional URI;
+a property whose value is only displayed or linked to for the end-user is an
+informative URI.<a href="#section-4.4-3" class="pilcrow">¶</a></p>
+<p id="section-4.4-4">Authorization servers <span class="bcp14">MAY</span> impose restrictions on functional URIs, such as
+restricting the <code>redirect_uris</code> to the same origin as the <code>client_id</code>, as
+discussed in <a href="#redirect_uri_relationship" class="auto internal xref">Section 10.2</a>. Authorization servers fetching
+functional URIs such as <code>jwks_uri</code> are subject to the considerations described
+in <a href="#ssrf_attacks" class="auto internal xref">Section 10.7</a>.<a href="#section-4.4-4" class="pilcrow">¶</a></p>
+<p id="section-4.4-5">Informative URIs are not used to establish the identity of the client, and an
+application's informational website will often be hosted separately from
+where its Client ID Metadata Document is published. As such, the authorization
+server <span class="bcp14">MUST NOT</span> require that the <code>client_uri</code> be on the same origin as, or a
+prefix of, the <code>client_id</code> or any of the <code>redirect_uris</code>.<a href="#section-4.4-5" class="pilcrow">¶</a></p>
+<p id="section-4.4-6">Since informative URIs are under the control of the client and are displayed
+to the end-user, authorization servers should treat them with the same caution
+described in <span><a href="https://rfc-editor.org/rfc/rfc7591#section-5" class="relref">Section 5</a> of [<a href="#RFC7591" class="cite xref">RFC7591</a>]</span> for open client registration. See also
+<a href="#displaying_logos" class="auto internal xref">Section 10.9</a> and <a href="#client_metadata_consistency" class="auto internal xref">Section 10.5.1</a>.<a href="#section-4.4-6" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 <div id="client_authentication">
@@ -1885,10 +1933,10 @@ relationship with.<a href="#section-10.1-1" class="pilcrow">¶</a></p>
 <div id="redirect_uri_relationship">
 <section id="section-10.2">
         <h3 id="name-relationship-between-redire">
-<a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-relationship-between-redire" class="section-name selfRef">Relationship between <code>redirect_uris</code> and <code>client_id</code> or <code>client_uri</code></a>
+<a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-relationship-between-redire" class="section-name selfRef">Relationship between <code>redirect_uris</code> and <code>client_id</code></a>
         </h3>
-<p id="section-10.2-1">An authorization server may impose restrictions or relationships between the <code>redirect_uris</code> and the <code>client_id</code> or <code>client_uri</code> properties, for example to restrict the <code>redirect_uri</code> to the same-origin as the Client ID Metadata Document. Without restrictions like these, there are potential trust and safety issues where the client attempts to impersonate a more well-known client or otherwise act in a way which is malicious or puts the end-user at risk.<a href="#section-10.2-1" class="pilcrow">¶</a></p>
-<p id="section-10.2-2">Having no restrictions on the relationship between <code>redirect_uris</code> and <code>client_id</code> or <code>client_uri</code> was a common practice with <span>[<a href="#Solid-OIDC" class="cite xref">Solid-OIDC</a>]</span>'s Client ID Documents, so this ability is preserved for backwards compatibility between <span>[<a href="#Solid-OIDC" class="cite xref">Solid-OIDC</a>]</span> and this specification.<a href="#section-10.2-2" class="pilcrow">¶</a></p>
+<p id="section-10.2-1">An authorization server may impose restrictions or relationships between the <code>redirect_uris</code> and the <code>client_id</code>, for example to restrict the <code>redirect_uri</code> to the same-origin as the Client ID Metadata Document. Without restrictions like these, there are potential trust and safety issues where the client attempts to impersonate a more well-known client or otherwise act in a way which is malicious or puts the end-user at risk. Restrictions of this kind do not apply to informative URIs such as <code>client_uri</code>, as described in <a href="#uri_properties" class="auto internal xref">Section 4.4</a>.<a href="#section-10.2-1" class="pilcrow">¶</a></p>
+<p id="section-10.2-2">Having no restrictions on the relationship between <code>redirect_uris</code> and <code>client_id</code> was a common practice with <span>[<a href="#Solid-OIDC" class="cite xref">Solid-OIDC</a>]</span>'s Client ID Documents, so this ability is preserved for backwards compatibility between <span>[<a href="#Solid-OIDC" class="cite xref">Solid-OIDC</a>]</span> and this specification.<a href="#section-10.2-2" class="pilcrow">¶</a></p>
 <p id="section-10.2-3">Some restrictions on <code>redirect_uris</code> can make developer usage of Client ID Metadata Documents difficult. <a href="#cimd_services" class="auto internal xref">Section 10.12</a> discusses how a service offered by the authorization server can enable development usage of Client ID Metadata Documents for authorization servers that impose restrictions on the <code>redirect_uri</code>.<a href="#section-10.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -2261,7 +2309,7 @@ Service, that an authorization server <span class="bcp14">MAY</span> offer to ma
 this specification easier.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
 <p id="appendix-A-2">An authorization server may have restrictions on what it accepts as valid
 <code>redirect_uris</code>, for instance, limiting them to the same-origin as the
-<code>client_id</code> or <code>client_uri</code> properties, as discussed in
+<code>client_id</code>, as discussed in
 <a href="#redirect_uri_relationship" class="auto internal xref">Section 10.2</a>. However, if an authorization server does
 place additional restrictions on the accepted <code>redirect_uris</code> then it is
 <span class="bcp14">RECOMMENDED</span> that it provide at least one CIMD Service which is exempt from
@@ -2348,6 +2396,9 @@ as clients that publish their own Client ID Metadata Document.<a href="#appendix
 </li>
         <li class="normal" id="appendix-C-3.12">
           <p id="appendix-C-3.12.1">Added requirement for <code>jwks</code>/<code>jwks_uri</code> to be present when using <code>private_key_jwt</code>.<a href="#appendix-C-3.12.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-3.13">
+          <p id="appendix-C-3.13.1">Added section distinguishing functional and informative URI-based properties, and clarified that <code>client_uri</code> is not restricted to the origin of the <code>client_id</code> or <code>redirect_uris</code><a href="#appendix-C-3.13.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 <p id="appendix-C-4">-02<a href="#appendix-C-4" class="pilcrow">¶</a></p>

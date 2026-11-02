@@ -82,6 +82,7 @@ Table of Contents
      4.1.  Credential and Key Material Restrictions
      4.2.  Redirect URL Registration
      4.3.  Relationship with software_statement
+     4.4.  Relationship and Restrictions on URI-based Properties
    5.  Client Authentication
      5.1.  Examples of Client Authentication
    6.  Client Information Discovery
@@ -94,8 +95,7 @@ Table of Contents
      9.2.  Pre-Registering Client Identifier URLs
    10. Security Considerations
      10.1.  Client Identifier URL Confusion Attacks
-     10.2.  Relationship between redirect_uris and client_id or
-             client_uri
+     10.2.  Relationship between redirect_uris and client_id
      10.3.  Client Authentication Key Material
      10.4.  Changes in Client Identifier URL
      10.5.  Changes in Client Metadata
@@ -312,6 +312,45 @@ Table of Contents
    Authorization servers should evaluate whether this combination meets
    their assurance requirements before relying on software statements
    delivered this way.
+
+4.4.  Relationship and Restrictions on URI-based Properties
+
+   Many client metadata properties have URI values.  For the purposes of
+   this specification, these properties fall into one of two categories:
+
+   Functional URIs:  URIs that the authorization server dereferences, or
+      uses directly, as part of processing the OAuth protocol.  These
+      include the client_id itself, the redirect_uris, and the jwks_uri.
+
+   Informative URIs:  URIs that are intended to be presented to the end-
+      user, typically on the authorization or consent screen, to provide
+      additional information about the client.  These include
+      client_uri, logo_uri, policy_uri, and tos_uri.
+
+   Properties defined by other specifications that have URI values fall
+   into one of these two categories based on how they are used, as
+   described by the specification that defines them.  A property whose
+   value the authorization server dereferences or acts on during
+   protocol processing is a functional URI; a property whose value is
+   only displayed or linked to for the end-user is an informative URI.
+
+   Authorization servers MAY impose restrictions on functional URIs,
+   such as restricting the redirect_uris to the same origin as the
+   client_id, as discussed in Section 10.2.  Authorization servers
+   fetching functional URIs such as jwks_uri are subject to the
+   considerations described in Section 10.7.
+
+   Informative URIs are not used to establish the identity of the
+   client, and an application's informational website will often be
+   hosted separately from where its Client ID Metadata Document is
+   published.  As such, the authorization server MUST NOT require that
+   the client_uri be on the same origin as, or a prefix of, the
+   client_id or any of the redirect_uris.
+
+   Since informative URIs are under the control of the client and are
+   displayed to the end-user, authorization servers should treat them
+   with the same caution described in Section 5 of [RFC7591] for open
+   client registration.  See also Section 10.9 and Section 10.5.1.
 
 5.  Client Authentication
 
@@ -624,20 +663,21 @@ Table of Contents
    could be accepted by that party as having been issued by, issued to,
    or being about itself.
 
-10.2.  Relationship between redirect_uris and client_id or client_uri
+10.2.  Relationship between redirect_uris and client_id
 
    An authorization server may impose restrictions or relationships
-   between the redirect_uris and the client_id or client_uri properties,
-   for example to restrict the redirect_uri to the same-origin as the
-   Client ID Metadata Document.  Without restrictions like these, there
-   are potential trust and safety issues where the client attempts to
-   impersonate a more well-known client or otherwise act in a way which
-   is malicious or puts the end-user at risk.
+   between the redirect_uris and the client_id, for example to restrict
+   the redirect_uri to the same-origin as the Client ID Metadata
+   Document.  Without restrictions like these, there are potential trust
+   and safety issues where the client attempts to impersonate a more
+   well-known client or otherwise act in a way which is malicious or
+   puts the end-user at risk.  Restrictions of this kind do not apply to
+   informative URIs such as client_uri, as described in Section 4.4.
 
    Having no restrictions on the relationship between redirect_uris and
-   client_id or client_uri was a common practice with [Solid-OIDC]'s
-   Client ID Documents, so this ability is preserved for backwards
-   compatibility between [Solid-OIDC] and this specification.
+   client_id was a common practice with [Solid-OIDC]'s Client ID
+   Documents, so this ability is preserved for backwards compatibility
+   between [Solid-OIDC] and this specification.
 
    Some restrictions on redirect_uris can make developer usage of Client
    ID Metadata Documents difficult.  Section 10.12 discusses how a
@@ -1058,11 +1098,11 @@ Appendix A.  CIMD Services for Development Purposes
 
    An authorization server may have restrictions on what it accepts as
    valid redirect_uris, for instance, limiting them to the same-origin
-   as the client_id or client_uri properties, as discussed in
-   Section 10.2.  However, if an authorization server does place
-   additional restrictions on the accepted redirect_uris then it is
-   RECOMMENDED that it provide at least one CIMD Service which is exempt
-   from these restrictions, to support developers as described below.
+   as the client_id, as discussed in Section 10.2.  However, if an
+   authorization server does place additional restrictions on the
+   accepted redirect_uris then it is RECOMMENDED that it provide at
+   least one CIMD Service which is exempt from these restrictions, to
+   support developers as described below.
 
    When developing applications against an authorization server which
    uses this specification, developers often encounter the issue of "how
@@ -1159,6 +1199,10 @@ Document History
 
    *  Added requirement for jwks/jwks_uri to be present when using
       private_key_jwt.
+
+   *  Added section distinguishing functional and informative URI-based
+      properties, and clarified that client_uri is not restricted to the
+      origin of the client_id or redirect_uris
 
    -02
 
