@@ -443,10 +443,10 @@ and fetching the metadata document fails, the authorization server SHOULD abort 
 authorization request.
 
 This document distinguishes two classes of discovery failure: a
-transient failure (e.g., a network error, timeout, or malformed
-response comparable in spirit to the `temporarily_unavailable`
-condition in {{Section 4.1.2.1 of RFC6749}}) and a terminal failure (the
-document was retrieved but rejected on trust or validation grounds).
+transient failure (e.g., a network error or timeout, comparable in
+spirit to the `temporarily_unavailable` condition in
+{{Section 4.1.2.1 of RFC6749}}) and a terminal failure (the document was
+retrieved but was malformed, or was rejected on trust or validation grounds).
 
 A transient failure SHOULD NOT by itself invalidate a Client Identifier
 URL's previously established trust or outstanding refresh tokens. An
@@ -459,6 +459,13 @@ client's outstanding refresh tokens immediately.
 A terminal failure caused by the authorization server's own trust or policy
 MAY invalidate the client's outstanding refresh tokens immediately, at the
 authorization server's discretion, consistent with {{client_metadata_changes}}.
+
+When a request fails because the Client ID Metadata Document could not be
+retrieved or was invalid, the authorization server MUST NOT redirect the user
+agent to the client, as described in {{Section 4.1.2.1 of RFC6749}}, and SHOULD
+inform the user of the error. At the token endpoint or pushed authorization
+request endpoint, the authorization server MUST return an `invalid_client`
+error, or for a transient failure, an HTTP 503 status code.
 
 ## Metadata Caching {#metadata_caching}
 
@@ -799,6 +806,7 @@ The authors would like to thank the following people for their contributions and
 * Added security consideration on the presentation of the client to end-users
 * Disallow the root path / as a CIMD URL
 * Moved the client metadata consistency requirements from Security Considerations to Section 4, and renamed the section.
+* Defined error handling when the Client ID Metadata Document cannot be retrieved or is invalid, and reclassified malformed documents as terminal failures
 
 -02
 
