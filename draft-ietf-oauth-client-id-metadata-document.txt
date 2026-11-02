@@ -173,7 +173,7 @@ Table of Contents
 
    *  MAY contain a port
 
-   *  MUST contain a path component
+   *  MUST contain a path component other than /
 
    *  MUST NOT contain single-dot or double-dot path components
 
@@ -202,10 +202,10 @@ Table of Contents
    Note that URL shortening services are generally not suitable as
    Client Identifier URLs, since they typically operate using HTTP
    redirects, which conflicts with the requirement in Section 6 when
-   fetching the Client ID Metadata Document.  Using a path of / (e.g.,
-   https://example.com/) is NOT RECOMMENDED, since the Client ID
-   Metadata Document would then be served at the root of the domain,
-   conflicting with existing content that may be published there.
+   fetching the Client ID Metadata Document.  A path of / (e.g.,
+   https://example.com/) is prohibited since the Client ID Metadata
+   Document would then be served at the root of the domain, conflicting
+   with existing content that may be published there.
 
    A Client Identifier URL MUST be associated with a set of client
    metadata, in the form of a Client ID Metadata Document as described
@@ -1245,6 +1245,8 @@ Document History
 
    *  Added security consideration on the presentation of the client to
       end-users
+
+   *  Disallow the root path / as a CIMD URL
 
    -02
 
