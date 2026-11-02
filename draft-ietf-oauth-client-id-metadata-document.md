@@ -302,7 +302,7 @@ Authorization servers MUST NOT apply the default value of `token_endpoint_auth_m
 
 Authorization servers MUST recognise the presence of the `token_endpoint_auth_methods_supported` property, even if they do not otherwise implement {{OpenID.RPMetadataChoices}}.
 
-An authorization server that supports {{OpenID.RPMetadataChoices}} SHOULD select one of the values in `token_endpoint_auth_methods_supported` that it supports, and SHOULD NOT consider it an error that it does not support the remaining values, per Section 4 of {{OpenID.RPMetadataChoices}}.
+An authorization server SHOULD select one of the values in `token_endpoint_auth_methods_supported` that it supports, and SHOULD NOT consider it an error that it does not support the remaining values, as described in Section 4 of {{OpenID.RPMetadataChoices}}.
 
 When an authorization server does not support any of the token endpoint authentication methods declared in the Client ID Metadata Document, the authorization server MUST abort the authorization request and token requests with `invalid_client`.[^cimd-error-code]
 
@@ -314,7 +314,7 @@ When using JWT-based client authentication methods such as `private_key_jwt`, au
 
 Clients that are capable of maintaining private key material and performing client authentication SHOULD do so using a client authentication method that uses public/private key pairs, such as `private_key_jwt` from the [OAuth Token Endpoint Authentication Methods registry](https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-endpoint-auth-method).
 
-When a client declares `private_key_jwt` as a token endpoint auth method and the authorization server supports this method, the authorization server MUST require client authentication according to {{Section 2.2 of RFC7523}} using the corresponding key discovered from the client's metadata document.
+When a client declares `private_key_jwt` as a token endpoint auth method and the authorization server supports this method, the authorization server MUST require client authentication according to {{Section 2.2 of RFC7523}} using a corresponding key discovered from the client's metadata document.
 
 See {{client_authentication_key_material}} for security details on managing Client Authentication Key Material.
 
@@ -322,7 +322,7 @@ See {{client_authentication_key_material}} for security details on managing Clie
 
 This section is non-normative.
 
-To establish client authentication using a public key with the `private_key_jwt` authentication method defined in {{OpenID}}, the client metadata document would look like the following:
+To establish client authentication using a public key with the `private_key_jwt` authentication method defined in {{OpenID}}, the client metadata document would contain the following:
 
     {
       ...
