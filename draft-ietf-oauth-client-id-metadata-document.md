@@ -239,6 +239,7 @@ a shared symmetric secret
 * private key material MUST NOT be included in the Client ID Metadata Document;
 only public keys, such as those published via the `jwks` or `jwks_uri`
 properties, are permitted
+* The "jwks_uri" and "jwks" parameters MUST NOT both be present in the same request or response, as described in {{RFC7591}}
 
 The above restrictions also apply when using the `software_statement` parameter, as described in {{software_statement}}.
 
