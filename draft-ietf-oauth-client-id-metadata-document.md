@@ -26,6 +26,7 @@ author:
     email: aaron@parecki.com
     uri: https://aaronparecki.com
   - fullname: Emelia Smith
+    organization: independent
     email: emelia@brandedcode.com
     uri: https://thisismissem.social
 
@@ -35,11 +36,26 @@ normative:
   RFC6819:
   RFC6890:
   RFC7591:
+  RFC7523:
   RFC8259:
   RFC8414:
+  RFC8725:
   RFC9110:
   RFC9207:
   RFC9700:
+  OpenID.RPMetadataChoices:
+    title: "OpenID Connect Relying Party Metadata Choices 1.0"
+    date: 2026-03-25
+    target: https://openid.net/specs/openid-connect-rp-metadata-choices-1_0.html
+    author:
+      - name: M.B. Jones
+        org: Self-Issued Consulting
+      - name: R. Hedberg
+        org: independent
+      - name: J. Bradley
+        org: Yubico
+      - name: F. Skokan
+        org: Okta
 
 informative:
   IndieAuth:
@@ -48,7 +64,6 @@ informative:
     date: 2022-02-12
     author:
       - name: Aaron Parecki
-        uri: https://aaronparecki.com
   Solid-OIDC:
     title: "Solid-OIDC"
     date: 2022-03-28
@@ -70,7 +85,7 @@ informative:
         org: Yubico
       - name: M. Jones
         org: Self-Issued Consulting
-      - name: B. de Medeiros
+      - name: B. | de Medeiros
         org: Google
       - name: C. Mortimore
         org: Disney
@@ -87,13 +102,13 @@ informative:
         org: Sikt
       - name: J. Bradley
         org: Yubico
-      - name: G. De Marco
+      - name: G. | De Marco
         org: independent
       - name: V. Dzhuvinov
         org: Connect2id
   I-D.draft-ietf-oauth-attestation-based-client-auth:
   I-D.draft-ietf-oauth-spiffe-client-auth:
-  RFC7523:
+  I-D.draft-ietf-oauth-rfc7523bis:
   RFC9111:
   OWASP.SSRF:
     title: OWASP SSRF Cheat Sheet
@@ -211,27 +226,24 @@ as long as the response is JSON and conforms to `application/<AS-defined>+json`.
 
 Other specifications MAY place additional restrictions on the contents of the
 Client ID Metadata Document accepted by authorization servers implementing their
-specification. For example, requiring the `token_endpoint_auth_method` property
-be set to `"private_key_jwt"`, effectively requiring confidential clients.
+specification. For example, requiring confidential clients using public/private key authentication by constraining the value(s) of the `token_endpoint_auth_method` and `token_endpoint_auth_methods_supported` properties to `"private_key_jwt"` and not `"none"`.
 
-TBD: We may want a property such as `client_id_expires_at` for indicating that the client is ephemeral and not valid after a given timestamp, especially for documents issued by a service for development purposes.
+## Credential and Key Material Restrictions {#client_metadata_restrictions}
 
-## Credential and Key Material Restrictions {#client_authentication_restrictions}
+As client metadata documents are publicly accessible, the following restrictions apply to the contents of the Client ID Metadata Document:
 
-As there is no way to establish a shared secret to be used with client metadata
-documents, the following restrictions apply to the contents of the
-Client ID Metadata Document:
-
-* the `token_endpoint_auth_method` property MUST NOT include `client_secret_post`,
+* the `client_secret` and `client_secret_expires_at` properties MUST NOT be used
+* the `token_endpoint_auth_method` and `token_endpoint_auth_methods_supported` properties MUST NOT include `client_secret_post`,
 `client_secret_basic`, `client_secret_jwt`, or any other method based around
 a shared symmetric secret
-* the `client_secret` and `client_secret_expires_at` properties MUST NOT be used
 * private key material MUST NOT be included in the Client ID Metadata Document;
 only public keys, such as those published via the `jwks` or `jwks_uri`
 properties, are permitted
 
+The above restrictions also apply when using the `software_statement` parameter, as described in {{software_statement}}.
+
 See {{client_authentication}} for more details on establishing client
-authentication using public/private key pairs.
+authentication.
 
 ## Redirect URL Registration
 
@@ -274,6 +286,68 @@ the client instance and the Client ID Metadata Document. Authorization servers s
 evaluate whether this combination meets their assurance requirements before
 relying on software statements delivered this way.
 
+# Client Authentication {#client_authentication}
+
+Client authentication methods based around a shared symmetric secret cannot be used, as there is no way to securely establish a shared symmetric secret in a Client ID Metadata Document; see {{client_metadata_restrictions}}. Client Authentication is possible using authentication methods that use public/private key pairs by having the client publish the public key in its metadata document, for example via the `jwks` or `jwks_uri` properties.
+
+A client SHOULD use the `token_endpoint_auth_methods_supported` ({{OpenID.RPMetadataChoices}}) property to advertise which client authentication methods the client supports, even if the value is only `["none"]`.
+
+For backwards compatibility, if the `token_endpoint_auth_methods_supported` property is not present, an authorization server MAY read the singular `token_endpoint_auth_method` ({{Section 2 of RFC7591}}) property to determine whether the client supports a method acceptable to the authorization server. The `token_endpoint_auth_method` property is NOT RECOMMENDED as it prevents a client from presenting a single Client ID Metadata Document to authorization servers that may have different client authentication requirements, as well as preventing a client from evolving authentication methods over time.
+
+If the client presents both the `token_endpoint_auth_methods_supported` property and the `token_endpoint_auth_method` property, then the value in `token_endpoint_auth_method` MUST be included within `token_endpoint_auth_methods_supported` per Section 2 of {{OpenID.RPMetadataChoices}}.
+
+When a Client ID Metadata Document contains neither the `token_endpoint_auth_method` property ({{RFC7591}}) nor the `token_endpoint_auth_methods_supported` property (defined in Section 2 of {{OpenID.RPMetadataChoices}}), the authorization server MUST assume the token endpoint authentication method of `none`. If the authorization server has determined the client's token endpoint authentication method to be `none`, and the client includes client authentication in a token request, the authorization server MUST reject the request with `invalid_client`.
+
+Authorization servers MUST NOT apply the default value of `token_endpoint_auth_method` defined in {{Section 2 of RFC7591}}, as that default is `client_secret_basic`, which cannot be used with Client ID Metadata Documents, see {{client_metadata_restrictions}}.
+
+Authorization servers MUST recognise the presence of the `token_endpoint_auth_methods_supported` property, even if they do not otherwise implement {{OpenID.RPMetadataChoices}}.
+
+An authorization server SHOULD select one of the values in `token_endpoint_auth_methods_supported` that it supports, and SHOULD NOT consider it an error that it does not support the remaining values, as described in Section 4 of {{OpenID.RPMetadataChoices}}.
+
+When an authorization server does not support any of the token endpoint authentication methods declared in the Client ID Metadata Document, the authorization server MUST abort the authorization request and token requests with `invalid_client`.[^cimd-error-code]
+
+[^cimd-error-code]: The `invalid_client` error currently applies to both request types in the IANA registry, however, the underlying specification text does not have language that supports this, see: [Issue 266 on OAuth 2.1](https://github.com/oauth-wg/oauth-v2-1/issues/266)
+
+An authorization server MAY restrict the supported methods of client authentication based on its own policies, and SHOULD advertise the supported methods of client authentication in the authorization server metadata by using the property `token_endpoint_auth_methods_supported` as defined in {{RFC8414}}.
+
+When using JWT-based client authentication methods such as `private_key_jwt`, authorization servers and clients SHOULD follow {{RFC8725}}. In particular, client authentication JWTs SHOULD include an explicit `typ` header parameter (recommended value: `client-authentication+jwt` per {{I-D.draft-ietf-oauth-rfc7523bis}}) to prevent cross-JWT confusion attacks, and authorization servers SHOULD validate JWT types and MUST implement algorithm allowlists. Additionally, the Client ID Metadata Document MUST include either `jwks` or `jwks_uri` properties, if neither are present, the Authorization Request must return an error of `invalid_client`.
+
+Clients that are capable of maintaining private key material and performing client authentication SHOULD do so using a client authentication method that uses public/private key pairs, such as `private_key_jwt` from the [OAuth Token Endpoint Authentication Methods registry](https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-endpoint-auth-method).
+
+When a client declares `private_key_jwt` as a token endpoint auth method and the authorization server supports this method, the authorization server MUST require client authentication according to {{Section 2.2 of RFC7523}} using a corresponding key discovered from the client's metadata document.
+
+See {{client_authentication_key_material}} for security details on managing Client Authentication Key Material.
+
+## Examples of Client Authentication
+
+This section is non-normative.
+
+To establish client authentication using a public key with the `private_key_jwt` authentication method defined in {{OpenID}}, the client metadata document would contain the following:
+
+    {
+      ...
+      "token_endpoint_auth_methods_supported": ["private_key_jwt"],
+      "jwks_uri": "https://client.example.com/jwks.json"
+      ...
+    }
+
+This establishes this client as a confidential client, and any communication with
+the authorization server must include client authentication using `private_key_jwt`.
+
+A client can advertise more than one client authentication method to interoperate with authorization servers that support different methods. In the following example, the client offers `private_key_jwt` to authorization servers that support it, while remaining usable as a public client for those that do not:
+
+    {
+      ...
+      "token_endpoint_auth_methods_supported": ["none", "private_key_jwt"],
+      "jwks_uri": "https://client.example.com/jwks.json"
+      ...
+    }
+
+If the authorization server does not support `private_key_jwt`, then the token endpoint authentication method to be used by the client must be `none` and the client will be a public client.
+
+If the authorization server does support `private_key_jwt` client authentication, then the client should use the `private_key_jwt` token endpoint authentication method. If the client were to use `none` then the authorization server may reject the request with `invalid_client`.
+
+This means the client may either be a public client or confidential client, dependent on the token endpoint authentication method selected for use.
 
 # Client Information Discovery {#client_information_discovery}
 
@@ -354,7 +428,6 @@ Authorization servers that publish Authorization Server Metadata {{RFC8414}} MUS
 
 This enables clients to avoid sending the user to a dead end, by only redirecting the user to an authorization server that supports this specification. Otherwise, the client would redirect the user and the user would be met with an error about an invalid client as described in {{Section 4.1.2.1 of RFC6749}}.
 
-
 # Implementation Considerations {#implementation_considerations}
 
 ## Supporting Both Pre-Registered and Unregistered Clients
@@ -392,34 +465,9 @@ Having no restrictions on the relationship between `redirect_uris` and `client_i
 
 Some restrictions on `redirect_uris` can make developer usage of Client ID Metadata Documents difficult. {{cimd_services}} discusses how a service offered by the authorization server can enable development usage of Client ID Metadata Documents for authorization servers that impose restrictions on the `redirect_uri`.
 
-## Client Authentication {#client_authentication}
+## Client Authentication Key Material {#client_authentication_key_material}
 
-Since the client establishes its own registration data at the authorization server,
-prior coordination of client credentials is not possible. However, establishing
-credentials at the authorization server by using authentication methods that use
-public/private key pairs is possible by publishing the public key in their metadata document.
-
-Clients that are capable of maintaining private key material and performing client authentication
-SHOULD do so with an acceptable method, such as a method in the [OAuth Token Endpoint Authentication Methods registry](https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-endpoint-auth-method).
-
-For example, the client MAY include the following properties in its metadata document
-to establish a public key and advertise the `private_key_jwt` authentication method defined in {{OpenID}}:
-
-    {
-      ...
-      "token_endpoint_auth_method": "private_key_jwt",
-      "jwks_uri": "https://client.example.com/jwks.json"
-      ...
-    }
-
-This establishes this client as a confidential client, and any communication with
-the authorization server MUST include client authentication of the registered type.
-
-When a client declares `token_endpoint_auth_method` as `private_key_jwt`, the authorization server
-MUST require client authentication according to {{Section 2.2 of RFC7523}} using the corresponding key discovered from the client's metadata document.
-
-The particular method of how the client manages the private key is out of scope of this specification, but may include manual provisioning or methods such as "Attestation Based Client Authentication" [I-D.draft-ietf-oauth-attestation-based-client-auth] or "OAuth SPIFFE Client Authentication" [I-D.draft-ietf-oauth-spiffe-client-auth]. For example, the client developer could run a Client Attester Backend, using a native application's platform-specific APIs to authenticate to the backend service, where the private key corresponding to the `jwks_uri` key is managed by the backend service. This would allow a mobile app to request JWTs from the backend service that the mobile app could then use as client authentication to the authorization server.
-
+The particular method of how the client manages the private key is out of scope of this specification, but may include manual provisioning or methods such as "Attestation Based Client Authentication" {{I-D.draft-ietf-oauth-attestation-based-client-auth}} or "OAuth SPIFFE Client Authentication" {{I-D.draft-ietf-oauth-spiffe-client-auth}}. For example, the client developer could run a Client Attester Backend, using a native application's platform-specific APIs to authenticate to the backend service, where the private key corresponding to the `jwks_uri` key is managed by the backend service. This would allow a mobile app to request JWTs from the backend service that the mobile app could then use as client authentication to the authorization server.
 
 ## Changes in Client Identifier URL {#client_id_url_changes}
 
@@ -581,7 +629,7 @@ exposing them to end users.
 
 ## OAuth Authorization Server Metadata Registry
 
-The following authorization server metadata value is defined by this specification and registered in the IANA "OAuth Authorization Server Metadata" registry established in OAuth 2.0 Authorization Server Metadata [RFC8414].
+The following authorization server metadata value is defined by this specification and registered in the IANA "OAuth Authorization Server Metadata" registry established in {{RFC8414}} (OAuth 2.0 Authorization Server Metadata).
 
 * Metadata Name: `client_id_metadata_document_supported`:
 * Metadata Description: JSON boolean value specifying whether the authorization server supports retrieving client metadata from a `client_id` URL.
@@ -660,6 +708,14 @@ The authors would like to thank the following people for their contributions and
 * Added an exception that is made for redirect URIs on the loopback, per RFC9700
 * Clarify transient failures on fetching of client metadata
 * Added paragraph allowing Authorization Servers to rate limit or otherwise prevent requests to Client Identifier URLs being made repeatedly
+* Moved Client Authentication from Security Considerations to a new top-level section, and renamed the remaining Security Considerations subsection to Client Authentication Key Material
+* Changed `token_endpoint_auth_method` to not be recommended in favour of `token_endpoint_auth_methods_supported`
+* Specified that the default `token_endpoint_auth_method` defined in RFC7591 does not apply, and that a Client ID Metadata Document omitting both client authentication properties indicates the `none` method
+* Added `token_endpoint_auth_methods_supported` to the credential and key material restrictions
+* Specified authorization server behaviour when it supports none of the token endpoint authentication methods declared by the client
+* Clarified that the credential and key material restrictions also apply to metadata conveyed via `software_statement`
+* Add language to strengthen security of JWT based client authentication.
+* Added requirement for `jwks`/`jwks_uri` to be present when using `private_key_jwt`.
 
 -02
 
