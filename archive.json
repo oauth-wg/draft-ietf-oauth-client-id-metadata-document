@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-11-03T00:00:34.396771+00:00",
+  "timestamp": "2026-11-08T00:00:41.531501+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2579,7 +2579,7 @@
       ],
       "body": "For example, if `client_id=https://example.com/oauth/client_id.json`, the AS would `GET https://example.com/oauth/client_id.json?iss=https://example-as.com`.\n\nThis allows the client to do a few things:\n\nProgressive rollouts of changes to CIMD, so that blast radius is limited to only certain AS. Making a global change to a client id is bad practice from a production safety point of view, and \"random percentage\" rollouts may not work if the AS queries the CIMD more than once and gets two different documents.  Of course, `iss` isn't a perfect solution here, but it's easy and better than nothing.\n\nThe client could also return AS-specific metadata (as long as it's not secret because `iss` is unvalidated). This could help address certain incompatibilities that may arise in practice where the same values are rejected by some AS but not by others.",
       "createdAt": "2026-05-01T00:45:14Z",
-      "updatedAt": "2026-11-02T20:29:14Z",
+      "updatedAt": "2026-11-06T20:51:32Z",
       "closedAt": null,
       "comments": [
         {
@@ -2707,6 +2707,41 @@
           "body": "@aaronpk going to restore the ietf-126 tag, just so we know it was discussed there. I don't think the header option necessarily works given the #97 consistency section. Will add \"needs discussion\" too.",
           "createdAt": "2026-10-31T21:36:05Z",
           "updatedAt": "2026-10-31T21:36:05Z"
+        },
+        {
+          "author": "njwatson32",
+          "authorAssociation": "NONE",
+          "body": "I'd agree that this and #97 are somewhat at odds, but a key requirement/assumption behind varying CIMD per `iss` is that the CIMD shouldn't include any sensitive info in _any_ of its responses, as they're all easily queryable.  While I would expect this to be obvious to developers, I would certainly include a blurb about this in the Security Considerations or even inline.\n\nFrom my standpoint, `token_endpoint_auth_method` is irrelevant to my filing this issue. No matter how much whack-a-mole you play with individual fields that have issues, there will _always_ exist incompatibilities between AS's where clients might want or need to vary their CIMD. And again you still have the gradual rollout problem for large CIMD deployments that Karl and I have been highlighting.\n\nI really think this is a fundamental capability that needs to be addressed one way or another in the initial RFC, as it directly effects how future updates would be processed by developers.",
+          "createdAt": "2026-11-05T23:17:45Z",
+          "updatedAt": "2026-11-05T23:17:45Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "Wouldn't AS's implementing completely different functionality that's somehow incompatible just mean you need two different documents? Because that's what this proposal gives you; why not use two different files?",
+          "createdAt": "2026-11-06T00:55:31Z",
+          "updatedAt": "2026-11-06T00:55:31Z"
+        },
+        {
+          "author": "max-stytch",
+          "authorAssociation": "NONE",
+          "body": "Using multiple different files for different ASs changes the `client_id`, which complicates anything cross-domain. The same piece of software will have multiple inter-related IDs. For example, an IDP minting an ID-JAG needs to know which CIMD `client_id` should be used at each particular destination / resource authorization server, and can't assume that it is the same one that the client uses with itself. Maintaining a single `client_id` across all surfaces is desirable for tie-ins into frameworks like Shared Signals as well.",
+          "createdAt": "2026-11-06T18:11:40Z",
+          "updatedAt": "2026-11-06T18:11:40Z"
+        },
+        {
+          "author": "njwatson32",
+          "authorAssociation": "NONE",
+          "body": "Also isn't CIMD's philosophy that the client id should identify the client, not the client-AS pair?",
+          "createdAt": "2026-11-06T18:26:16Z",
+          "updatedAt": "2026-11-06T18:26:16Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "> Also isn't CIMD's philosophy that the client id should identify the client, not the client-AS pair?\n\nCorrect, the CIMD identifies the client, not the client-AS pair, which is why an `iss` query parameter would be problematic because that creates different metadata for different authorization servers.\n\nThe reason I say you *may* need multiple client identifier metadata documents at different client identifier URLs is if the Authorization Servers reject the document for some reason, and are therefore incompatible. Then you may need different CIMDs for different ecosystems.\n\nHaving an `iss` sent to the CIMD and varying the contents on that would make it hard to verify that your receiving consistent metadata and not being lied to by the client (e.g., the same client appearing as multiple different things depending on who's requesting). The `client_id` must contain the full URL of the client identifier, which includes query string components. That's what [this new section](https://drafts.oauth.net/draft-ietf-oauth-client-id-metadata-document/draft-ietf-oauth-client-id-metadata-document.html#name-preventing-external-influen) of the CIMD draft is about.\n\nAlso, in the case of ID-JAG, you'd end up leaking information through the client_id to the underlying resources or authorization servers as the downstream `client_id` would be `https://myapp.example/oauth-client-metadata.json?iss=https://issuer.example`\n\nEdit: to clarify, since the `client_id` is encoded in the ID-JAG, the IdP would either pass its own `?iss=` variant (which won\u2019t match the client at the resource AS if the `iss` in the Client Identifier URL is overridden) or have to compute the right variant for each destination. So really you're better off having a single consistent document, rather than documents that vary based on the authorization server that's requesting them.",
+          "createdAt": "2026-11-06T19:17:52Z",
+          "updatedAt": "2026-11-06T20:51:32Z"
         }
       ]
     },
@@ -3588,7 +3623,7 @@
       ],
       "body": "We could add something like the following:\n\n> In order to prevent the Authorization Server from being used to carry out request reflection attacks, Authorization Servers not using Pushed Authorization Requests are RECOMMENDED to defer fetching of Client ID Metadata Documents until after user authentication.\n\nHowever, this may be at odds with Pushed Authorization Requests, where you need to fetch the Client ID Metadata Document in order to know what the `token_endpoint_auth_methods_supported` is in order to perform the client authentication required to accept the PAR Request. See [PAR section 2.1 paragraph 7.1](https://www.rfc-editor.org/rfc/rfc9126.html#section-2.1-7.1).\n\nI think it may be better to just encourage rate limits which are standard practice for any web server in order to prevent abuse.\n\n> Authorization Servers SHOULD apply appropriate rate limits as to prevent Client Information Discovery from being used as a request reflection attacks via the `client_id` parameter. Authorization Servers MAY have their own heuristics and policies around the fetching Client ID Metadata Documents.\n\nRelates to #30 ",
       "createdAt": "2026-10-29T01:19:28Z",
-      "updatedAt": "2026-10-31T21:21:18Z",
+      "updatedAt": "2026-11-05T16:57:34Z",
       "closedAt": null,
       "comments": [
         {
@@ -3611,6 +3646,20 @@
           "body": "We now have some language around rate limiting (added in #115), so we should probably check if there's anything left to do here.",
           "createdAt": "2026-10-31T21:21:17Z",
           "updatedAt": "2026-10-31T21:21:17Z"
+        },
+        {
+          "author": "aaronpk",
+          "authorAssociation": "MEMBER",
+          "body": "I believe this is complete, do we need to discuss this at IETF 127?",
+          "createdAt": "2026-11-05T16:42:17Z",
+          "updatedAt": "2026-11-05T16:42:17Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "@aaronpk my read was that the \"when to fetch\" question still persists, as PAR's language pretty much forces immediate fetching upon that request, rather than deferring it.",
+          "createdAt": "2026-11-05T16:57:34Z",
+          "updatedAt": "2026-11-05T16:57:34Z"
         }
       ]
     },
