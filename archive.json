@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-11-08T00:00:41.531501+00:00",
+  "timestamp": "2026-11-10T00:00:35.179205+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -2232,13 +2232,11 @@
       "authorAssociation": "MEMBER",
       "assignees": [],
       "labels": [
-        "help wanted",
-        "needs PR",
         "ietf-127"
       ],
       "body": "CIMD Section 4.1 client metadata values are those from the DCR Metadata registry but doesn't say what an AS should do when the document contains values the AS doesn't support - for instance a `grant_types` entry like `urn:ietf:params:oauth:grant-type:device_code` on an AS that doesn't offer DAG.\n\nBoth RFC 7591 and OpenID Connect DCR explicitly permit the AS to either reject or substitute/filter unsupported metadata. RFC 7591 says the AS \"MAY reject or replace any of the client's requested metadata values [...] and substitute them with suitable values\" and that the client can then \"check the values in the response to determine if the registration is sufficient for use.\"\n\nThat last part is key - DCR has a negotiation step. The client sends requested metadata, gets back what the AS actually registered, and decides whether it can work with that. Both behaviors (reject or filter) are fine because the client gets feedback.\n\nCIMD doesn't have this (by design). The client publishes one static document for all ASs. There's no response for the client to inspect. Without guidance in the spec, AS implementers may default to the stricter DCR behavior (reject), either by choice or unknowingly by reusing the DCR client metadata validations, which is at odds with clients having a single general purpose static document.\n\nExample: VS Code publishes `https://vscode.dev/oauth/client-metadata.json` with `grant_types` including `authorization_code`, `refresh_token`, and `urn:ietf:params:oauth:grant-type:device_code`. An AS that supports CIMD but not DAG may reject the whole thing, even though `authorization_code` would work fine.\n\nThe spec could say that when processing a CIMD, the AS should filter array-valued fields like `grant_types` and `response_types` to the intersection of what the client declares and what the AS supports, and must reject only when that intersection is empty. This is consistent with what DCR already allows - it just makes filtering the expected default for CIMD, which makes sense given the lack of a negotiation step.\n\nBut the remaining issue is the potential lack of upfront knowledge. Especially for client metadata related to AS metadata that is defined as optional such as grant_types_supported. Note that I now realize grant_types_supported does have a default specified when omitted.\n\nSo I wonder if, combined with the prescribed non-eager reject behaviour, select AS metadata without a default should in addition be made REQUIRED when used in combination with CIMD so that the client knows (or at least can infer) what the resulting metadata likely is that the AS will use. (note I didn't give much thought into scouring each metadata definition for a list just yet)\n\nRefs: https://github.com/panva/node-oidc-provider/issues/1398",
       "createdAt": "2026-03-17T19:27:32Z",
-      "updatedAt": "2026-11-02T21:56:56Z",
+      "updatedAt": "2026-11-09T08:34:03Z",
       "closedAt": "2026-11-02T21:56:56Z",
       "comments": [
         {
@@ -2579,7 +2577,7 @@
       ],
       "body": "For example, if `client_id=https://example.com/oauth/client_id.json`, the AS would `GET https://example.com/oauth/client_id.json?iss=https://example-as.com`.\n\nThis allows the client to do a few things:\n\nProgressive rollouts of changes to CIMD, so that blast radius is limited to only certain AS. Making a global change to a client id is bad practice from a production safety point of view, and \"random percentage\" rollouts may not work if the AS queries the CIMD more than once and gets two different documents.  Of course, `iss` isn't a perfect solution here, but it's easy and better than nothing.\n\nThe client could also return AS-specific metadata (as long as it's not secret because `iss` is unvalidated). This could help address certain incompatibilities that may arise in practice where the same values are rejected by some AS but not by others.",
       "createdAt": "2026-05-01T00:45:14Z",
-      "updatedAt": "2026-11-06T20:51:32Z",
+      "updatedAt": "2026-11-09T22:14:23Z",
       "closedAt": null,
       "comments": [
         {
@@ -2742,6 +2740,20 @@
           "body": "> Also isn't CIMD's philosophy that the client id should identify the client, not the client-AS pair?\n\nCorrect, the CIMD identifies the client, not the client-AS pair, which is why an `iss` query parameter would be problematic because that creates different metadata for different authorization servers.\n\nThe reason I say you *may* need multiple client identifier metadata documents at different client identifier URLs is if the Authorization Servers reject the document for some reason, and are therefore incompatible. Then you may need different CIMDs for different ecosystems.\n\nHaving an `iss` sent to the CIMD and varying the contents on that would make it hard to verify that your receiving consistent metadata and not being lied to by the client (e.g., the same client appearing as multiple different things depending on who's requesting). The `client_id` must contain the full URL of the client identifier, which includes query string components. That's what [this new section](https://drafts.oauth.net/draft-ietf-oauth-client-id-metadata-document/draft-ietf-oauth-client-id-metadata-document.html#name-preventing-external-influen) of the CIMD draft is about.\n\nAlso, in the case of ID-JAG, you'd end up leaking information through the client_id to the underlying resources or authorization servers as the downstream `client_id` would be `https://myapp.example/oauth-client-metadata.json?iss=https://issuer.example`\n\nEdit: to clarify, since the `client_id` is encoded in the ID-JAG, the IdP would either pass its own `?iss=` variant (which won\u2019t match the client at the resource AS if the `iss` in the Client Identifier URL is overridden) or have to compute the right variant for each destination. So really you're better off having a single consistent document, rather than documents that vary based on the authorization server that's requesting them.",
           "createdAt": "2026-11-06T19:17:52Z",
           "updatedAt": "2026-11-06T20:51:32Z"
+        },
+        {
+          "author": "njwatson32",
+          "authorAssociation": "NONE",
+          "body": "> Correct, the CIMD identifies the client, not the client-AS pair, which is why an iss query parameter would be problematic because that creates different metadata for different authorization servers.\n\nNo, that's different, because it's not part of the identifier. It's only passed at runtime. If `iss` is in the query or header, the client id is still https://example.com/client, which identifies the client only. Being invoked with an `iss` doesn't change the identifier, and preserves the type of cross-domain compatibility that Max mentioned.\n\nAgain, I will raise the `redirect_uri` comparison. It should not have any query parameters, but it is of course invoked by the AS with query parameters.",
+          "createdAt": "2026-11-09T22:01:18Z",
+          "updatedAt": "2026-11-09T22:01:18Z"
+        },
+        {
+          "author": "mcguinness",
+          "authorAssociation": "NONE",
+          "body": "> If `iss` is in the query or header, the client id is still https://example.com/client, which identifies the client only.\n\nAgreed that the identifier doesn't change, but the metadata behind it does, and other servers rely on that metadata. The `redirect_uri` comparison doesn't carry over. Query parameters on a redirect deliver a response to the client, while an `iss` on the fetch changes what the client presents to each caller. I argued for per-`iss` documents in May so a client could stage changes one AS at a time, but they let two servers see different metadata for one `client_id`, which matters wherever one server relies on another's view of the client. ID-JAG shows how.\n\nWithout CIMD, the client has a separate registration at each server, possibly with different credentials, and the IdP maps between them ([Section 5 of ID-JAG](https://www.ietf.org/archive/id/draft-ietf-oauth-identity-assertion-authz-grant-06.html#section-5)). With CIMD, one `client_id` replaces the mapping: the IdP decides whether to issue an ID-JAG for it, and the resource authorization server authenticates the client with keys from its own copy of the document. A compromised publisher can already split the two, serving the IdP inline `jwks` with the approved keys and the resource authorization server the attacker's key, then redeeming a stolen ID-JAG that is not sender-constrained. Today that split violates [Section 4.5](https://drafts.oauth.net/draft-ietf-oauth-client-id-metadata-document/draft-ietf-oauth-client-id-metadata-document.html#name-preventing-external-influen). With per-`iss` documents, whether `iss` travels in a query parameter or a header, different views are permitted, so equality can no longer be assumed. An IdP whose metadata approval the resource authorization server relies on would then need to approve that server's view. So `iss` isn't harmless even though clients may ignore it.\n\nThe rollout problem @njwatson32 raised is real. One document can't stage a change one AS at a time. Rollback is global too, except for additive changes: if the document adds the new value and drops the old one only once it's unused, rolling back means instances stop using the new value, and no cache has to forget anything. Only forcing values need the document itself rolled back. The first RFC can still reduce failures during global changes. #99, for example, doesn't fully fix authentication changes. Under [Section 5](https://drafts.oauth.net/draft-ietf-oauth-client-id-metadata-document/draft-ietf-oauth-client-id-metadata-document.html#name-client-authentication), once a document lists `private_key_jwt`, an AS that supports it MUST require client authentication, while an AS still caching the `none`-only document MUST reject client authentication. Until every cache has the new version, no single authentication choice works everywhere.\n\nThe draft should consider adding:\n\n- **An \"Updating Metadata\" section** telling clients to:\n  - list what they support and let each request pick, as redirect URIs, grant types and keys already allow;\n  - add the new value, allow time for AS caches to refresh (lowering `max-age` beforehand, and any CDN lifetime with [`CDN-Cache-Control`](https://www.rfc-editor.org/rfc/rfc9213), can shorten this), migrate instances, then retire the old value once outstanding uses no longer depend on it;\n  - add forcing values last: `private_key_jwt` (Section 5), [`dpop_bound_access_tokens`](https://www.rfc-editor.org/rfc/rfc9449#section-5.2) and [`require_pushed_authorization_requests`](https://www.rfc-editor.org/rfc/rfc9126#section-6) change every AS that supports them, so add each only once every instance can comply.\n- **Advice for future metadata parameters:** distinguish support from requirements. Advertise optional capabilities so requests can opt in. Where a client-wide requirement is necessary for downgrade protection, specify how clients can transition to it safely.\n- **A recommended maximum cache duration**, giving publishers a common baseline for planning transitions. Section 6.2 currently supplies no value.\n- **Defining which unsupported values an AS can ignore** without rejecting otherwise usable metadata, while keeping each member's requirements.\n- **Re-fetching before rejecting** a request the cached copy forbids, much as MTA-STS senders check for an updated policy before permanently failing delivery ([Section 5 of RFC 8461](https://www.rfc-editor.org/rfc/rfc8461#section-5)). With a strong `ETag`, a re-fetch that finds no change is a 304 with no body. As an exception to the minimum cache duration in Section 6.2, limited to once per interval for each document, it would shorten the `private_key_jwt` window but not close it.\n\nLonger term, two extensions outside this draft could help:\n\n- **Checking a candidate document.** A document could name a candidate replacement and a collector, so each AS that supports reporting checks the candidate, much as MTA-STS `testing` mode pairs with TLS reporting ([RFC 8460](https://www.rfc-editor.org/rfc/rfc8460)). This could expose some incompatibilities before publication, but wouldn't limit the change's scope or show that instances are ready. I'm exploring this in [draft-mcguinness-oauth-cimd-reporting](https://mcguinness.github.io/draft-mcguinness-oauth-cimd-reporting/draft-mcguinness-oauth-cimd-reporting.html).\n- **Signaling optional response features per request.** The document lists what every instance handles, and each request names what its instance handles, so instances opt in per AS. This suits optional behavior only, since the signal can be stripped. I'm exploring it in [draft-mcguinness-oauth-client-capabilities](https://mcguinness.github.io/draft-mcguinness-oauth-client-capabilities/draft-mcguinness-oauth-client-capabilities.html).\n\nBoth are early editor's drafts that I haven't submitted. I'd welcome views on whether either is useful enough to pursue.\n\nWhere an AS rejects a value the client needs, a separate Client Identifier URL remains the fallback, with the consent and cross-domain costs raised above.\n",
+          "createdAt": "2026-11-09T22:14:22Z",
+          "updatedAt": "2026-11-09T22:14:22Z"
         }
       ]
     },
@@ -3794,6 +3806,22 @@
       "body": "In #48 @panva mentioned that RFC8725 was being updated. This likely impacts the changes in #99 and requested by #42.\n\nAs such, we should review our document for changes when that update lands.",
       "createdAt": "2026-10-31T21:18:03Z",
       "updatedAt": "2026-10-31T21:18:30Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 131,
+      "id": "I_kwDOL_Xevs8AAAABdZs-wQ",
+      "title": "`response_types` intersection rejects otherwise usable token-endpoint grants",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/131",
+      "state": "OPEN",
+      "author": "mcguinness",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "A client's document declares `\"grant_types\": [\"client_credentials\"]` and `\"response_types\": []`, stating that it uses no authorization-endpoint response type. The table in [RFC 7591 Section 2.1](https://www.rfc-editor.org/rfc/rfc7591#section-2.1) shows no corresponding response type for that grant. The authorization server supports the grant and the client's authentication method. [Section 6](https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-03.html#section-6) of draft -03 still requires it to reject the token request, because it intersects both `grant_types` and `response_types` with what the server supports: \"If the intersection of either of these two properties is empty, the Authorization Server MUST reject the request with `invalid_client`.\"\n\nThe same happens whenever the response types share no value, such as when a client that declares `code`, or omits the member (which [RFC 7591 Section 2](https://www.rfc-editor.org/rfc/rfc7591#section-2) defaults to `code`), uses a token-endpoint grant at an authorization server without an authorization endpoint. [RFC 8414 Section 2](https://www.rfc-editor.org/rfc/rfc8414#section-2) allows such servers: `authorization_endpoint` is \"REQUIRED unless no grant types are supported that use the authorization endpoint\".\n\n[Section 4.2](https://www.ietf.org/archive/id/draft-ietf-oauth-client-id-metadata-document-03.html#section-4.2) names the client credentials grant and token exchange as in scope, and says client metadata discovery applies \"regardless of which grant type is used\".\n\nOptions:\n\n1. **Limit where the check applies.** Apply the `response_types` intersection requirement when processing authorization requests, including pushed authorization requests. An empty intersection does not, by itself, invalidate a token-endpoint request. Validation of the requested grant type, client authentication, and the grant itself still applies.\n2. **Validate the requested response type instead.** Remove rejection based solely on an empty `response_types` intersection. For authorization requests, including pushed authorization requests ([RFC 9126 Section 2.1](https://www.rfc-editor.org/rfc/rfc9126#section-2.1)), validate the requested `response_type` against both the client's effective metadata, where an absent member means `code` and an empty one means none, and the server's supported response types. Use the applicable OAuth and PAR error rules. Validation of grant types, client authentication, and grants remains unchanged. Sharing some response type does not show that the requested one is allowed, so this also covers cases option 1 does not.\n\nFollow-up to #71 and PR #129.\n",
+      "createdAt": "2026-11-08T05:46:36Z",
+      "updatedAt": "2026-11-08T05:46:36Z",
       "closedAt": null,
       "comments": []
     }
@@ -8926,7 +8954,7 @@
       "labels": [],
       "body": "* Made prefetching `logo_uri` and serving it from a trusted server a requirement when displaying logos, and required validating the image contents\n* Added security consideration on the presentation of the client to end-users\n\ncloses #19",
       "createdAt": "2026-11-02T21:39:49Z",
-      "updatedAt": "2026-11-02T21:51:14Z",
+      "updatedAt": "2026-11-08T11:39:21Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "bc7b53cc39b5234a367beecb948117426866bc3e",
@@ -8952,6 +8980,19 @@
           "body": "LGTM",
           "createdAt": "2026-11-02T21:51:14Z",
           "updatedAt": "2026-11-02T21:51:14Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOL_Xevs8AAAABWsNpcg",
+          "commit": {
+            "abbreviatedOid": "efb0d8a"
+          },
+          "author": "M5mosh",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": ".",
+          "createdAt": "2026-11-08T11:39:21Z",
+          "updatedAt": "2026-11-08T11:39:21Z",
           "comments": []
         }
       ]
