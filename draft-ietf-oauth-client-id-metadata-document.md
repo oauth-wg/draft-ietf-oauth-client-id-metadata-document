@@ -110,6 +110,7 @@ informative:
   I-D.draft-ietf-oauth-spiffe-client-auth:
   I-D.draft-ietf-oauth-rfc7523bis:
   RFC9111:
+  RFC8820:
   RFC9126:
   OWASP.SSRF:
     title: OWASP SSRF Cheat Sheet
@@ -172,7 +173,7 @@ A Client Identifier URL:
 * MUST NOT contain a userinfo component defined by {{RFC3986}}
 * MUST NOT contain a port component
 * MUST contain a path component other than `/`
-* MUST NOT contain single-dot or double-dot path components
+* MUST NOT contain single-dot or double-dot path segments, including their percent-encoded forms (e.g., `%2e%2e`)
 * MUST NOT contain a query component
 * MUST NOT contain a fragment component
 * MUST NOT be longer than 2048 octets
@@ -180,6 +181,10 @@ A Client Identifier URL:
 The authorization server MUST reject a Client Identifier URL that does not meet
 these requirements, and MUST NOT attempt to fetch a Client ID Metadata Document
 from it.
+
+These restrictions apply only to a URL that a client itself publishes as its
+Client Identifier URL, and do not constrain the structure of any other URLs
+served by the client's host, consistent with {{RFC8820}} (BCP 190).
 
 Client Identifier URLs MUST be compared using simple string comparison, as
 defined in {{Section 6.2.1 of RFC3986}}. For example,
@@ -189,9 +194,12 @@ are not equivalent.
 The client SHOULD normalize its Client Identifier URL as described in
 {{Sections 6.2.2 and 6.2.3 of RFC3986}}, as the Authorization Server MUST NOT normalize
 Client Identifier URLs when performing comparison. The authorization server
-SHOULD reject a Client Identifier URL that is not in this normalized form,
-since otherwise an attacker can present many equivalent forms of the same URL
-to bypass caching and rate limits, as described in {{fetching_cimd}}.
+SHOULD reject a Client Identifier URL that is not in this normalized form.
+Otherwise, the string it validates and compares can differ from the resource
+it fetches, allowing a URL to pass path-based or allowlist policy while
+resolving elsewhere. Equivalent forms of one URL would also be treated as
+distinct clients, bypassing caching, rate limits ({{fetching_cimd}}), and
+policy keyed on the Client Identifier URL.
 
 This specification places no restrictions on the brevity or longevity of a
 Client Identifier URL beyond the requirements listed above. A short URL is
@@ -422,10 +430,12 @@ Document at the Client Identifier URL to retrieve the client metadata.
 
 Before making any network request for a Client ID Metadata Document, the
 authorization server MUST check that the `client_id` is a valid Client
-Identifier URL as described in {{client-identifier-url}}, and MUST apply any
+Identifier URL as described in {{client-identifier-url}}, and SHOULD apply
 local policy that can be evaluated without the document, such as a domain
 allowlist (see {{client_id_domain_trust}}). If any of these checks fail, the
 authorization server MUST reject the request without fetching the document.
+The authorization server MUST fetch exactly the URL it validated, without
+modification.
 
 When the request includes a client authentication JWT ({{RFC7523}}), the
 authorization server SHOULD also check, before fetching the document, that the
@@ -647,15 +657,16 @@ Documents:
 
 * fetches triggered by unauthenticated requests, such as pushed authorization
 requests, SHOULD be subject to strict limits per source IP address;
-* fetches triggered after the end user has authenticated MAY be subject to more
-relaxed limits per user account, since an account is harder to rotate than an
-IP address;
+* fetches triggered after the end user has authenticated MAY instead be limited
+per user account, which allows more relaxed limits since an account is harder
+to rotate than an IP address;
 * fetches to any single host SHOULD be subject to a separate limit regardless
 of who triggers them, so that many requesters together cannot flood one host.
 
 Rejecting Client Identifier URLs that are not normalized, as described in
-{{client-identifier-url}}, prevents these limits and the metadata cache from
-being bypassed by presenting equivalent forms of the same URL.
+{{client-identifier-url}}, ensures that equivalent forms of one URL are not
+treated as distinct clients, so that these limits, the metadata cache, and
+policy keyed on the Client Identifier URL cannot be bypassed.
 
 ## Client ID Domain Trust {#client_id_domain_trust}
 
@@ -871,9 +882,9 @@ The authors would like to thank the following people for their contributions and
 * Disallow the root path / as a CIMD URL
 * Moved the client metadata consistency requirements from Security Considerations to Section 4, and renamed the section.
 * Defined error handling when the Client ID Metadata Document cannot be retrieved or is invalid, and reclassified malformed documents as terminal failures
-* Changed the Client Identifier URL query component restriction from SHOULD NOT to MUST NOT, disallowed the port component, and added a maximum length
+* Changed the Client Identifier URL query component restriction from SHOULD NOT to MUST NOT, disallowed the port component and percent-encoded dot segments, and added a maximum length
 * Required authorization servers to reject invalid Client Identifier URLs without fetching them, and recommended rejecting non-normalized Client Identifier URLs
-* Added pre-fetch validation of the Client Identifier URL, local policy, and client authentication JWTs to Client Information Discovery
+* Added pre-fetch validation of the Client Identifier URL, local policy, and client authentication JWTs to Client Information Discovery, and required fetching exactly the validated URL
 * Added security consideration on who can trigger fetches of Client ID Metadata Documents, deferring fetches until after user authentication, and layered rate limits
 
 -02
