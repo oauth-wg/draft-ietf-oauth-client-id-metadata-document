@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-11-12T00:00:47.168314+00:00",
+  "timestamp": "2026-11-19T00:00:37.291779+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -9031,6 +9031,32 @@
           "comments": []
         }
       ]
+    },
+    {
+      "number": 132,
+      "id": "PR_kwDOL_Xevs8AAAABQAuNQg",
+      "title": "Add pre-fetch validation and fetch-triggering guidance (#112)",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/132",
+      "state": "OPEN",
+      "author": "gbshankar",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "This PR implements the fetch-gating recommendations from [#112 (comment)](https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/112#issuecomment-6758562046), which @mooreds asked to see as a PR. As noted in [this follow-up](https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/112#issuecomment-6774108273), this is the first PR. The registration-types metadata proposal is left out and may follow as a second PR.\n\nRelated: #112\n\nIt applies two principles:\n\n1. Reject bad requests before fetching anything.\n2. Limit who can trigger a fetch.\n\n### Changes\n\n**Section 3, Client Identifier URL**\n- The query component changes from SHOULD NOT to **MUST NOT**. This matches the existing rule that clients must not build the document from query input (Preventing External Influence of Document Contents).\n- The port component changes from MAY to **MUST NOT**.\n- New **maximum length of 2048 octets**.\n- The AS MUST reject a URL that fails these rules, and MUST NOT fetch it.\n- The AS SHOULD reject Client Identifier URLs that are not normalized (RFC 3986 Sections 6.2.2 and 6.2.3). This stops attackers from generating many equivalent forms of one URL to get around caching and rate limits.\n- The string-comparison example used a port, so it now uses a trailing-slash example.\n\n**Section 6, Client Information Discovery**\n- Pre-fetch validation: syntax checks and local policy, such as a domain allowlist, MUST happen before any network request.\n- If the request carries a client authentication JWT, the AS SHOULD check before fetching that it is well-formed: `typ`, `iss`/`sub` equal to `client_id`, `aud`, and `exp`. The signature is verified once keys are available.\n\n**Security Considerations, new \"Fetching Client ID Metadata Documents\" section**\n- For non-PAR flows, the AS SHOULD defer the fetch until after user authentication.\n- Explains why PAR can't defer: RFC 9126 Section 2.1 requires authenticating the request, and the client's authentication method is in the document.\n- Layered rate limits: strict per-IP limits for unauthenticated triggers such as PAR, more relaxed per-user limits after login, and a separate per-host limit so that many requesters together can't flood one host.\n\n**Document History:** updated under -03.\n\n### For WG discussion\n\n- **Disallowing ports is a proposal.** It may break development setups: the loopback exception in the SSRF section, and CIMD Services or test ASes on non-default ports. If the WG prefers, this could become SHOULD NOT, or MUST NOT with a development carve-out.\n- **The 2048-octet maximum is arbitrary** and needs WG input. It also overlaps with #118 (issue #117), which instead has the AS document the maximum length it accepts. The two approaches could be combined, or the length bullet here dropped in favor of #118.\n- **The query component and port changes are normative tightenings** that could affect existing deployments.\n- **No error is named for rejecting a URL before fetching it.** Section 6.1 only covers failures after a fetch.\n\n",
+      "createdAt": "2026-11-18T03:41:27Z",
+      "updatedAt": "2026-11-18T04:13:08Z",
+      "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "50816b9f7c086170828dedcc82b4ad9af6a3029c",
+      "headRepository": "gbshankar/draft-ietf-oauth-client-id-metadata-document",
+      "headRefName": "cursor/cimd-fetch-gating-5636",
+      "headRefOid": "cc7557eaa8a581eab4e763ec7c0ff363291e1268",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
