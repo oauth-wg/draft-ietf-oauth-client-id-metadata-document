@@ -640,8 +640,10 @@ this section addresses who can trigger a fetch, and how often.
 
 For authorization requests that do not use Pushed Authorization Requests
 {{RFC9126}}, the authorization server SHOULD defer fetching the Client ID
-Metadata Document until after the end user has authenticated, so that
-unauthenticated parties cannot trigger a fetch. Validation that depends on the
+Metadata Document until after the end user has authenticated, unless the
+metadata is required earlier to process the request. This reduces the ability
+of unauthenticated parties to trigger outbound requests to attacker-controlled
+destinations. Validation that depends on the
 document, such as checking the `redirect_uri`, then happens after
 authentication, and the authorization server cannot redirect the user agent to
 the client until it has done so.
