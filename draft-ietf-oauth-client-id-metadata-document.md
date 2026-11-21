@@ -169,7 +169,7 @@ A Client Identifier URL:
 
 * MUST use the `https` URL scheme
 * MUST NOT contain a userinfo component defined by {{RFC3986}}
-* MAY contain a port
+* MUST NOT contain a port component
 * MUST contain a path component other than `/`
 * MUST NOT contain single-dot or double-dot path components
 * SHOULD NOT contain a query component
@@ -177,8 +177,8 @@ A Client Identifier URL:
 
 Client Identifier URLs MUST be compared using simple string comparison, as
 defined in {{Section 6.2.1 of RFC3986}}. For example,
-`https://example.com/client` and `https://example.com:443/client`
-are not equivalent even though 443 is the default port for the `https` scheme.
+`https://example.com/client` and `https://example.com/client/`
+are not equivalent.
 
 The client SHOULD normalize its Client Identifier URL as described in
 {{Sections 6.2.2 and 6.2.3 of RFC3986}}, as the Authorization Server MUST NOT normalize
@@ -807,6 +807,7 @@ The authors would like to thank the following people for their contributions and
 * Disallow the root path / as a CIMD URL
 * Moved the client metadata consistency requirements from Security Considerations to Section 4, and renamed the section.
 * Defined error handling when the Client ID Metadata Document cannot be retrieved or is invalid, and reclassified malformed documents as terminal failures
+* Disallowed the port component in Client Identifier URLs
 
 -02
 
