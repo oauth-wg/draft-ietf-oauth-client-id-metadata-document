@@ -171,12 +171,11 @@ A Client Identifier URL:
 
 * MUST use the `https` URL scheme
 * MUST NOT contain a userinfo component defined by {{RFC3986}}
-* MUST NOT contain a port component
+* MAY contain a port
 * MUST contain a path component other than `/`
 * MUST NOT contain single-dot or double-dot path segments, including their percent-encoded forms (e.g., `%2e%2e`)
-* MUST NOT contain a query component
+* SHOULD NOT contain a query component
 * MUST NOT contain a fragment component
-* MUST NOT be longer than 2048 octets
 
 The authorization server MUST reject a Client Identifier URL that does not meet
 these requirements, and MUST NOT attempt to fetch a Client ID Metadata Document
@@ -188,8 +187,8 @@ served by the client's host, consistent with {{RFC8820}} (BCP 190).
 
 Client Identifier URLs MUST be compared using simple string comparison, as
 defined in {{Section 6.2.1 of RFC3986}}. For example,
-`https://example.com/client` and `https://example.com/client/`
-are not equivalent.
+`https://example.com/client` and `https://example.com:443/client`
+are not equivalent even though 443 is the default port for the `https` scheme.
 
 The client SHOULD normalize its Client Identifier URL as described in
 {{Sections 6.2.2 and 6.2.3 of RFC3986}}, as the Authorization Server MUST NOT normalize
@@ -883,7 +882,7 @@ The authors would like to thank the following people for their contributions and
 * Disallow the root path / as a CIMD URL
 * Moved the client metadata consistency requirements from Security Considerations to Section 4, and renamed the section.
 * Defined error handling when the Client ID Metadata Document cannot be retrieved or is invalid, and reclassified malformed documents as terminal failures
-* Changed the Client Identifier URL query component restriction from SHOULD NOT to MUST NOT, disallowed the port component and percent-encoded dot segments, and added a maximum length
+* Clarified that single-dot and double-dot path segments are disallowed including their percent-encoded forms
 * Required authorization servers to reject invalid Client Identifier URLs without fetching them, and recommended rejecting non-normalized Client Identifier URLs
 * Added pre-fetch validation of the Client Identifier URL, local policy, and client authentication JWTs to Client Information Discovery, and required fetching exactly the validated URL
 * Added security consideration on who can trigger fetches of Client ID Metadata Documents, deferring fetches until after user authentication, and layered rate limits
