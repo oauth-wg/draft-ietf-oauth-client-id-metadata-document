@@ -172,7 +172,7 @@ A Client Identifier URL:
 * MAY contain a port
 * MUST contain a path component other than `/`
 * MUST NOT contain single-dot or double-dot path components
-* SHOULD NOT contain a query component
+* MUST NOT contain a query component
 * MUST NOT contain a fragment component
 
 Client Identifier URLs MUST be compared using simple string comparison, as
@@ -807,6 +807,7 @@ The authors would like to thank the following people for their contributions and
 * Disallow the root path / as a CIMD URL
 * Moved the client metadata consistency requirements from Security Considerations to Section 4, and renamed the section.
 * Defined error handling when the Client ID Metadata Document cannot be retrieved or is invalid, and reclassified malformed documents as terminal failures
+* Changed the Client Identifier URL query component restriction from SHOULD NOT to MUST NOT
 
 -02
 
