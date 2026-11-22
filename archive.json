@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2026-11-19T00:00:37.291779+00:00",
+  "timestamp": "2026-11-22T00:00:36.295460+00:00",
   "repo": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
   "labels": [
     {
@@ -1790,7 +1790,7 @@
       "labels": [],
       "body": "I think there are two DOS risks on the authorization endpoint (and other endpoints that could accept CIMD as parameter) that might worth spelling it out in the security section of this specification:\n\n- I could force through multiple authorization requests to an AS with CIMD hosted at a slow responding endpoint mobilizing resources at the AS up to a DOS situation\n\n** Proposed text **\n```\nClient ID Metadata Document Fetch DOS\n\nAuthorization servers fetching client metadata documents SHOULD implement appropriate rate limiting and timeout mechanisms\nwhen retrieving Client ID Metadata Documents. A malicious actor could attempt to cause a denial of service by initiating multiple\nauthorization requests using a client_id that points to an intentionally slow-responding endpoint, potentially exhausting authorization server resources.\n\nAuthorization servers SHOULD implement measures from this non exhaustive list:\n- implement standard anonymous and bad reputation IP filtering, as well as DNS name filtering\n- Implement strict timeouts when fetching metadata documents\n- Rate limit requests per client_id URL and/or requesting IP\n- Consider caching valid responses as specified in Section 4.4\n- Terminate requests that exceed reasonable response times\n```\n\n- I could force through multiple authorization requests to an AS to fetch what could be CIMD at 3rd party, mobilizing resources at this 3rd party up to a DOS situation\n\n** Proposed text **\n```\nThird-Party Endpoint DOS Protection\n\nAuthorization servers MUST take precautions to prevent their metadata document fetching mechanism from being used as an\namplification vector in DOS attacks against third-party endpoints. A malicious actor could attempt to use the authorization\nserver's metadata fetching capabilities to direct high volumes of requests to an arbitrary third-party target.\n\nAuthorization servers SHOULD implement measures from this non exhaustive list:\n- implement standard anonymous and bad reputation IP filtering\n- Implement per-endpoint rate limiting for metadata document fetches\n- Monitor for patterns of repeated requests to the same endpoints\n- Consider maintaining allow-lists and deny-lists of trusted domains for metadata documents\n- Implement circuit breakers to prevent cascading failures\n```\n\n",
       "createdAt": "2025-09-30T16:42:43Z",
-      "updatedAt": "2025-09-30T17:58:00Z",
+      "updatedAt": "2026-11-20T23:37:58Z",
       "closedAt": null,
       "comments": [
         {
@@ -1820,6 +1820,13 @@
           "body": "> This does change the error handling situation here, for instance, a poorly formed Client ID Metadata Document then likely gives the user a dead-end in the authorization flow, especially with PARs.\n\nAgreed but it gates abuse attempts through a valid user authentication. Having a user succeeding in authentication but with invalid CIMD is another type of signal that the user might be compromised.",
           "createdAt": "2025-09-30T17:58:00Z",
           "updatedAt": "2025-09-30T17:58:00Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "So one issue with the \"deferring the fetching of the Client ID Metadata Document until after the user is logged in\" is that it cannot work for PAR requests, since they need the client authentication validated for the PAR request at request time, so the client metadata must be fetched before user authentication.\n\nCould you take a look at the current version of the draft and let me know if you still have concerns?",
+          "createdAt": "2026-11-20T23:37:58Z",
+          "updatedAt": "2026-11-20T23:37:58Z"
         }
       ]
     },
@@ -3859,6 +3866,30 @@
       "updatedAt": "2026-11-08T05:46:36Z",
       "closedAt": null,
       "comments": []
+    },
+    {
+      "number": 133,
+      "id": "I_kwDOL_Xevs8AAAABhK3aqA",
+      "title": "\u00a76.2: apply the minimum effective cache duration regardless of directives, as the maximum is",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/133",
+      "state": "OPEN",
+      "author": "minitru",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "-03 \u00a76.2 says:\n\n> The authorization server SHOULD enforce a maximum effective cache duration regardless of the cache directives in the response. The authorization server SHOULD also enforce a minimum effective cache duration when none is otherwise indicated.\n\nThe two bounds are asymmetric. The maximum applies regardless of what the document says; the minimum applies only when the document says nothing. A document that says `Cache-Control: no-store`, `no-cache` or `max-age=0` is therefore outside the minimum, and the text as written has the AS fetch it on every authorization request. That is the case the side channel in \u00a711.1 (fetch frequency reveals usage) and the reflection concern in #112 care about most, and a client can select it with one header.\n\nWhat we do: clamp the effective duration to [60 s, 3600 s] whatever the headers say; `no-store` and `no-cache` get the floor, a missing directive gets 600 s. #104/#105 added the \"regardless\" language for the maximum; this asks for the same for the minimum, i.e.\n\n> The authorization server SHOULD enforce a minimum effective cache duration regardless of the cache directives in the response, including `no-store` and `no-cache`.\n\nWhether to recommend a value is the open question Emelia raised. Our 60 s is arbitrary; one authorization flow rarely needs two fetches inside a minute, and \u00a76.1 already keeps the cached copy through transient failures. A non-normative \"for example, one minute\" would be enough. (Related: at IETF 127 Breno asked for a MUST against caching forever on the maximum side; same section, opposite bound.)\n",
+      "createdAt": "2026-11-20T22:45:15Z",
+      "updatedAt": "2026-11-20T23:44:57Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "For:\n> Related: at IETF 127 Breno asked for a MUST against caching forever on the maximum side; same section, opposite bound.\nIsn't the existing text already enforcing a maximum that isn't infinity (forever)?\n\nI would be okay with changing the text to have:\n> The authorization server SHOULD enforce a minimum effective cache duration regardless of the cache directives in the response, including no-store and no-cache, the RECOMMENDED minimum effective cache duration is one minute.\n\nAs to add in the recommended minimum.",
+          "createdAt": "2026-11-20T23:44:57Z",
+          "updatedAt": "2026-11-20T23:44:57Z"
+        }
+      ]
     }
   ],
   "pulls": [
@@ -9042,15 +9073,103 @@
       "authorAssociation": "NONE",
       "assignees": [],
       "labels": [],
-      "body": "This PR implements the fetch-gating recommendations from [#112 (comment)](https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/112#issuecomment-6758562046), which @mooreds asked to see as a PR. As noted in [this follow-up](https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/issues/112#issuecomment-6774108273), this is the first PR. The registration-types metadata proposal is left out and may follow as a second PR.\n\nRelated: #112\n\nIt applies two principles:\n\n1. Reject bad requests before fetching anything.\n2. Limit who can trigger a fetch.\n\n### Changes\n\n**Section 3, Client Identifier URL**\n- The query component changes from SHOULD NOT to **MUST NOT**. This matches the existing rule that clients must not build the document from query input (Preventing External Influence of Document Contents).\n- The port component changes from MAY to **MUST NOT**.\n- New **maximum length of 2048 octets**.\n- The AS MUST reject a URL that fails these rules, and MUST NOT fetch it.\n- The AS SHOULD reject Client Identifier URLs that are not normalized (RFC 3986 Sections 6.2.2 and 6.2.3). This stops attackers from generating many equivalent forms of one URL to get around caching and rate limits.\n- The string-comparison example used a port, so it now uses a trailing-slash example.\n\n**Section 6, Client Information Discovery**\n- Pre-fetch validation: syntax checks and local policy, such as a domain allowlist, MUST happen before any network request.\n- If the request carries a client authentication JWT, the AS SHOULD check before fetching that it is well-formed: `typ`, `iss`/`sub` equal to `client_id`, `aud`, and `exp`. The signature is verified once keys are available.\n\n**Security Considerations, new \"Fetching Client ID Metadata Documents\" section**\n- For non-PAR flows, the AS SHOULD defer the fetch until after user authentication.\n- Explains why PAR can't defer: RFC 9126 Section 2.1 requires authenticating the request, and the client's authentication method is in the document.\n- Layered rate limits: strict per-IP limits for unauthenticated triggers such as PAR, more relaxed per-user limits after login, and a separate per-host limit so that many requesters together can't flood one host.\n\n**Document History:** updated under -03.\n\n### For WG discussion\n\n- **Disallowing ports is a proposal.** It may break development setups: the loopback exception in the SSRF section, and CIMD Services or test ASes on non-default ports. If the WG prefers, this could become SHOULD NOT, or MUST NOT with a development carve-out.\n- **The 2048-octet maximum is arbitrary** and needs WG input. It also overlaps with #118 (issue #117), which instead has the AS document the maximum length it accepts. The two approaches could be combined, or the length bullet here dropped in favor of #118.\n- **The query component and port changes are normative tightenings** that could affect existing deployments.\n- **No error is named for rejecting a URL before fetching it.** Section 6.1 only covers failures after a fetch.\n\n",
+      "body": "From issue #112. @mooreds asked for a PR of the fetch-gating ideas. This is that PR.\n\nRelated: #112\n\nAfter review feedback, this PR only covers two things:\n1. What the authorization server must check before it fetches a Client ID Metadata Document.\n2. Who can cause that fetch, and how often.\n\nOther topics moved out:\n- Query string ban: #134\n- Port ban: #135\n- URL length: left to #118 (this PR does not set a max length)\n\n### What changes\n\n**Client Identifier URL (Section 3)**\n- If the URL fails the existing rules, the AS must reject the request and must not fetch.\n- Dot segments (including percent-encoded forms like `%2e%2e`) are not allowed.\n- The AS should reject URLs that are not in normalized form, so one URL cannot slip past checks, caches, or rate limits under another spelling.\n- These rules apply only to the URL a client publishes as its client_id (see RFC 8820 / BCP 190).\n- Port is still allowed (MAY). Query is still only discouraged (SHOULD NOT).\n\n**Client Information Discovery (Section 6)**\n- Check the client_id URL (and local policy such as an allowlist) before any network call.\n- Fetch exactly the URL that passed those checks.\n- If the request has a client authentication JWT, check the easy claims (`typ`, `iss`/`sub`, `aud`, `exp`) before fetching. Check the signature after keys are available.\n\n**Security Considerations (new section)**\n- For flows that are not PAR, the AS should wait until the user has signed in before fetching, where that is feasible.\n- PAR cannot wait: the AS needs the document to know how to authenticate the client.\n- Use layered rate limits: strict per IP when the requester is not logged in, optional per user after login, and a separate cap per target host.\n\nDocument History for -03 is updated for these items only.\n",
       "createdAt": "2026-11-18T03:41:27Z",
-      "updatedAt": "2026-11-18T04:13:08Z",
+      "updatedAt": "2026-11-21T15:41:17Z",
       "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
       "baseRefName": "main",
       "baseRefOid": "50816b9f7c086170828dedcc82b4ad9af6a3029c",
       "headRepository": "gbshankar/draft-ietf-oauth-client-id-metadata-document",
       "headRefName": "cursor/cimd-fetch-gating-5636",
-      "headRefOid": "cc7557eaa8a581eab4e763ec7c0ff363291e1268",
+      "headRefOid": "f1b36ac5fdd2ffdb7a7f77974c9b5bad959760de",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "minitru",
+          "authorAssociation": "NONE",
+          "body": "Implementer data from an AS that has run this for a week with MCP clients and a native app. The PR covers what to\r\ncheck before fetching and who may trigger a fetch. Three things about the fetch itself that neither the PR nor -03\r\n\u00a710.7 says, each of which we needed:\r\n\r\n1. **Fetch the address you checked, not the name.** \u00a710.7 says the AS MUST NOT fetch a URL \"that resolve[s] to\"\r\n   special-use addresses. A check that looks the name up, passes it, and then hands the URL to an HTTP client that\r\n   looks the name up again is two lookups, and an attacker's authoritative DNS can answer public to the first and\r\n   loopback to the second (DNS rebinding). The PR's \"MUST fetch exactly the URL it validated\" could extend to the\r\n   address: connect to an address the check passed, and verify the certificate against the hostname as usual. We do\r\n   this by pinning the resolver the HTTP client uses to the checked address.\r\n\r\n2. **A fetch timeout.** -03 bounds the body (\u00a710.11) but not the time. A document host that accepts the connection\r\n   and never answers holds an AS worker per authorization request for as long as the platform's default allows, and\r\n   every attempt is an anonymous request, which is Pat White's scale point in the list thread. We use 5 s, no socket\r\n   reuse, one request per fetch. A sentence beside \u00a710.11 (\"SHOULD bound the time spent fetching, as well as the\r\n   bytes read\") would cover it.\r\n\r\n3. **These three are library defaults, not deployment architecture.** Address pinning, a time cap and a byte cap are\r\n   things the fetching code can carry; they answer Shankar's third principle (isolate the fetcher from signing keys\r\n   and session secrets) only partly, but they are the part a template or library picks up without the operator\r\n   knowing, which is the long-tail AS Pat is worried about. Worth stating them as SHOULDs rather than leaving them to\r\n   the OWASP reference, which an implementer reading a library README will not open.\r\n\r\nOne caveat about 10.11: we read up to 64 KiB, well above the recommended 5 KB; a document with a `jwks`\r\nmember inline is the case that made us hesitate to go lower. If the WG keeps 5 KB, a note that inline `jwks` counts\r\nagainst it would help implementers choose.\r\n",
+          "createdAt": "2026-11-20T22:46:01Z",
+          "updatedAt": "2026-11-20T22:46:48Z"
+        },
+        {
+          "author": "ThisIsMissEm",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "This PR is currently attempting to address multiple open issues, rather than focusing on a specific change, so it's hard to review and merge cleanly if there's movement first on any of those other issues.\r\n\r\nThe \"New maximum length of 2048 octets.\" isn't something that we can mandate, as far as I know, given the same rationale as in [OAuth 2.1](https://github.com/oauth-wg/oauth-v2-1/issues/254#issuecomment-5518283596)",
+          "createdAt": "2026-11-20T23:41:46Z",
+          "updatedAt": "2026-11-20T23:41:46Z"
+        },
+        {
+          "author": "gbshankar",
+          "authorAssociation": "NONE",
+          "body": "Thanks Emelia \u2014 I agree with your feedback and I've narrowed this PR accordingly.\r\n\r\n#132 is now fetch-gating only: pre-fetch validation, normalization / `%2e%2e`, and who can trigger a fetch (plus the related Document History). The 2048-octet maximum is gone from this PR; length stays with #118 / AS-documented limits, consistent with the OAuth 2.1 rationale you pointed at.\r\n\r\nQuery and port tightenings are moving to their own stacked follow-up PRs so each can be reviewed and merged on its own. I'll link those here once they're open.\r\n\r\nAppreciate you catching the scope and the length issue early.\r\n",
+          "createdAt": "2026-11-21T15:36:15Z",
+          "updatedAt": "2026-11-21T15:37:31Z"
+        },
+        {
+          "author": "gbshankar",
+          "authorAssociation": "NONE",
+          "body": "Thanks Sean MacGuire \u2014 this implementer data is really useful, and I agree all three points (connect to the checked address / pin the resolver, bound fetch time as well as bytes, and state those as SHOULDs that a library can default) belong in the draft.\r\n\r\nI've narrowed #132 so it stays about who can trigger a fetch and what to check before fetching; it doesn't try to absorb the fetch-mechanics work you described. Given it's your data and framing, would you be willing to open a dedicated issue for those three points (and a PR if you'd like)? Happy to help if useful, but I don't want to draft over your report.\r\n\r\nThe 64 KiB / inline `jwks` note on \u00a710.11 is also worth capturing in that issue so the WG can see the tradeoff.\r\n",
+          "createdAt": "2026-11-21T15:36:16Z",
+          "updatedAt": "2026-11-21T15:38:36Z"
+        },
+        {
+          "author": "gbshankar",
+          "authorAssociation": "NONE",
+          "body": "Follow-up PRs now open:\n\n- Query MUST NOT: https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/134\n- Port MUST NOT: https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/135\n",
+          "createdAt": "2026-11-21T15:36:38Z",
+          "updatedAt": "2026-11-21T15:36:38Z"
+        }
+      ],
+      "reviews": []
+    },
+    {
+      "number": 134,
+      "id": "PR_kwDOL_Xevs8AAAABQ5-0eg",
+      "title": "Require Client Identifier URLs MUST NOT contain a query component (#112)",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/134",
+      "state": "OPEN",
+      "author": "gbshankar",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "One change: a Client Identifier URL must not include a query string (today the draft only says it should not).\n\nThis matches the existing rule that the Client ID Metadata Document must not be built from query input.\n\nRelated: #112\n\nSee also #132 (fetch-gating) and #135 (port ban). Each PR stands alone.\n",
+      "createdAt": "2026-11-21T15:36:30Z",
+      "updatedAt": "2026-11-21T15:52:31Z",
+      "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "50816b9f7c086170828dedcc82b4ad9af6a3029c",
+      "headRepository": "gbshankar/draft-ietf-oauth-client-id-metadata-document",
+      "headRefName": "cursor/cimd-query-must-not-12d3",
+      "headRefOid": "76d4d77f6b6cf08f44d8cb7084d78fb092609cb7",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 135,
+      "id": "PR_kwDOL_Xevs8AAAABQ5-2qA",
+      "title": "Disallow port component in Client Identifier URLs (#112)",
+      "url": "https://github.com/oauth-wg/draft-ietf-oauth-client-id-metadata-document/pull/135",
+      "state": "OPEN",
+      "author": "gbshankar",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "One change: a Client Identifier URL must not include a port (today the draft allows a port).\n\nThe string-comparison example no longer uses `:443`; it uses a trailing slash instead.\n\nRelated: #112\n\nSee also #132 (fetch-gating) and #134 (query ban). Each PR stands alone.\n\n### For WG discussion\n\nBanning ports may break local testing (for example `https://localhost:8443/...`) and other non-default ports. The WG may prefer \"should not\", or \"must not\" with a clear exception for development. This PR uses \"must not\" so there is concrete text to discuss.\n",
+      "createdAt": "2026-11-21T15:36:34Z",
+      "updatedAt": "2026-11-21T15:52:33Z",
+      "baseRepository": "oauth-wg/draft-ietf-oauth-client-id-metadata-document",
+      "baseRefName": "main",
+      "baseRefOid": "50816b9f7c086170828dedcc82b4ad9af6a3029c",
+      "headRepository": "gbshankar/draft-ietf-oauth-client-id-metadata-document",
+      "headRefName": "cursor/cimd-port-must-not-12d3",
+      "headRefOid": "83ba6a5406823ea309ff56935eb5d2497c52b347",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
